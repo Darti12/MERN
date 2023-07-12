@@ -1,0 +1,17 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start-frontend": "cd frontend && npm run start",
+    "start-backend": "cd backend && npm run dev",
+    "start": "concurrently \"npm:start-*\"",
+    "setup": "npm i && cd frontend && npm i && cd .. && cd backend && npm i"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
