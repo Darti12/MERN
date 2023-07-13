@@ -1,45 +1,60 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { LoginInput } from "../pages/Login"
-import { RegisterInput } from '../pages/Register';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { LoginInput } from "../pages/Login";
+import { RegisterInput } from "../pages/Register";
+import { setUser } from "../user/userSlice";
+import { User } from "../types/User";
+import { workoutApi } from "./workoutApi";
 
 export const authApi = createApi({
-    reducerPath: 'authApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: "http://localhost:4000/api",
+  reducerPath: "authApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:4000/api/user",
+  }),
+  endpoints: (builder) => ({
+    registerUser: builder.mutation<
+      { user: User; token: string },
+      RegisterInput
+    >({
+      query(data) {
+        return {
+          url: "/signup",
+          method: "POST",
+          body: data,
+        };
+      },
+      transformResponse: (result: { user: User; token: string }) => result,
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          localStorage.setItem("user", JSON.stringify(data));
+          dispatch(setUser(data.user));
+          dispatch(workoutApi.util.invalidateTags(["Workouts"]));
+        } catch (error) {
+          console.log(error);
+        }
+      },
     }),
-    endpoints: (builder) => ({
-        registerUser: builder.mutation<{ email: string; token: string }, RegisterInput>({
-            query(data) {
-                return {
-                    url: '/signup',
-                    method: 'POST',
-                    body: data,
-                };
-            },
-        }),
-        loginUser: builder.mutation<
-            { email: string; token: string },
-            LoginInput
-        >({
-            query(data) {
-                return {
-                    url: '/login',
-                    method: 'POST',
-                    body: data,
-                    credentials: 'include',
-                };
-            },
-            async onQueryStarted(args, { dispatch, queryFulfilled }) {
-                try {
-                    await queryFulfilled;
-                    //await dispatch(userApi.endpoints.getMe.initiate(null));
-                } catch (error) {}
-            },
-        }),
+    loginUser: builder.mutation<{ user: User }, LoginInput>({
+      query(data) {
+        return {
+          url: "/login",
+          method: "POST",
+          body: data,
+        };
+      },
+      transformResponse: (result: { user: User }) => result,
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          localStorage.setItem("user", JSON.stringify(data));
+          dispatch(setUser(data.user));
+          dispatch(workoutApi.util.invalidateTags(["Workouts"]));
+        } catch (error) {
+          console.log(error);
+        }
+      },
     }),
+  }),
 });
 
-export const {
-    useLoginUserMutation,
-    useRegisterUserMutation,
-} = authApi;
+export const { useLoginUserMutation, useRegisterUserMutation } = authApi;
