@@ -6,7 +6,8 @@
     "start-frontend": "cd frontend && npm run start",
     "start-backend": "cd backend && npm run dev",
     "start": "concurrently \"npm:start-*\"",
-    "setup": "npm i && cd frontend && npm i && cd .. && cd backend && npm i"
+    "setup": "npm i && cd frontend && npm i && cd .. && cd backend && npm i",
+    "build-frontend": "cd frontend && npm run build"
   },
   "keywords": [],
   "author": "",
