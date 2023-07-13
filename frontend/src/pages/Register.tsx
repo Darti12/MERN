@@ -1,12 +1,6 @@
 import React, { FormEvent } from "react";
 import { InferType, object, string } from "yup";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, CircularProgress, TextField, Typography } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useRegisterUserMutation } from "../api/authApi";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -29,7 +23,7 @@ const Register = () => {
     resolver: yupResolver(registerSchema),
   });
 
-  const [registerUser, { error, isLoading }] = useRegisterUserMutation();
+  const [registerUser, { isLoading }] = useRegisterUserMutation();
 
   const onSubmit = (e?: FormEvent) => {
     e?.preventDefault();

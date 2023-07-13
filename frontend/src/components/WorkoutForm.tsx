@@ -11,7 +11,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { formatDistanceToNow } from "date-fns";
 
 const WorkoutForm = () => {
   const methods = useForm();
@@ -21,6 +20,7 @@ const WorkoutForm = () => {
     if (isSuccess) {
       methods.reset();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const onSubmit = (e?: FormEvent) => {

@@ -23,7 +23,7 @@ const Login = () => {
     resolver: yupResolver(loginSchema),
   });
 
-  const [loginUser, { error, isLoading }] = useLoginUserMutation();
+  const [loginUser, { isLoading }] = useLoginUserMutation();
 
   const onSubmit = (e?: FormEvent) => {
     e?.preventDefault();
