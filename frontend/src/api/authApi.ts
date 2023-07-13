@@ -5,10 +5,11 @@ import { setUser } from "../user/userSlice";
 import { User } from "../types/User";
 import { workoutApi } from "./workoutApi";
 
+const apiURI = process.env.REACT_APP_API_URL;
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:4000/api/user",
+    baseUrl: `${apiURI}/api/user`,
   }),
   endpoints: (builder) => ({
     registerUser: builder.mutation<

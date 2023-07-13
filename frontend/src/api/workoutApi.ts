@@ -2,11 +2,12 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Workout } from "../types/Workout";
 import { RootState } from "../store";
 
+const apiURI = process.env.REACT_APP_API_URL;
 export const workoutApi = createApi({
   reducerPath: "workoutApi",
   // Setting the baseUrl for every endpoint below
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:4000/api/workouts",
+    baseUrl: `${apiURI}/api/workouts`,
     prepareHeaders: (headers, api) => {
       headers.set(
         "Authorization",

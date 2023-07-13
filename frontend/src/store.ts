@@ -18,6 +18,7 @@ export const store = configureStore({
       workoutApi.middleware,
       authApi.middleware,
     ]),
+  devTools: false,
 });
 
 // optional, but required for refetchOnFocus/refetchOnReconnect behaviors
