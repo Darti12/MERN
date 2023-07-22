@@ -29,7 +29,7 @@ const StyledLink = styled(Link)`
 `;
 
 interface NavbarProps {
-  navBarheaders: string[];
+  navBarHeaders: string[];
   navBarPaths: string[];
 }
 
@@ -55,7 +55,7 @@ const Navbar = (props: NavbarProps) => {
           >
             <img src={"logo.svg"} alt={"Logo"} width={"50px"} height={"auto"} />
           </IconButton>
-          {props.navBarheaders.map((value, index) => {
+          {props.navBarHeaders.map((value, index) => {
             return (
               <Typography
                 variant="h5"

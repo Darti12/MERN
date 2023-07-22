@@ -10,17 +10,18 @@ import RequireUser from "./components/RequireUser";
 import Projects from "./pages/Projects";
 import Workouts from "./pages/Workouts";
 import Home from "./pages/Home";
+import Test from "./pages/Test";
 
 const App = () => {
   const { user } = useGetUser();
 
-  const navBarheaders: string[] = ["Workouts", "Projects"];
-  const navBarPaths: string[] = ["/workouts", "/projects"];
+  const navBarHeaders: string[] = ["Workouts", "Projects", "Test"];
+  const navBarPaths: string[] = ["/workouts", "/projects", "/test"];
 
   return (
     <div>
       <BrowserRouter>
-        <Navbar navBarheaders={navBarheaders} navBarPaths={navBarPaths} />
+        <Navbar navBarHeaders={navBarHeaders} navBarPaths={navBarPaths} />
         <div>
           <Routes>
             <Route path={"/"} element={<RequireUser user={user!!} />}>
@@ -30,6 +31,7 @@ const App = () => {
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Register />} />
+            <Route path="/test" element={<Test />} />
           </Routes>
         </div>
       </BrowserRouter>

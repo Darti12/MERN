@@ -1,9 +1,26 @@
 import React from "react";
+import { Stack } from "@mui/material";
+import ProjectCard from "../components/ProjectCard";
 
-const Projects = () => {
+interface projectsProps {}
+
+export interface ProjectStruct {
+  title: string;
+  shortDescription: string;
+  longDescription: string;
+  _id: string;
+}
+
+const Projects = (props: projectsProps) => {
+  //const { data: projects } = useGetProjectsQuery();
+
   return (
     <div>
-      <>yo</>
+      <Stack spacing={2}>
+        {/*{projects.map((item, index) => {
+          return <ProjectCard project={item} />;
+        })}*/}
+      </Stack>
     </div>
   );
 };
