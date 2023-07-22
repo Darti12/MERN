@@ -4,7 +4,9 @@ import {
   AppBar,
   Box,
   Button,
+  Divider,
   IconButton,
+  SvgIcon,
   Toolbar,
   Typography,
 } from "@mui/material";
@@ -26,7 +28,12 @@ const StyledLink = styled(Link)`
   }
 `;
 
-const Navbar = () => {
+interface NavbarProps {
+  navBarheaders: string[];
+  navBarPaths: string[];
+}
+
+const Navbar = (props: NavbarProps) => {
   const { logoutUser } = useLogout();
   const { user } = useGetUser();
   const handleLogout = () => {
@@ -43,15 +50,33 @@ const Navbar = () => {
             edge="start"
             color="inherit"
             aria-label="menu"
-            sx={{ mr: 2 }}
+            component={Link}
+            to="/"
           >
-            <MenuIcon />
+            <img src={"logo.svg"} alt={"Logo"} width={"50px"} height={"auto"} />
           </IconButton>
-          <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
-            <Link to="/" style={{ textDecoration: "none", color: "black" }}>
-              <b>Workout buddy</b>
-            </Link>
-          </Typography>
+          {props.navBarheaders.map((value, index) => {
+            return (
+              <Typography
+                variant="h5"
+                component="div"
+                sx={{ marginLeft: "1.5em" }}
+              >
+                <Link
+                  to={props.navBarPaths[index]}
+                  style={{ textDecoration: "none", color: "black" }}
+                >
+                  <b>{value}</b>
+                </Link>
+              </Typography>
+            );
+          })}
+          <Divider
+            orientation={"vertical"}
+            variant={"middle"}
+            sx={{ marginRight: "1em", marginLeft: "auto" }}
+            flexItem
+          />
           {user && (
             <Button color="inherit" onClick={handleLogout}>
               Logout

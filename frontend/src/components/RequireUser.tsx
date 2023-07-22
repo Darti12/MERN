@@ -1,41 +1,27 @@
-import React from 'react';
-//import { useCookies } from 'react-cookie';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
-//import { userApi } from '../redux/api/userApi';
-import Loader from '../components/Loader';
+import React from "react";
+import { User } from "../types/User";
+import { Navigate, Outlet } from "react-router-dom";
+import Unauthorized from "../pages/UnAuthorized";
 
 interface RequireUserProps {
-    allowedRoles: string[];
+  user: User;
+  requiredRole?: string;
 }
 
 const RequireUser = (props: RequireUserProps) => {
-    /*const [cookies] = useCookies(['logged_in']);
-    const location = useLocation();
-
-    const { isLoading, isFetching } = userApi.endpoints.getMe.useQuery(null, {
-        skip: false,
-        refetchOnMountOrArgChange: true,
-    });
-
-    const loading = isLoading || isFetching;
-
-   const user = userApi.endpoints.getMe.useQueryState(null, {
-        selectFromResult: ({ data }) => data,
-    });
-
-    if (loading) {
-        return <Loader />;
-    }
-
-    return (cookies.logged_in || user) &&
-    props.allowedRoles.includes(user?.role as string) ? (
-        <Outlet />
-    ) : cookies.logged_in && user ? (
-        <Navigate to='/unauthorized' state={{ from: location }} replace />
-    ) : (
-        <Navigate to='/login' state={{ from: location }} replace />
-    );*/
+  return (
+    <>
+      {props.user ? (
+        <>
+          {!props.requiredRole && <Outlet />}
+          {props.requiredRole &&
+            props.user.roles?.includes(props.requiredRole) && <Outlet />}
+        </>
+      ) : (
+        <Unauthorized />
+      )}
+    </>
+  );
 };
 
 export default RequireUser;
-
