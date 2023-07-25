@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { workoutApi } from "./api/workoutApi";
+import { projectApi } from "./api/projectApi";
 import { authApi } from "./api/authApi";
 import userReducer from "./user/userSlice";
 
@@ -9,6 +10,7 @@ export const store = configureStore({
     // Add the generated reducer as a specific top-level slice
     [workoutApi.reducerPath]: workoutApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
+    [projectApi.reducerPath]: projectApi.reducer,
     userState: userReducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
@@ -16,6 +18,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({}).concat([
       workoutApi.middleware,
+      projectApi.middleware,
       authApi.middleware,
     ]),
   devTools: false,

@@ -1,10 +1,18 @@
-import React, { FormEvent } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { InferType, object, string } from "yup";
-import { Button, CircularProgress, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Button,
+  CircularProgress,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
 import { useLoginUserMutation } from "../api/authApi";
 import AuthContainer from "../components/AuthContainer";
+import { isFetchBaseQueryErrorType } from "../types/Error";
 
 const loginSchema = object({
   email: string()
@@ -19,11 +27,13 @@ const loginSchema = object({
 export type LoginInput = InferType<typeof loginSchema>;
 
 const Login = () => {
+  const [errorMessage, setErrorMessage] = useState("");
+
   const methods = useForm({
     resolver: yupResolver(loginSchema),
   });
 
-  const [loginUser, { isLoading }] = useLoginUserMutation();
+  const [loginUser, { isLoading, error, isSuccess }] = useLoginUserMutation();
 
   const onSubmit = (e?: FormEvent) => {
     e?.preventDefault();
@@ -35,11 +45,33 @@ const Login = () => {
     })(e);
   };
 
+  useEffect(() => {
+    if (isFetchBaseQueryErrorType(error)) {
+      setErrorMessage(error.data.error);
+    } else {
+      setErrorMessage("");
+    }
+  }, [error]);
+
   return (
     <AuthContainer>
       <Typography variant="h5" component="div">
         Login
       </Typography>
+      <Stack spacing={1}>
+        {isSuccess && <Alert severity="success">Successfully logged in!</Alert>}
+        {error && <Alert severity="error">{errorMessage}</Alert>}
+        {methods.formState.errors.email && (
+          <Alert severity="error">
+            {methods.formState.errors.email.message}
+          </Alert>
+        )}
+        {methods.formState.errors.password && (
+          <Alert severity="error">
+            {methods.formState.errors.password.message}
+          </Alert>
+        )}
+      </Stack>
       <form onSubmit={onSubmit}>
         <Controller
           control={methods.control}

@@ -30,9 +30,7 @@ export const authApi = createApi({
           localStorage.setItem("user", JSON.stringify(data));
           dispatch(setUser(data.user));
           dispatch(workoutApi.util.invalidateTags(["Workouts"]));
-        } catch (error) {
-          console.log(error);
-        }
+        } catch (error) {}
       },
     }),
     loginUser: builder.mutation<{ user: User }, LoginInput>({
@@ -50,9 +48,7 @@ export const authApi = createApi({
           localStorage.setItem("user", JSON.stringify(data));
           dispatch(setUser(data.user));
           dispatch(workoutApi.util.invalidateTags(["Workouts"]));
-        } catch (error) {
-          console.log(error);
-        }
+        } catch (error) {}
       },
     }),
   }),

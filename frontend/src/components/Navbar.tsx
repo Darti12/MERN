@@ -38,7 +38,6 @@ const Navbar = (props: NavbarProps) => {
   const { user } = useGetUser();
   const handleLogout = () => {
     logoutUser();
-    console.log("hei", user);
   };
 
   return (
@@ -61,6 +60,7 @@ const Navbar = (props: NavbarProps) => {
                 variant="h5"
                 component="div"
                 sx={{ marginLeft: "1.5em" }}
+                key={index}
               >
                 <Link
                   to={props.navBarPaths[index]}

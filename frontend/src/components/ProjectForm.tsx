@@ -1,8 +1,6 @@
 import React, { FormEvent, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useAddWorkoutMutation } from "../api/workoutApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { Workout } from "../types/Workout";
 import {
   Button,
   Card,
@@ -11,10 +9,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useAddProjectMutation } from "../api/projectApi";
+import { Project } from "../types/Project";
 
-const WorkoutForm = () => {
+const ProjectForm = () => {
   const methods = useForm();
-  const [addWorkout, { error, isSuccess }] = useAddWorkoutMutation();
+  const [addProject, { error, isSuccess }] = useAddProjectMutation();
 
   useEffect(() => {
     if (isSuccess) {
@@ -28,8 +28,8 @@ const WorkoutForm = () => {
     // do your early validation here
 
     methods.handleSubmit(() => {
-      const data: Workout = methods.getValues();
-      addWorkout(data);
+      const data: Project = methods.getValues();
+      addProject(data);
     })(e);
   };
 
@@ -40,7 +40,7 @@ const WorkoutForm = () => {
       <form onSubmit={onSubmit}>
         <CardContent style={{}}>
           <Typography variant="h5" component="div">
-            Add a New Workout
+            Add a New Project
           </Typography>
           <Controller
             control={methods.control}
@@ -61,7 +61,7 @@ const WorkoutForm = () => {
 
           <Controller
             control={methods.control}
-            name="load"
+            name="shortDescription"
             defaultValue={0}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <TextField
@@ -69,16 +69,15 @@ const WorkoutForm = () => {
                 error={!!error}
                 margin={"normal"}
                 value={value}
-                type={"number"}
                 onChange={onChange}
-                label="Load"
+                label="Short description"
               />
             )}
           />
 
           <Controller
             control={methods.control}
-            name="reps"
+            name="longDescription"
             defaultValue={0}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <TextField
@@ -86,9 +85,23 @@ const WorkoutForm = () => {
                 error={!!error}
                 margin={"normal"}
                 value={value}
-                type={"number"}
                 onChange={onChange}
-                label="Repetitions"
+                label="Long description"
+              />
+            )}
+          />
+          <Controller
+            control={methods.control}
+            name="gitHubUrl"
+            defaultValue={0}
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <TextField
+                required
+                error={!!error}
+                margin={"normal"}
+                value={value}
+                onChange={onChange}
+                label="GitHub URL"
               />
             )}
           />
@@ -101,11 +114,11 @@ const WorkoutForm = () => {
         </CardContent>
 
         <CardActions>
-          <Button onClick={onSubmit}>Add Workout</Button>
+          <Button onClick={onSubmit}>Add Project</Button>
         </CardActions>
       </form>
     </Card>
   );
 };
 
-export default WorkoutForm;
+export default ProjectForm;

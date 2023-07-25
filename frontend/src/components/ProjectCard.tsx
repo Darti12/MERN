@@ -5,11 +5,11 @@ import {
   CardContent,
   Typography,
 } from "@mui/material";
-import { ProjectStruct } from "../pages/Projects";
 import React from "react";
+import { Project } from "../types/Project";
 
 interface ProjectCardProps {
-  project: ProjectStruct;
+  project: Project;
 }
 
 const ProjectCard = (props: ProjectCardProps) => {
