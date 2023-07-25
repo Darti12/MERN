@@ -14,6 +14,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useLogout } from "../hooks/useLogout";
 import { useGetUser } from "../hooks/useGetUser";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 const StyledLink = styled(Link)`
   text-decoration: none;
@@ -34,10 +35,12 @@ interface NavbarProps {
 }
 
 const Navbar = (props: NavbarProps) => {
+  const navigate = useNavigate();
   const { logoutUser } = useLogout();
   const { user } = useGetUser();
   const handleLogout = () => {
     logoutUser();
+    navigate("/");
   };
 
   return (
