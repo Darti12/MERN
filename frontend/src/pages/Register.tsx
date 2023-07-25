@@ -113,7 +113,7 @@ const Register = () => {
           )}
         />
         {!isLoading && (
-          <Button variant={"contained"} onClick={onSubmit}>
+          <Button disabled={isSuccess} variant={"contained"} onClick={onSubmit}>
             Register
           </Button>
         )}
