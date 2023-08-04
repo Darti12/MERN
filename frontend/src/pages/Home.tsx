@@ -3,7 +3,8 @@ import React from "react";
 const Home = () => {
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
-      <>homepage</>
+      <>Ingenting her enda</>
+      <br />
     </div>
   );
 };

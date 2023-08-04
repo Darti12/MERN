@@ -11,29 +11,102 @@ import Projects from "./pages/Projects";
 import Workouts from "./pages/Workouts";
 import Home from "./pages/Home";
 import Test from "./pages/Test";
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import { amber, green, indigo, lime } from "@mui/material/colors";
+import { isBrowser } from "react-device-detect";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import CV from "./pages/CV";
+import Footer from "./components/Footer";
+
+const lightTheme = createTheme({
+  palette: {
+    primary: amber,
+    secondary: indigo,
+    text: {
+      primary: "#1E2124",
+    },
+    background: {
+      default: "#ffffff",
+    },
+  },
+});
+
+const darkTheme = createTheme({
+  palette: {
+    primary: amber,
+    secondary: indigo,
+    text: {
+      primary: "#ffffff",
+    },
+    background: {
+      default: "#1E2124",
+    },
+    mode: "dark",
+  },
+});
+
+export interface NavigationData {
+  path: string;
+  name: string;
+}
 
 const App = () => {
   const { user } = useGetUser();
+  const [light, setLight] = React.useState(true);
 
-  const navBarHeaders: string[] = ["Workouts", "Projects", "Test"];
-  const navBarPaths: string[] = ["/workouts", "/projects", "/test"];
+  const navBarData: NavigationData[] = [
+    { name: "About", path: "/about" },
+    { name: "Projects", path: "/projects" },
+    { name: "Contact", path: "/contact" },
+    { name: "CV", path: "/cv" },
+  ];
+
+  const toggleDarkMode = () => {
+    setLight(!light);
+  };
 
   return (
     <div>
       <BrowserRouter>
-        <Navbar navBarHeaders={navBarHeaders} navBarPaths={navBarPaths} />
-        <div>
-          <Routes>
-            <Route path={"/"} element={<RequireUser user={user!!} />}>
+        <ThemeProvider theme={light ? lightTheme : darkTheme}>
+          <CssBaseline />
+          <Navbar
+            navBarData={navBarData}
+            darkEnabled={!light}
+            setDarkMode={toggleDarkMode}
+          />
+          <div
+            style={{
+              width: isBrowser ? "70%" : "90%",
+              margin: "auto",
+              marginTop: "3em",
+              minHeight: "30em",
+            }}
+          >
+            <Routes>
+              {/*//official pages*/}
               <Route index element={<Home />} />
-              <Route path={"workouts"} element={<Workouts />} />
+              <Route path={"about"} element={<About />} />
               <Route path={"projects"} element={<Projects />} />
-            </Route>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Register />} />
-            <Route path="/test" element={<Test />} />
-          </Routes>
-        </div>
+              <Route path={"contact"} element={<Contact />} />
+              <Route path={"cv"} element={<CV />} />
+
+              {/*//admin pages*/}
+              <Route path={"/admin"} element={<RequireUser user={user!!} />}>
+                <Route index element={<Home />} />
+                <Route path={"workouts"} element={<Workouts />} />
+                <Route path={"projects"} element={<Projects />} />
+              </Route>
+
+              {/*//unnecessary pages, just for testing*/}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Register />} />
+              <Route path="/test" element={<Test />} />
+            </Routes>
+          </div>
+          <Footer darkEnabled={!light} />
+        </ThemeProvider>
       </BrowserRouter>
     </div>
   );

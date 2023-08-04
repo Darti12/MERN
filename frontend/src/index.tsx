@@ -6,6 +6,9 @@ import { store } from "./store";
 import { Provider } from "react-redux";
 import { disableReactDevTools } from "@fvilers/disable-react-devtools";
 
+// import i18n (needs to be bundled ;))
+import "./i18n";
+
 if (process.env.REACT_APP_NODE_ENV === "production") {
   disableReactDevTools();
 }

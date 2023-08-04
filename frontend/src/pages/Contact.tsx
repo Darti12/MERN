@@ -1,7 +1,7 @@
 import React from "react";
 import PageHeader from "../components/PageHeader";
 
-const Projects = () => {
+const Contact = () => {
   return (
     <>
       <PageHeader />
@@ -9,4 +9,4 @@ const Projects = () => {
   );
 };
 
-export default Projects;
+export default Contact;

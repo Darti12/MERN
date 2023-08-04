@@ -1,102 +1,201 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   AppBar,
   Box,
-  Button,
-  Divider,
   IconButton,
-  SvgIcon,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
   Toolbar,
   Typography,
+  useTheme,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import { useLogout } from "../hooks/useLogout";
+import { useTranslation } from "react-i18next";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import MenuIcon from "@mui/icons-material/Menu";
+import LanguageIcon from "@mui/icons-material/Language";
 import { useGetUser } from "../hooks/useGetUser";
-import styled from "styled-components";
+import {
+  BrowserView,
+  MobileView,
+  isBrowser,
+  isMobile,
+} from "react-device-detect";
 import { useNavigate } from "react-router-dom";
-
-const StyledLink = styled(Link)`
-  text-decoration: none;
-  color: white;
-
-  &:focus,
-  &:hover,
-  &:visited,
-  &:link,
-  &:active {
-    text-decoration: none;
-  }
-`;
+import { NavigationData } from "../App";
 
 interface NavbarProps {
-  navBarHeaders: string[];
-  navBarPaths: string[];
+  navBarData: NavigationData[];
+  darkEnabled: boolean;
+  setDarkMode: () => void;
 }
 
 const Navbar = (props: NavbarProps) => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const { logoutUser } = useLogout();
+
   const { user } = useGetUser();
   const handleLogout = () => {
     logoutUser();
     navigate("/");
   };
 
+  const toggleLanguage = () => {
+    if (i18n.language == "nb") {
+      i18n.changeLanguage("en-US");
+    } else {
+      i18n.changeLanguage("nb");
+    }
+  };
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openNavMenu = Boolean(anchorEl);
+  const handleToggleMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!openNavMenu) {
+      setAnchorEl(event.currentTarget);
+    } else {
+      handleClose();
+    }
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const handleNavigate = (url: string) => {
+    handleClose();
+    navigate(`${url}`);
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar
+        position="fixed"
+        sx={{
+          background: props.darkEnabled
+            ? "#272A2F"
+            : theme.palette.background.default,
+          height: "4em",
+        }}
+        elevation={0}
+      >
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            component={Link}
-            to="/"
+          <Typography variant="h4" component="div" key={"home"}>
+            <Link
+              to={"/"}
+              style={{
+                textDecoration: "none",
+                color: theme.palette.primary.main,
+              }}
+            >
+              Homepage
+            </Link>
+          </Typography>
+          <BrowserView>
+            <div
+              style={{
+                justifyContent: "center",
+                display: "inline-flex",
+                width: "100%",
+              }}
+            >
+              {props.navBarData
+                .map((item) => item.path)
+                .map((value, index) => {
+                  return (
+                    <Link
+                      to={props.navBarData[index].path}
+                      style={{
+                        textDecoration: "none",
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{
+                          marginLeft: "1.5em",
+                          "&:hover": { color: theme.palette.primary.main },
+                        }}
+                        key={index}
+                      >
+                        <b>
+                          {t(
+                            `${props.navBarData[index].path.substring(
+                              1,
+                            )}.header`,
+                          )}
+                        </b>
+                      </Typography>
+                    </Link>
+                  );
+                })}
+            </div>
+          </BrowserView>
+          <div
+            style={{
+              marginLeft: "auto",
+              display: "flex",
+            }}
           >
-            <img src={"logo.svg"} alt={"Logo"} width={"50px"} height={"auto"} />
-          </IconButton>
-          {props.navBarHeaders.map((value, index) => {
-            return (
-              <Typography
-                variant="h5"
-                component="div"
-                sx={{ marginLeft: "1.5em" }}
-                key={index}
-              >
-                <Link
-                  to={props.navBarPaths[index]}
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <b>{value}</b>
-                </Link>
-              </Typography>
-            );
-          })}
-          <Divider
-            orientation={"vertical"}
-            variant={"middle"}
-            sx={{ marginRight: "1em", marginLeft: "auto" }}
-            flexItem
-          />
-          {user && (
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
-          )}
-          {!user && (
-            <>
-              <Button color="inherit">
-                <StyledLink to="/login">Login</StyledLink>{" "}
-              </Button>
-              <Button color="inherit">
-                <StyledLink to="/signup">Signup</StyledLink>
-              </Button>
-            </>
-          )}
+            <IconButton onClick={() => props.setDarkMode()}>
+              {props.darkEnabled && (
+                <LightModeIcon style={{ color: theme.palette.text.primary }} />
+              )}
+              {!props.darkEnabled && (
+                <DarkModeIcon style={{ color: theme.palette.text.primary }} />
+              )}
+            </IconButton>
+            <IconButton>
+              <LanguageIcon
+                onClick={toggleLanguage}
+                style={{ color: theme.palette.text.primary }}
+              />
+            </IconButton>
+            <MobileView>
+              <IconButton onClick={handleToggleMenu}>
+                <MenuIcon />
+              </IconButton>
+            </MobileView>
+          </div>
         </Toolbar>
       </AppBar>
+      <Toolbar sx={{ height: "4em" }} />
+      {openNavMenu && (
+        <Box
+          sx={{
+            width: "100%",
+            bgcolor: "background.paper",
+            position: "fixed",
+          }}
+        >
+          <List>
+            {props.navBarData
+              .map((item) => item.path)
+              .map((value, index) => {
+                return (
+                  <ListItem disablePadding divider>
+                    <ListItemButton
+                      onClick={() =>
+                        handleNavigate(props.navBarData[index].path)
+                      }
+                    >
+                      <ListItemText
+                        primary={t(
+                          `${props.navBarData[index].path.substring(1)}.header`,
+                        )}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+          </List>
+        </Box>
+      )}
     </Box>
   );
 };
