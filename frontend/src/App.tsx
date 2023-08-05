@@ -24,10 +24,10 @@ const lightTheme = createTheme({
     primary: amber,
     secondary: indigo,
     text: {
-      primary: "#1E2124",
+      primary: "#025A4E",
     },
     background: {
-      default: "#ffffff",
+      default: "#EDE7DE",
     },
   },
 });
@@ -37,10 +37,10 @@ const darkTheme = createTheme({
     primary: amber,
     secondary: indigo,
     text: {
-      primary: "#ffffff",
+      primary: "#8FDCC2",
     },
     background: {
-      default: "#1E2124",
+      default: "#233831",
     },
     mode: "dark",
   },
@@ -78,7 +78,7 @@ const App = () => {
           />
           <div
             style={{
-              width: isBrowser ? "70%" : "90%",
+              width: isBrowser ? "75%" : "90%",
               margin: "auto",
               marginTop: "3em",
               minHeight: "30em",

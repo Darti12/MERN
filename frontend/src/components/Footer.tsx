@@ -20,6 +20,7 @@ const Footer = (props: FooterProps) => {
         bottom: 0,
         width: "100%",
         height: "20vh",
+        marginTop: "3em",
       }}
     >
       <Divider sx={{ width: "80vw", color: "black" }} />

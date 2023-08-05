@@ -1,18 +1,26 @@
 {
   "about": {
-    "header": "Om"
+    "header": "Om",
+    "title": "Filip her",
+    "header1": "Jeg er en Mixed reality og Web-utvikler som jobber fra Oslo.",
+    "text1": "Jeg har de siste 5 årene jobbet med Mixed reality, back-end, front-end, UI/UX design, og iPhone app-utvikling.",
+    "text2": "Akkurat nå jobber jeg for Sopra Steria, der jeg gjør meningsfulle oppgaver for politiet."
   },
   "projects": {
     "header": "Prosjekter"
   },
   "contact": {
-    "header": "Kontakt"
+    "header": "Kontakt",
+    "title": "Kontakt meg"
   },
   "cv": {
     "header": "CV"
   },
   "footer": {
-  "header": "Homepage",
-  "info": "© 2022-2023 Filip Hagen. All Rights Reserved."
+    "header": "Homepage",
+    "info": "© 2023 Filip Hagen. All Rights Reserved."
+  },
+  "home": {
+    "header": "Hei \uD83D\uDC4B Filip her. En Utvikler"
   }
 }

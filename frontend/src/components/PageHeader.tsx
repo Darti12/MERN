@@ -10,14 +10,16 @@ const PageHeader = () => {
   const path = location.pathname.substring(1);
 
   return (
-    <Typography
-      sx={{ color: theme.palette.primary.main }}
-      variant="h4"
-      component="div"
-      key={"home"}
-    >
-      {t(`${path}.header`)}
-    </Typography>
+    <div style={{ display: "flex", flexWrap: "wrap" }}>
+      <Typography
+        variant={"h1"}
+        fontStyle={"bold"}
+        fontFamily={""}
+        sx={{ marginLeft: "auto", marginRight: "auto", marginBottom: "100px" }}
+      >
+        {t(`${path}.title`)}
+      </Typography>
+    </div>
   );
 };
 

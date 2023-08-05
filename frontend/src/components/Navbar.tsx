@@ -84,22 +84,11 @@ const Navbar = (props: NavbarProps) => {
         elevation={0}
       >
         <Toolbar>
-          <Typography variant="h4" component="div" key={"home"}>
-            <Link
-              to={"/"}
-              style={{
-                textDecoration: "none",
-                color: theme.palette.primary.main,
-              }}
-            >
-              Homepage
-            </Link>
-          </Typography>
-          <BrowserView>
+          <BrowserView style={{ width: "100%" }}>
             <div
               style={{
                 justifyContent: "center",
-                display: "inline-flex",
+                display: "flex",
                 width: "100%",
               }}
             >
@@ -168,8 +157,11 @@ const Navbar = (props: NavbarProps) => {
       {openNavMenu && (
         <Box
           sx={{
+            zIndex: "100",
             width: "100%",
-            bgcolor: "background.paper",
+            background: props.darkEnabled
+              ? "#272A2F"
+              : theme.palette.background.default,
             position: "fixed",
           }}
         >
