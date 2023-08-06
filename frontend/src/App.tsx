@@ -97,7 +97,7 @@ const App = () => {
           >
             <Routes>
               {/*//official pages*/}
-              <Route index element={<Home />} />
+              <Route index element={<About />} />
               <Route path={"about"} element={<About />} />
               <Route path={"projects"} element={<Projects />} />
               <Route path={"contact"} element={<Contact />} />
