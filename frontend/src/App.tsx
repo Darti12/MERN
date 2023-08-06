@@ -11,7 +11,12 @@ import Projects from "./pages/Projects";
 import Workouts from "./pages/Workouts";
 import Home from "./pages/Home";
 import Test from "./pages/Test";
-import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import {
+  createTheme,
+  CssBaseline,
+  responsiveFontSizes,
+  ThemeProvider,
+} from "@mui/material";
 import { amber, green, indigo, lime } from "@mui/material/colors";
 import { isBrowser } from "react-device-detect";
 import About from "./pages/About";
@@ -69,7 +74,13 @@ const App = () => {
   return (
     <div>
       <BrowserRouter>
-        <ThemeProvider theme={light ? lightTheme : darkTheme}>
+        <ThemeProvider
+          theme={
+            light
+              ? responsiveFontSizes(lightTheme)
+              : responsiveFontSizes(darkTheme)
+          }
+        >
           <CssBaseline />
           <Navbar
             navBarData={navBarData}

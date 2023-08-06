@@ -7,17 +7,37 @@
     "text2": "Akkurat nå jobber jeg for Sopra Steria, der jeg gjør meningsfulle oppgaver for politiet."
   },
   "projects": {
-    "header": "Prosjekter"
+    "header": "Prosjekter",
+    "title": "Mine prosjekter",
+    "sections": {
+      "0": {
+        "title": "haha",
+        "shortDescription": "ahauha",
+        "imageURL": "awd",
+        "longDescription": "adad",
+        "gitHubUrl": "ahwhwahwa",
+        "createdAt": "2023.06.06"
+      },
+      "1": {
+        "title": "haha",
+        "shortDescription": "ahauha",
+        "imageURL": "awdaw",
+        "longDescription": "adad",
+        "gitHubUrl": "ahwhwahwa",
+        "createdAt": "2023.06.06"
+      }
+    }
   },
   "contact": {
     "header": "Kontakt",
     "title": "Kontakt meg"
   },
   "cv": {
-    "header": "CV"
+    "header": "CV",
+    "title": "Jobber med det!"
   },
   "footer": {
-    "header": "Homepage",
+    "header": "My Homepage",
     "info": "© 2023 Filip Hagen. All Rights Reserved."
   },
   "home": {

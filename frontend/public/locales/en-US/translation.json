@@ -7,17 +7,45 @@
     "text2": "Right now, I work for Sopra Steria, where I do meaningful work for the Norwegian Police."
   },
   "projects": {
-    "header": "Projects"
+    "header": "Projects",
+    "title": "My projects",
+    "sections": {
+      "0": {
+        "title": "illumie - AR navigation for the visually impaired",
+        "shortDescription": "ahauha",
+        "imageURL": "adad",
+        "longDescription": "",
+        "gitHubUrl": "ahwhwahwa",
+        "createdAt": "2021.09.01"
+      },
+      "1": {
+        "title": "DIY FPV-drone",
+        "shortDescription": "ahauha",
+        "imageURL": "awdaw",
+        "longDescription": "adad",
+        "gitHubUrl": "ahwhwahwa",
+        "createdAt": "2020.06.20"
+      },
+      "2": {
+        "title": "MERN web-page",
+        "shortDescription": "ahauha",
+        "imageURL": "awdaw",
+        "longDescription": "adad",
+        "gitHubUrl": "ahwhwahwa",
+        "createdAt": "2023.08.06"
+      }
+    }
   },
   "contact": {
     "header": "Contact",
     "title": "Contact me"
   },
   "cv": {
-    "header": "CV"
+    "header": "CV",
+    "title": "Under construction!"
   },
   "footer": {
-    "header": "Homepage",
+    "header": "My Homepage",
     "info": "© 2023 Filip Hagen. All Rights Reserved."
   },
   "home": {
