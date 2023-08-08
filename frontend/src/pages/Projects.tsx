@@ -9,7 +9,7 @@ const Projects = () => {
 
   //should do this with the express server...
   // but the server needs time to spin up from cold-boot, so this will make it quicker for the user.
-  const projectAmount = [0, 1, 2, 3];
+  const projectAmount = [2, 0, 3, 1];
 
   return (
     <>
@@ -22,7 +22,7 @@ const Projects = () => {
         }}
       >
         {projectAmount.map((item, index) => {
-          return <ProjectCard project={index} key={index} />;
+          return <ProjectCard project={item} key={index} />;
         })}
       </div>
     </>

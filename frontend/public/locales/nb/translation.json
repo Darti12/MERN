@@ -13,7 +13,7 @@
       "0": {
         "title": "illumie - AR navigasjon for svaksynte",
         "shortDescription": "Dette var ikke et prosjekt jeg gjorde for meg selv, men et prosjekt var heldig nok til å bli med på igjennom Sopra Steria. Prosjektet handlet om å utforske og utvikle en løsning for å hjelpe svaksynte navigere i ukjente omgivelser. Dette gjorde vi ved hjelp av AR sensoren på den da nye iPhonen. Konseptet var at iPhonen skulle lage en punktsky av omgivelsene og danne seg et bilde av hvor ting var, deretter skulle den si ifra til brukeren ved hjelp av stereo lyd når det var noe hindringer i veien for brukeren (gjerne før personen krasjet inn i noe :P)",
-        "imageURL": "/assets/Illumie.png",
+        "imageURL": "/assets/Illumie.PNG",
         "longDescription": "",
         "gitHubUrl": "",
         "createdAt": "2022.07.01"
