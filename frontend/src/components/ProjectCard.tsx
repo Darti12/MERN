@@ -16,12 +16,15 @@ import React from "react";
 import { Project } from "../types/Project";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { formatDistanceToNow } from "date-fns";
+import GitHubIcon from "@mui/icons-material/GitHub";
 import {
   BrowserView,
   MobileView,
   isBrowser,
   isMobile,
 } from "react-device-detect";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
@@ -39,50 +42,69 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 }));
 
 interface ProjectCardProps {
-  project: Project;
+  project: number;
 }
 
 const ProjectCard = (props: ProjectCardProps) => {
   const [expanded, setExpanded] = React.useState(false);
+  const { t } = useTranslation();
+  const openInNewTab = (url: string) => {
+    window.open(url, "_blank", "noreferrer");
+  };
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
   return (
-    <Card sx={{ minWidth: isMobile ? "90vw" : "60vw" }}>
+    <Card sx={{ width: isMobile ? "90vw" : "50vw" }}>
       <CardHeader
-        title={props.project.title}
-        subheader={formatDistanceToNow(new Date(props.project.createdAt!!), {
-          addSuffix: true,
-        })}
+        title={t(`projects.sections.${props.project}.title`)}
+        subheader={formatDistanceToNow(
+          new Date(t(`projects.sections.${props.project}.createdAt`)!!),
+          {
+            addSuffix: true,
+          },
+        )}
       />
       <CardMedia
         component="img"
         height="200"
-        image={props.project.imageURL}
-        alt={props.project.title + " image"}
+        image={t(`projects.sections.${props.project}.imageURL`)}
+        alt={t(`projects.sections.${props.project}.title`) + " image"}
       />
       <CardContent>
-        <Typography variant="body2">
-          {props.project.shortDescription}
+        <Typography paragraph>
+          {t(`projects.sections.${props.project}.shortDescription`)}
         </Typography>
       </CardContent>
-      {props.project.longDescription && (
-        <CardActions disableSpacing>
+
+      <CardActions disableSpacing>
+        {t(`projects.sections.${props.project}.gitHubUrl`) && (
+          <IconButton
+            onClick={() =>
+              openInNewTab(t(`projects.sections.${props.project}.gitHubUrl`)!!)
+            }
+          >
+            <GitHubIcon fontSize={"large"} />
+          </IconButton>
+        )}
+        {t(`projects.sections.${props.project}.longDescription`) && (
           <ExpandMore
             expand={expanded}
             onClick={handleExpandClick}
             aria-expanded={expanded}
             aria-label="show more"
           >
-            <ExpandMoreIcon />
+            <ExpandMoreIcon fontSize={"large"} />
           </ExpandMore>
-        </CardActions>
-      )}
+        )}
+      </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>More info:</Typography>
-          <Typography paragraph>{props.project.longDescription}</Typography>
+          <Typography paragraph>
+            {t(`projects.sections.${props.project}.longDescription`)}
+          </Typography>
         </CardContent>
       </Collapse>
     </Card>

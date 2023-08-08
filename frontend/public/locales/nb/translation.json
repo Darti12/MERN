@@ -11,20 +11,36 @@
     "title": "Mine prosjekter",
     "sections": {
       "0": {
-        "title": "haha",
-        "shortDescription": "ahauha",
-        "imageURL": "awd",
-        "longDescription": "adad",
-        "gitHubUrl": "ahwhwahwa",
-        "createdAt": "2023.06.06"
+        "title": "illumie - AR navigasjon for svaksynte",
+        "shortDescription": "Dette var ikke et prosjekt jeg gjorde for meg selv, men et prosjekt var heldig nok til å bli med på igjennom Sopra Steria. Prosjektet handlet om å utforske og utvikle en løsning for å hjelpe svaksynte navigere i ukjente omgivelser. Dette gjorde vi ved hjelp av AR sensoren på den da nye iPhonen. Konseptet var at iPhonen skulle lage en punktsky av omgivelsene og danne seg et bilde av hvor ting var, deretter skulle den si ifra til brukeren ved hjelp av stereo lyd når det var noe hindringer i veien for brukeren (gjerne før personen krasjet inn i noe :P)",
+        "imageURL": "/assets/Illumie.png",
+        "longDescription": "",
+        "gitHubUrl": "",
+        "createdAt": "2022.07.01"
       },
       "1": {
-        "title": "haha",
-        "shortDescription": "ahauha",
-        "imageURL": "awdaw",
-        "longDescription": "adad",
-        "gitHubUrl": "ahwhwahwa",
-        "createdAt": "2023.06.06"
+        "title": "DIY FPV-drone",
+        "shortDescription": "Som et sommer-prosjekt så bestemte jeg meg for at jeg ville lage en drone fra (nesten) scratch. Jeg kjøpte enkelt-deler for seg selv online, og 3d-printet selve 'skjelettet' til dronen ved å bruke en Prusa i3 printer. Når jeg valgte ut komponenter for dronen måtte jeg beregne vekten, batteri-volten, motor-kraften, og propell-størrelsene til dronen. Noen estimeringer på dronens størrelse måtte jeg også gjøre. Dette var ikke så rett frem som det kan virke, ettersom endringen av en komponent har bivirkninger på andre komponentene. Siden https://www.ecalc.ch/ hjalp litt i dette arbeidet.",
+        "imageURL": "/assets/Drone.jpeg",
+        "longDescription": "",
+        "gitHubUrl": "",
+        "createdAt": "2018.08.04"
+      },
+      "2": {
+        "title": "MERN webside",
+        "shortDescription": "Siden du er på nå er laget ved hjelp av MERN stakken (MongoDB, Express, React, Node). Grunnen til at jeg utviklet denne siden var mest for å vise meg selv at jeg klarer å gjøre det på egenhånd fra bunnen av, med moderne verktøy og JWT sikkerhet for innloggede brukere. Samtidig var det å lage en egen side en god måte å vise andre hva jeg klarer.",
+        "imageURL": "/assets/Code.png",
+        "longDescription": "",
+        "gitHubUrl": "https://github.com/Darti12/MERN",
+        "createdAt": "2023.08.08"
+      },
+      "3": {
+        "title": "Masteroppgave - Arkeologisk utgravning i VR",
+        "shortDescription": "For master oppgaven min så ønsket jeg å lage noe nyttig med VR teknologi. Konseptet jeg landet på ble å utforske muligheten for å bruke VR som et pedagogisk verktøy for studenter, mer spesifikt for arkeologi studenter. Dette var en interessant og nyttig kombinasjon for arkeologi studie ettersom de vanligvis har problemer med å gi studentene sine praktisk erfaring med utgravninger, enten pga været eller mangel på relevante utgravningsfelter.",
+        "imageURL": "/assets/Excavation.jpg",
+        "longDescription": "",
+        "gitHubUrl": "https://github.com/Darti12/Archaeology-Simulator-VR",
+        "createdAt": "2021.07.01"
       }
     }
   },

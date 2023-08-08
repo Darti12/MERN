@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 //pages and components
 import Navbar from "./components/Navbar";
@@ -17,7 +17,7 @@ import {
   responsiveFontSizes,
   ThemeProvider,
 } from "@mui/material";
-import { amber, green, indigo, lime } from "@mui/material/colors";
+import { amber, indigo } from "@mui/material/colors";
 import { isBrowser } from "react-device-detect";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -97,7 +97,7 @@ const App = () => {
           >
             <Routes>
               {/*//official pages*/}
-              <Route index element={<About />} />
+              <Route index element={<Navigate to={"/about"} />} />
               <Route path={"about"} element={<About />} />
               <Route path={"projects"} element={<Projects />} />
               <Route path={"contact"} element={<Contact />} />
