@@ -24,7 +24,7 @@ const About = () => {
       >
         <Avatar
           alt={"Filip Hagen "}
-          src={"/assets/HoloFilip.jpg"}
+          src={"/assets/profile.jpg"}
           sx={{
             width: isMobile ? "80vw" : "13em",
             height: isMobile ? "80vw" : "13em",
