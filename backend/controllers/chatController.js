@@ -137,36 +137,36 @@ const updateChat = async (req, res) => {
   res.status(200).json(chat);
 };
 
-async function sendMessageToClaude(messages) {
+async function sendMessageToClaude(messages, maxRetries = 5) {
   const cleanedList = cleanObjects(messages, ["role", "content"]);
-
   const apiURL = 'https://api.anthropic.com/v1/messages';
-  const apiKey = process.env.ANTHROPIC_API_KEY; // Ensure the API key is set in your environment variables
+  const apiKey = process.env.ANTHROPIC_API_KEY;
 
-  try {
-    const response = await axios.post(apiURL, {
-      model: "claude-3-opus-20240229",
-      max_tokens: 1024,
-      messages: cleanedList
-    }, {
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      }
-    });
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await axios.post(apiURL, {
+        model: "claude-3-opus-20240229",
+        max_tokens: 1024,
+        messages: cleanedList
+      }, {
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        }
+      });
 
-    // Assuming the response structure matches your expectations
-    const msg = response.data;
+      const msg = response.data;
 
-    return {
-      role: msg.role,
-      time: new Date().toString(),
-      content: msg.content
-    };
-  } catch (error) {
-    console.error('Error sending message to Claude:', error);
-    throw error;
+      return {
+        role: msg.role,
+        time: new Date().toString(),
+        content: msg.content
+      };
+    } catch (error) {
+      console.error(`Attempt ${attempt + 1} failed:`);
+      if (attempt === maxRetries - 1) throw error;
+    }
   }
 }
 
