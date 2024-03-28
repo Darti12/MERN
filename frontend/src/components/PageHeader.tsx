@@ -12,7 +12,7 @@ const PageHeader = () => {
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
       <Typography
-        variant={"h1"}
+        variant={"h2"}
         fontStyle={"bold"}
         fontFamily={""}
         sx={{ marginLeft: "auto", marginRight: "auto", marginBottom: "100px" }}

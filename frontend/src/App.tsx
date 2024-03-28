@@ -23,6 +23,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import CV from "./pages/CV";
 import Footer from "./components/Footer";
+import Chat from "./pages/Chat";
 
 const lightTheme = createTheme({
   palette: {
@@ -65,6 +66,7 @@ const App = () => {
     { name: "Projects", path: "/projects" },
     { name: "Contact", path: "/contact" },
     { name: "CV", path: "/cv" },
+    { name: "Chat", path: "/chat"}
   ];
 
   const toggleDarkMode = () => {
@@ -102,6 +104,12 @@ const App = () => {
               <Route path={"projects"} element={<Projects />} />
               <Route path={"contact"} element={<Contact />} />
               <Route path={"cv"} element={<CV />} />
+
+
+              <Route element={<RequireUser user={user!!} />}>
+                <Route path={"chat"} element={<Chat />} />
+                <Route path={"chat/:id"} element={<Chat />} />
+              </Route>
 
               {/*//admin pages*/}
               <Route path={"/admin"} element={<RequireUser user={user!!} />}>

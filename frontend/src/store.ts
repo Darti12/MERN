@@ -4,6 +4,7 @@ import { workoutApi } from "./api/workoutApi";
 import { projectApi } from "./api/projectApi";
 import { authApi } from "./api/authApi";
 import userReducer from "./user/userSlice";
+import {chatApi} from "./api/chatApi";
 
 export const store = configureStore({
   reducer: {
@@ -11,17 +12,19 @@ export const store = configureStore({
     [workoutApi.reducerPath]: workoutApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
+    [chatApi.reducerPath]: chatApi.reducer,
     userState: userReducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({}).concat([
-      workoutApi.middleware,
-      projectApi.middleware,
-      authApi.middleware,
+        workoutApi.middleware,
+        projectApi.middleware,
+        authApi.middleware,
+        chatApi.middleware
     ]),
-  devTools: false,
+  devTools: true,
 });
 
 // optional, but required for refetchOnFocus/refetchOnReconnect behaviors

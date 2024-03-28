@@ -6,7 +6,7 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  user: JSON.parse(localStorage.getItem("user")!!),
+  user: JSON.parse(localStorage.getItem("user")!!)?.user,
 };
 
 export const userSlice = createSlice({
