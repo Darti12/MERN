@@ -1,6 +1,7 @@
 const Chat = require("../models/ChatModel");
 const mongoose = require("mongoose");
 const Anthropic = require('@anthropic-ai/sdk');
+const axios = require("axios")
 
 const anthropic = new Anthropic();
 
@@ -142,17 +143,34 @@ const updateChat = async (req, res) => {
 async function sendMessageToClaude(messages) {
   const cleanedList = cleanObjects(messages, ["role", "content"]);
 
-  const msg = await anthropic.messages.create({
-    model: "claude-3-opus-20240229",
-    max_tokens: 1024,
-    messages: cleanedList,
-  });
+  const apiURL = 'https://api.anthropic.com/v1/messages';
+  const apiKey = process.env.ANTHROPIC_API_KEY; // Ensure the API key is set in your environment variables
 
-  return {
-    role: msg.role,
-    time: new Date().toString(),
-    content: msg.content
-  };
+  try {
+    const response = await axios.post(apiURL, {
+      model: "claude-3-opus-20240229",
+      max_tokens: 1024,
+      messages: cleanedList
+    }, {
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
+      }
+    });
+
+    // Assuming the response structure matches your expectations
+    const msg = response.data;
+
+    return {
+      role: msg.role,
+      time: new Date().toString(),
+      content: msg.content
+    };
+  } catch (error) {
+    console.error('Error sending message to Claude:', error);
+    throw error;
+  }
 }
 
 function cleanObjects(objects, variablesToKeep) {

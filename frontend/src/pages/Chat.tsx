@@ -1,6 +1,6 @@
 import React, {FormEvent, useEffect, useState} from "react";
 import {useGetChatQuery, useLazyGetChatQuery, useUpdateChatMutation} from "../api/chatApi";
-import {IconButton, InputBase, Paper, Stack } from "@mui/material";
+import {IconButton, InputBase, Paper, Stack, Typography} from "@mui/material";
 import ChatBubble from "../components/ChatBubble";
 import {Controller, FieldValues, useForm} from "react-hook-form";
 import SendIcon from '@mui/icons-material/Send';
@@ -73,51 +73,66 @@ const Chat = () => {
 
 
     return (
-    <div style={{
+        <div style={{
             display: "grid",
             justifyContent: "center",
             gap: "2em",
         }}
         >
-        <PageHeader />
-        <Stack
-            direction="column"
-            justifyContent="flex-start"
-            spacing={2}
-            sx={{position: "relative", width: isMobile ? "90vw" : "50vw"}}
-        >
-            {messages.map((item) => (
-                <ChatBubble message={item}/>
-            ))}
-        </Stack>
-        <form onSubmit={onSubmit} style={{display: "grid", justifyContent: "center"}}>
-            <Controller
-                control={methods.control}
-                name="text"
-                defaultValue={""}
-                render={({ field: { onChange, value }, fieldState: { error } }) => (
-                    <Paper
-                        component="form"
-                        sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: isMobile ? "80vw" : "50vw" }}
-                    >
-                        <InputBase
-                            sx={{ ml: 1, flex: 1 }}
-                            onChange={onChange}
-                            value={value}
-                            error={!!error}
-                            placeholder="Write something..."
-                            multiline={true}
-                            rows={4}
-                            disabled={isLoading}
-                        />
-                        <IconButton type="button" sx={{ p: '10px' }} onClick={onSubmit} disabled={isLoading || !methods.getValues("text")}>
-                            <SendIcon />
-                        </IconButton>
-                    </Paper>
-                )}
-            />
-        </form>
-    </div>
+            <div style={{display: "flex", flexWrap: "wrap"}}>
+                <Typography
+                    variant={"h2"}
+                    fontStyle={"bold"}
+                    fontFamily={""}
+                    sx={{marginLeft: "auto", marginRight: "auto"}}
+                >
+                    Claude Opus
+                </Typography>
+            </div>
+            <Stack
+                direction="column"
+                justifyContent="flex-start"
+                spacing={2}
+                sx={{position: "relative", width: isMobile ? "90vw" : "50vw"}}
+            >
+                {messages.map((item) => (
+                    <ChatBubble message={item}/>
+                ))}
+            </Stack>
+            <form onSubmit={onSubmit} style={{display: "grid", justifyContent: "center"}}>
+                <Controller
+                    control={methods.control}
+                    name="text"
+                    defaultValue={""}
+                    render={({field: {onChange, value}, fieldState: {error}}) => (
+                        <Paper
+                            component="form"
+                            sx={{
+                                p: '2px 4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                width: isMobile ? "80vw" : "50vw"
+                            }}
+                        >
+                            <InputBase
+                                sx={{ml: 1, flex: 1}}
+                                onChange={onChange}
+                                value={value}
+                                error={!!error}
+                                placeholder="Write something..."
+                                multiline={true}
+                                rows={4}
+                                disabled={isLoading}
+                            />
+                            <IconButton type="button" sx={{p: '10px'}} onClick={onSubmit}
+                                        disabled={isLoading || !methods.getValues("text")}>
+                                <SendIcon/>
+                            </IconButton>
+                        </Paper>
+                    )}
+                />
+            </form>
+        </div>
     );
 };
 
