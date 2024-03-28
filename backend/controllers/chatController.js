@@ -1,9 +1,6 @@
 const Chat = require("../models/ChatModel");
 const mongoose = require("mongoose");
-const Anthropic = require('@anthropic-ai/sdk');
 const axios = require("axios")
-
-const anthropic = new Anthropic();
 
 //get all chats
 const getChats = async (req, res) => {
