@@ -1,14 +1,12 @@
 import React, {FormEvent, useEffect, useState} from "react";
 import {useGetChatQuery, useLazyGetChatQuery, useUpdateChatMutation} from "../api/chatApi";
-import {IconButton, InputBase, Paper, Stack, Typography} from "@mui/material";
+import {IconButton, InputBase, Paper, Stack, Typography, Container} from "@mui/material";
 import ChatBubble from "../components/ChatBubble";
 import {Controller, FieldValues, useForm} from "react-hook-form";
 import SendIcon from '@mui/icons-material/Send';
 import {Message} from "../types/Chat";
-import {useGetWorkoutsQuery} from "../api/workoutApi";
 import {useParams} from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import {isMobile} from "react-device-detect";
 import PageHeader from "../components/PageHeader";
 
 const Chat = () => {
@@ -19,7 +17,6 @@ const Chat = () => {
 
     const [updateChat, { isLoading, error, isSuccess, data: newChat }] = useUpdateChatMutation();
     const [getChat, {data: initialChat}] = useLazyGetChatQuery();
-
     const onSubmit = (e?: FormEvent) => {
         e?.preventDefault();
         // do your early validation here
@@ -73,33 +70,14 @@ const Chat = () => {
 
 
     return (
-        <div style={{
-            display: "grid",
-            justifyContent: "center",
-            gap: "2em",
-        }}
-        >
-            <div style={{display: "flex", flexWrap: "wrap"}}>
-                <Typography
-                    variant={"h2"}
-                    fontStyle={"bold"}
-                    fontFamily={""}
-                    sx={{marginLeft: "auto", marginRight: "auto"}}
-                >
-                    Claude Opus
-                </Typography>
-            </div>
-            <Stack
-                direction="column"
-                justifyContent="flex-start"
-                spacing={2}
-                sx={{position: "relative", width: isMobile ? "90vw" : "50vw"}}
-            >
-                {messages.map((item) => (
-                    <ChatBubble message={item}/>
+        <Container maxWidth="md">
+            <PageHeader />
+            <Stack spacing={2} alignItems="stretch">
+                {messages.map((item, index) => (
+                    <ChatBubble key={index} message={item}/>
                 ))}
             </Stack>
-            <form onSubmit={onSubmit} style={{display: "grid", justifyContent: "center"}}>
+            <form onSubmit={onSubmit} style={{marginTop: '20px'}}>
                 <Controller
                     control={methods.control}
                     name="text"
@@ -111,7 +89,7 @@ const Chat = () => {
                                 p: '2px 4px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                width: isMobile ? "80vw" : "50vw"
+                                width: '100%'
                             }}
                         >
                             <InputBase
@@ -132,7 +110,7 @@ const Chat = () => {
                     )}
                 />
             </form>
-        </div>
+        </Container>
     );
 };
 

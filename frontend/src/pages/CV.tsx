@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import WorkIcon from '@mui/icons-material/Work';
 import SchoolIcon from '@mui/icons-material/School';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
+import { formatDuration, intervalToDuration, parseISO } from 'date-fns';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -33,25 +34,48 @@ const CV = () => {
     projects: [
       {
         role: ".NET Developer",
-        period: "10.2023 - Present",
+        startDate: "2023-10-01",
+        endDate: "2024-07-07", // null indicates current project
         technologies: ["Unity", ".NET Core", "C#", "Azure Web Apps", "MongoDB", "Docker", "Mixed Reality", "DevOps", "Microsoft HoloLens"],
       },
       {
         role: "Full Stack Developer",
-        period: "08.2022 - 02.2024",
+        startDate: "2022-08-01",
+        endDate: "2024-02-29",
         technologies: ["Scrum", "Apache Kafka", "Kotlin", "TypeScript", "Git", "React.js", "React Hooks", "Spring Boot", "GitLab CI/CD", "Redux", "Microservices", "Kubernetes", "Cypress"],
       },
       {
         role: "Mixed Reality Developer",
-        period: "06.2022 - 08.2022",
+        startDate: "2022-06-01",
+        endDate: "2022-08-31",
         technologies: ["Unity", "C#", ".NET Framework", "Microsoft HoloLens", "3D Modeling", "SignalR", "Oculus Quest", "Virtual Reality", "Augmented Reality"],
       },
       {
         role: "Mixed Reality Developer",
-        period: "09.2021 - 04.2022",
+        startDate: "2021-09-01",
+        endDate: "2022-04-30",
         technologies: ["Azure Spatial Anchors", "ARKit", "ARDK", "Unity3D", "iOS Development", "Android", "C#", "Blender", "GitHub", "Azure Cosmos DB", "Azure Table Storage", "ARCore", "Coarse Relocalization", "Xcode", ".NET Framework"],
       },
     ]
+  };
+
+  const calculateDuration = (startDate: string, endDate: string | null) => {
+    const start = parseISO(startDate);
+    const end = endDate ? parseISO(endDate) : new Date();
+    const duration = intervalToDuration({ start, end });
+
+    const formatOptions: Intl.RelativeTimeFormatUnit[] = ['years', 'months'];
+    const formatted = formatDuration(duration, { format: formatOptions });
+
+    if (duration.years === 0 && duration.months === 0) {
+      return t('cv.lessThanAMonth');
+    }
+
+    return formatted
+        .replace('years', t('cv.years'))
+        .replace('year', t('cv.year'))
+        .replace('months', t('cv.months'))
+        .replace('month', t('cv.month'));
   };
 
   const certifications = [
@@ -86,7 +110,10 @@ const CV = () => {
             <StyledPaper key={projectIndex} elevation={3}>
               <Typography variant="h6">{project.role}</Typography>
               <Typography variant="subtitle1" gutterBottom>
-                {t('cv.period')}: {project.period}
+                {t('cv.period')}: {project.startDate} - {project.endDate || t('cv.present')}
+              </Typography>
+              <Typography variant="subtitle2" gutterBottom>
+                {t('cv.duration')}: {calculateDuration(project.startDate, project.endDate)}
               </Typography>
               <Box mt={2}>
                 <Typography variant="subtitle2" gutterBottom>

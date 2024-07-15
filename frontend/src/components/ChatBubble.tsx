@@ -2,32 +2,42 @@ import React from "react";
 import {Message} from "../types/Chat";
 import Paper from '@mui/material/Paper';
 import {formatDistanceToNow} from "date-fns";
-import {isMobile} from "react-device-detect";
-
-
+import {Box, Typography} from "@mui/material";
 
 interface ChatBubbleProps {
     message: Message
 }
 
 const ChatBubble = (props: ChatBubbleProps) => {
-
-
     return (
-        <div style={{
-            display: "grid",
-            justifyItems: props.message.role === "user" ? "right" : "left",
-        }}
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: props.message.role === "user" ? "flex-end" : "flex-start",
+                width: "100%",
+            }}
         >
-            <h5 style={{marginBottom: "3px"}}>{props.message.role}</h5>
-            <Paper elevation={3} square={false}
-                   sx={{display: 'flex', padding: "20px", margin: "0px", alignItems: 'center', width: isMobile ? "80vw" : "35vw"}}>
-                {props.message.content[0].text}
+            <Typography variant="caption" sx={{mb: 0.5}}>
+                {props.message.role}
+            </Typography>
+            <Paper
+                elevation={3}
+                sx={{
+                    padding: 2,
+                    maxWidth: "80%",
+                    wordWrap: "break-word",
+                }}
+            >
+                <Typography>
+                    {props.message.content[0].text}
+                </Typography>
             </Paper>
-            <h5 style={{marginTop: "3px"}}>{formatDistanceToNow(new Date(props.message.time!!), {addSuffix: true})}</h5>
-        </div>
+            <Typography variant="caption" sx={{mt: 0.5}}>
+                {formatDistanceToNow(new Date(props.message.time!!), {addSuffix: true})}
+            </Typography>
+        </Box>
     )
 }
-
 
 export default ChatBubble;
