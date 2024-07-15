@@ -3,7 +3,7 @@ import fnmatch
 
 def should_include_file(filename):
     # List of file extensions to include
-    include_extensions = ['.js', '.ts', '.json', '.py', '.html', '.css', '.md']
+    include_extensions = ['.js', '.ts', '.tsx', '.json', '.py', '.html', '.css', '.md']
     return any(filename.endswith(ext) for ext in include_extensions)
 
 def should_ignore_path(path):
