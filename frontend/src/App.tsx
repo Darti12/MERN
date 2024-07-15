@@ -16,6 +16,7 @@ import {
   CssBaseline,
   responsiveFontSizes,
   ThemeProvider,
+  Container
 } from "@mui/material";
 import { amber, indigo } from "@mui/material/colors";
 import { isBrowser } from "react-device-detect";
@@ -24,6 +25,7 @@ import Contact from "./pages/Contact";
 import CV from "./pages/CV";
 import Footer from "./components/Footer";
 import Chat from "./pages/Chat";
+import Tea from "./pages/Tea"; // Add this import
 
 const lightTheme = createTheme({
   palette: {
@@ -66,7 +68,8 @@ const App = () => {
     { name: "Projects", path: "/projects" },
     { name: "Contact", path: "/contact" },
     { name: "CV", path: "/cv" },
-    { name: "Chat", path: "/chat"}
+    { name: "Chat", path: "/chat"},
+    { name: "Tea", path: "/tea" } // Add this line
   ];
 
   const toggleDarkMode = () => {
@@ -74,60 +77,59 @@ const App = () => {
   };
 
   return (
-    <div>
-      <BrowserRouter>
-        <ThemeProvider
-          theme={
-            light
-              ? responsiveFontSizes(lightTheme)
-              : responsiveFontSizes(darkTheme)
-          }
-        >
-          <CssBaseline />
-          <Navbar
-            navBarData={navBarData}
-            darkEnabled={!light}
-            setDarkMode={toggleDarkMode}
-          />
-          <div
-            style={{
-              width: isBrowser ? "75%" : "90%",
-              margin: "auto",
-              marginTop: "3em",
-              minHeight: "30em",
-            }}
+      <div>
+        <BrowserRouter>
+          <ThemeProvider
+              theme={
+                light
+                    ? responsiveFontSizes(lightTheme)
+                    : responsiveFontSizes(darkTheme)
+              }
           >
-            <Routes>
-              {/*//official pages*/}
-              <Route index element={<Navigate to={"/about"} />} />
-              <Route path={"about"} element={<About />} />
-              <Route path={"projects"} element={<Projects />} />
-              <Route path={"contact"} element={<Contact />} />
-              <Route path={"cv"} element={<CV />} />
-
-
-              <Route element={<RequireUser user={user!!} />}>
-                <Route path={"chat"} element={<Chat />} />
-                <Route path={"chat/:id"} element={<Chat />} />
-              </Route>
-
-              {/*//admin pages*/}
-              <Route path={"/admin"} element={<RequireUser user={user!!} />}>
-                <Route index element={<Home />} />
-                <Route path={"workouts"} element={<Workouts />} />
+            <CssBaseline />
+            <Navbar
+                navBarData={navBarData}
+                darkEnabled={!light}
+                setDarkMode={toggleDarkMode}
+            />
+            <Container
+                maxWidth="md"
+                sx={{
+                  mt: 4,
+                  mb: 4,
+                  minHeight: "calc(100vh - 64px - 20vh)", // Adjust based on your navbar and footer height
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+            >
+              <Routes>
+                <Route index element={<Navigate to={"/about"} />} />
+                <Route path={"about"} element={<About />} />
                 <Route path={"projects"} element={<Projects />} />
-              </Route>
+                <Route path={"contact"} element={<Contact />} />
+                <Route path={"cv"} element={<CV />} />
+                <Route path={"tea"} element={<Tea />} />
 
-              {/*//unnecessary pages, just for testing*/}
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Register />} />
-              <Route path="/test" element={<Test />} />
-            </Routes>
-          </div>
-          <Footer darkEnabled={!light} />
-        </ThemeProvider>
-      </BrowserRouter>
-    </div>
+                <Route element={<RequireUser user={user!!} />}>
+                  <Route path={"chat"} element={<Chat />} />
+                  <Route path={"chat/:id"} element={<Chat />} />
+                </Route>
+
+                <Route path={"/admin"} element={<RequireUser user={user!!} />}>
+                  <Route index element={<Home />} />
+                  <Route path={"workouts"} element={<Workouts />} />
+                  <Route path={"projects"} element={<Projects />} />
+                </Route>
+
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Register />} />
+                <Route path="/test" element={<Test />} />
+              </Routes>
+            </Container>
+            <Footer darkEnabled={!light} />
+          </ThemeProvider>
+        </BrowserRouter>
+      </div>
   );
 };
 

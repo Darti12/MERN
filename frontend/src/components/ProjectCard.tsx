@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Button,
   Card,
   CardActions,
@@ -13,17 +12,9 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { Project } from "../types/Project";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { formatDistanceToNow } from "date-fns";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import {
-  BrowserView,
-  MobileView,
-  isBrowser,
-  isMobile,
-} from "react-device-detect";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -56,7 +47,7 @@ const ProjectCard = (props: ProjectCardProps) => {
   };
 
   return (
-    <Card sx={{ width: isMobile ? "90vw" : "50vw" }}>
+    <Card sx={{ width: "100%" }}>
       <CardHeader
         title={t(`projects.sections.${props.project}.title`)}
         subheader={formatDistanceToNow(

@@ -4,7 +4,7 @@
     "title": "I'm Filip",
     "header1": "I am a Mixed reality and web-developer working from Oslo, Norway.",
     "text1": "I have for the past 5 years worked in Mixed reality, back-end, front-end, UI/UX design, and iPhone app-development.",
-    "text2": "Right now, I work for Sopra Steria, where I do meaningful work for the Norwegian Police."
+    "text2": "Right now, I work for Sopra Steria, where I work as a .NET developer."
   },
   "projects": {
     "header": "Projects",
@@ -32,7 +32,7 @@
         "imageURL": "/assets/Code.png",
         "longDescription": "",
         "gitHubUrl": "https://github.com/Darti12/MERN",
-        "createdAt": "2023.08.08"
+        "createdAt": "2024.07.16"
       },
       "3": {
         "title": "Master thesis - Archaeological education in VR",
@@ -50,7 +50,30 @@
   },
   "cv": {
     "header": "CV",
-    "title": "Under construction!"
+    "title": "Curriculum Vitae",
+    "experience": "Professional Experience",
+    "role": "Role",
+    "period": "Period",
+    "technologies": "Technologies Used",
+    "certifications": "Certifications",
+    "obtained": "Obtained",
+    "education": {
+      "header": "Education",
+      "degree": "Degree",
+      "institution": "Institution",
+      "period": "Period",
+      "description": "Description",
+      "master": {
+        "degree": "Master in Informatics",
+        "institution": "Norwegian University of Science and Technology (NTNU)",
+        "description": "2-year full-time study building on knowledge, skills, and general competence acquired through the bachelor's degree in informatics. The master's specialization was software systems."
+      },
+      "bachelor": {
+        "degree": "Bachelor in Informatics",
+        "institution": "Norwegian University of Science and Technology (NTNU)",
+        "description": "3-year full-time study. The study provided a broad understanding of various technologies, programming languages, and tools."
+      }
+    }
   },
   "footer": {
     "header": "My Homepage",
@@ -62,5 +85,10 @@
   "chat": {
     "header": "Chat",
     "title": "Claude Opus"
+  },
+  "tea": {
+    "header": "Tea",
+    "title": "All About Tea",
+    "introduction": "Tea is one of the most popular beverages in the world. It comes in many varieties, each with its own unique flavor profile and potential health benefits."
   }
 }

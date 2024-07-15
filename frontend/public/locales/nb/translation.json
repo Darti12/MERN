@@ -4,7 +4,7 @@
     "title": "Filip her",
     "header1": "Jeg er en Mixed reality og Web-utvikler som jobber fra Oslo.",
     "text1": "Jeg har de siste 5 årene jobbet med Mixed reality, back-end, front-end, UI/UX design, og iPhone app-utvikling.",
-    "text2": "Akkurat nå jobber jeg for Sopra Steria, der jeg gjør meningsfulle oppgaver for politiet."
+    "text2": "Akkurat nå jobber jeg for Sopra Steria, der jeg jobber som en .NET utvikler."
   },
   "projects": {
     "header": "Prosjekter",
@@ -32,7 +32,7 @@
         "imageURL": "/assets/Code.png",
         "longDescription": "",
         "gitHubUrl": "https://github.com/Darti12/MERN",
-        "createdAt": "2023.08.08"
+        "createdAt": "2024.07.16"
       },
       "3": {
         "title": "Masteroppgave - Arkeologisk utgravning i VR",
@@ -50,7 +50,30 @@
   },
   "cv": {
     "header": "CV",
-    "title": "Jobber med det!"
+    "title": "Curriculum Vitae",
+    "experience": "Arbeidserfaring",
+    "role": "Rolle",
+    "period": "Periode",
+    "technologies": "Teknologier Brukt",
+    "certifications": "Sertifiseringer",
+    "obtained": "Oppnådd",
+    "education": {
+      "header": "Utdanning",
+      "degree": "Grad",
+      "institution": "Institusjon",
+      "period": "Periode",
+      "description": "Beskrivelse",
+      "master": {
+        "degree": "Master i Informatikk",
+        "institution": "Norges teknisk-naturvitenskapelige universitet (NTNU)",
+        "description": "2-årig fulltidsstudium som bygger på kunnskap, ferdigheter og generell kompetanse opparbeidet gjennom bachelorgraden i informatikk. Masterens spesialisering var programvaresystemer."
+      },
+      "bachelor": {
+        "degree": "Bachelor i Informatikk",
+        "institution": "Norges teknisk-naturvitenskapelige universitet (NTNU)",
+        "description": "3-årig fulltidsstudium. Studiet ga en bred forståelse for en rekke ulike teknologier, programmeringsspråk og verktøy."
+      }
+    }
   },
   "footer": {
     "header": "My Homepage",
@@ -62,5 +85,10 @@
   "chat": {
     "header": "Chat",
     "title": "Claude Opus"
+  },
+  "tea": {
+    "header": "Te",
+    "title": "Alt om Te",
+    "introduction": "Te er en av de mest populære drikkene i verden. Den kommer i mange varianter, hver med sin egen unike smaksprofil og potensielle helsefordeler."
   }
 }

@@ -34,7 +34,7 @@ def update_project_files(input_file='project_contents.txt'):
                 files_created += 1
             total_files += 1
 
-    print(f"{files_updated}/{total_files} files changed and {files_created} created")
+    print(f"{files_updated} files changed and {files_created} created")
 
 def update_file(file_path, content):
     # Normalize the file path
