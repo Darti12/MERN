@@ -3,7 +3,7 @@ import fnmatch
 
 def should_include_file(filename):
     # List of file extensions to include
-    include_extensions = ['.js', '.ts', '.tsx' '.json', '.py', '.html', '.css', '.md']
+    include_extensions = ['.js', '.ts', '.json', '.py', '.html', '.css', '.md']
     return any(filename.endswith(ext) for ext in include_extensions)
 
 def should_ignore_path(path):
@@ -23,7 +23,9 @@ def should_ignore_path(path):
         '*.egg-info',
         'package-lock.json',
         '.DS_Store',
-        'Thumbs.db'
+        'Thumbs.db',
+        'project-collector-script.py',
+        'project-updater-script.py'
     ]
     return any(fnmatch.fnmatch(part, pattern) for pattern in ignore_patterns for part in path.split(os.sep))
 
@@ -32,23 +34,27 @@ def collect_project_files(output_file='project_contents.txt'):
         for root, dirs, files in os.walk('.'):
             # Remove ignored directories
             dirs[:] = [d for d in dirs if not should_ignore_path(os.path.join(root, d))]
-
+            
             for file in files:
                 file_path = os.path.join(root, file)
                 if not should_ignore_path(file_path) and should_include_file(file):
                     relative_path = os.path.relpath(file_path)
-
+                    
                     outfile.write(f"File: {relative_path}\n")
-                    outfile.write("=" * (len(relative_path) + 6) + "\n\n")
-
+                    outfile.write("=" * (len(relative_path) + 6) + "\n")
+                    
                     try:
                         with open(file_path, 'r', encoding='utf-8') as infile:
                             content = infile.read()
                             outfile.write(content)
+                            # Ensure there's always a newline at the end of the file content
+                            if not content.endswith('\n'):
+                                outfile.write('\n')
                     except Exception as e:
                         outfile.write(f"Error reading file: {str(e)}\n")
-
-                    outfile.write("\n\n")
+                    
+                    # Add a single newline after each file's content
+                    outfile.write('\n')
 
 if __name__ == "__main__":
     collect_project_files()
