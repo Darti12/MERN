@@ -19,13 +19,11 @@ import {
   Container
 } from "@mui/material";
 import { amber, indigo } from "@mui/material/colors";
-import { isBrowser } from "react-device-detect";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import CV from "./pages/CV";
 import Footer from "./components/Footer";
 import Chat from "./pages/Chat";
-import Tea from "./pages/Tea"; // Add this import
 
 const lightTheme = createTheme({
   palette: {
@@ -68,8 +66,7 @@ const App = () => {
     { name: "Projects", path: "/projects" },
     { name: "Contact", path: "/contact" },
     { name: "CV", path: "/cv" },
-    { name: "Chat", path: "/chat"},
-    { name: "Tea", path: "/tea" } // Add this line
+    { name: "Chat", path: "/chat"}
   ];
 
   const toggleDarkMode = () => {
@@ -108,7 +105,6 @@ const App = () => {
                 <Route path={"projects"} element={<Projects />} />
                 <Route path={"contact"} element={<Contact />} />
                 <Route path={"cv"} element={<CV />} />
-                <Route path={"tea"} element={<Tea />} />
 
                 <Route element={<RequireUser user={user!!} />}>
                   <Route path={"chat"} element={<Chat />} />

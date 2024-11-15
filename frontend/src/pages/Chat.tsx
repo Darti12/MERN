@@ -71,7 +71,7 @@ const Chat = () => {
 
     return (
         <Container maxWidth="md">
-            <PageHeader />
+            <PageHeader overrideHeader={"Claude Opus"}/>
             <Stack spacing={2} alignItems="stretch">
                 {messages.map((item, index) => (
                     <ChatBubble key={index} message={item}/>

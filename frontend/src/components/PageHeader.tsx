@@ -3,7 +3,11 @@ import { Link, useLocation } from "react-router-dom";
 import { Typography, useTheme } from "@mui/material";
 import React from "react";
 
-const PageHeader = () => {
+interface PageHeaderProps {
+    overrideHeader?: string | undefined;
+}
+
+const PageHeader = (props: PageHeaderProps) => {
   const location = useLocation();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -17,7 +21,16 @@ const PageHeader = () => {
         fontFamily={""}
         sx={{ marginLeft: "auto", marginRight: "auto", marginBottom: "100px" }}
       >
-        {t(`${path}.title`)}
+          {props?.overrideHeader &&
+              (
+                  props?.overrideHeader
+              )
+          }
+          {!props?.overrideHeader &&
+              (
+                  (`${path}.title`)
+              )
+          }
       </Typography>
     </div>
   );
