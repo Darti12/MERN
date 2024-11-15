@@ -28,7 +28,7 @@ const PageHeader = (props: PageHeaderProps) => {
           }
           {!props?.overrideHeader &&
               (
-                  (`${path}.title`)
+                  t(`${path}.title`)
               )
           }
       </Typography>
