@@ -5,13 +5,19 @@ import { setUser } from "../user/userSlice";
 import { User } from "../types/User";
 import { workoutApi } from "./workoutApi";
 
-const apiURI = process.env.REACT_APP_API_URL;
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${apiURI}/api/user`,
+    baseUrl: `${process.env.REACT_APP_API_URL}/api/user`,
   }),
   endpoints: (builder) => ({
+    pingServer: builder.mutation<void, void>({
+      query: () => ({
+        url: "/ping",
+        method: "GET",
+      }),
+    }),
     registerUser: builder.mutation<
       { user: User; token: string },
       RegisterInput
@@ -54,4 +60,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginUserMutation, useRegisterUserMutation } = authApi;
+export const { usePingServerMutation, useLoginUserMutation, useRegisterUserMutation } = authApi;

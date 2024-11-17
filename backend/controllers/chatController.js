@@ -30,7 +30,7 @@ const getChat = async (req, res) => {
 
 //create a new chat
 const createChat = async (req, res) => {
-  const { messages } = req.body;
+  const { messages, _id } = req.body;
   let emptyFields = [];
 
   if (!messages) {
@@ -80,7 +80,23 @@ const createChat = async (req, res) => {
 
   try {
     const user_id = req.user._id;
-    const chat = await Chat.create({ messages: combineMessages, user_id });
+    let chat;
+
+    if (_id) {
+      // Update existing chat
+      chat = await Chat.findOneAndUpdate(
+        { _id, user_id },
+        { messages: combineMessages },
+        { new: true }
+      );
+      if (!chat) {
+        return res.status(404).json({ error: "No such chat" });
+      }
+    } else {
+      // Create new chat
+      chat = await Chat.create({ messages: combineMessages, user_id });
+    }
+
     res.status(200).json(chat);
   } catch (error) {
     res.status(400).json({ error: error.message });

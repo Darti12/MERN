@@ -84,7 +84,6 @@ const Chat = () => {
                     defaultValue={""}
                     render={({field: {onChange, value}, fieldState: {error}}) => (
                         <Paper
-                            component="form"
                             sx={{
                                 p: '2px 4px',
                                 display: 'flex',

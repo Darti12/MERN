@@ -97,6 +97,7 @@ const Navbar = (props: NavbarProps) => {
                 .map((value, index) => {
                   return (
                     <Link
+                        key={index}
                       to={props.navBarData[index].path}
                       style={{
                         textDecoration: "none",
@@ -139,9 +140,8 @@ const Navbar = (props: NavbarProps) => {
                 <DarkModeIcon style={{ color: theme.palette.text.primary }} />
               )}
             </IconButton>
-            <IconButton>
+            <IconButton onClick={toggleLanguage}>
               <LanguageIcon
-                onClick={toggleLanguage}
                 style={{ color: theme.palette.text.primary }}
               />
             </IconButton>
@@ -170,7 +170,7 @@ const Navbar = (props: NavbarProps) => {
               .map((item) => item.path)
               .map((value, index) => {
                 return (
-                  <ListItem disablePadding divider>
+                  <ListItem disablePadding divider key={index}>
                     <ListItemButton
                       onClick={() =>
                         handleNavigate(props.navBarData[index].path)

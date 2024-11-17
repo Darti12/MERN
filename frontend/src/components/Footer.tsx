@@ -27,7 +27,7 @@ const Footer = (props: FooterProps) => {
       >
           <Divider sx={{width: "80vw", color: "black"}}/>
           <Typography
-              sx={{color: theme.palette.primary.main}}
+              sx={{color: theme.palette.text.primary}}
               variant="h4"
               component="div"
               key={"home"}

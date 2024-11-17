@@ -24,6 +24,7 @@ import Contact from "./pages/Contact";
 import CV from "./pages/CV";
 import Footer from "./components/Footer";
 import Chat from "./pages/Chat";
+import {usePingServerMutation} from "./api/authApi";
 
 const lightTheme = createTheme({
   palette: {
@@ -60,6 +61,11 @@ export interface NavigationData {
 const App = () => {
   const { user } = useGetUser();
   const [light, setLight] = React.useState(true);
+  const [pingServer] = usePingServerMutation();
+
+  React.useEffect(() => {
+    pingServer();
+  }, []);
 
   const navBarData: NavigationData[] = [
     { name: "About", path: "/about" },
@@ -99,17 +105,18 @@ const App = () => {
                   flexDirection: 'column',
                 }}
             >
-              <Routes>
+<Routes>
                 <Route index element={<Navigate to={"/about"} />} />
                 <Route path={"about"} element={<About />} />
                 <Route path={"projects"} element={<Projects />} />
+                <Route path={"projects/:id"} element={<Projects />} />
                 <Route path={"contact"} element={<Contact />} />
                 <Route path={"cv"} element={<CV />} />
 
-                <Route element={<RequireUser user={user!!} />}>
+                {/*<Route element={<RequireUser user={user!!} />}>*/}
                   <Route path={"chat"} element={<Chat />} />
                   <Route path={"chat/:id"} element={<Chat />} />
-                </Route>
+                {/*</Route>*/}
 
                 <Route path={"/admin"} element={<RequireUser user={user!!} />}>
                   <Route index element={<Home />} />

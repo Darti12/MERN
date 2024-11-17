@@ -50,4 +50,9 @@ const signupUser = async (req, res) => {
   }
 };
 
-module.exports = { signupUser, loginUser };
+//ping server
+const pingServer = async (req, res) => {
+  res.status(200).json({ message: "Server is alive" });
+};
+
+module.exports = { signupUser, loginUser, pingServer };

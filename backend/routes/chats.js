@@ -12,7 +12,7 @@ const requireAuth = require("../middleware/requireAuth");
 const router = express.Router();
 
 //middleware for authentication
-router.use(requireAuth);
+//router.use(requireAuth);
 
 //GET all projects
 router.get("/", getChats);

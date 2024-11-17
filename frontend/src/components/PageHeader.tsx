@@ -4,7 +4,7 @@ import { Typography, useTheme } from "@mui/material";
 import React from "react";
 
 interface PageHeaderProps {
-    overrideHeader?: string | undefined;
+    overrideHeader?: string | null;
 }
 
 const PageHeader = (props: PageHeaderProps) => {
@@ -26,7 +26,7 @@ const PageHeader = (props: PageHeaderProps) => {
                   props?.overrideHeader
               )
           }
-          {!props?.overrideHeader &&
+          {!props?.overrideHeader && path &&
               (
                   t(`${path}.title`)
               )

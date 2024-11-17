@@ -2,41 +2,50 @@
   "about": {
     "header": "About",
     "title": "I'm Filip",
-    "header1": "I am a Mixed reality and web-developer working from Oslo, Norway.",
-    "text1": "I have for the past 5 years worked in Mixed reality, back-end, front-end, UI/UX design, and iPhone app-development.",
-    "text2": "Right now, I work for Sopra Steria, where I work as a .NET developer."
+    "header1": "I am a Fullstack and Mixed Reality developer working from Oslo, Norway.",
+    "text1": "I have for the past 5 years worked in web development, both back-end and front-end, as well as some iPhone app-development.",
+    "text2": "Right now, I work as a Tech for Blank AS, based in Oslo"
   },
   "projects": {
     "header": "Projects",
     "title": "My projects",
+    "back": "Back to project overview",
     "sections": {
-      "0": {
+      "illumie": {
         "title": "illumie - AR navigation for the visually impaired",
-        "shortDescription": "This wasn't a private project, but one I was lucky enough to participate in at Sopra Steria. The project was about exploring the possibility of using the AR sensor on iPhones as a navigational aid for visually impaired people. The concept was that the iPhone would see and create a mesh of the surroundings using the camera, and then it would in turn use stereo sound to alert the user to any obstacles in their path.",
+        "description": [
+          "This wasn't a private project, but one I was lucky enough to participate in at Sopra Steria. The project was about exploring the possibility of using the AR sensor on iPhones as a navigational aid for visually impaired people. The concept was that the iPhone would see and create a mesh of the surroundings using the camera, and then it would in turn use stereo sound to alert the user to any obstacles in their path."
+        ],
         "imageURL": "/assets/Illumie.png",
         "longDescription": "",
         "gitHubUrl": "",
         "createdAt": "2022.07.01"
       },
-      "1": {
+      "drone": {
         "title": "DIY FPV-drone",
-        "shortDescription": "As a summer project, I decided I wanted to build my own drone from (mostly) scratch. I bought individual parts online, and 3D-printed the chassis of the drone using a Prusa i3 printer. When deciding on the parts for the drone I had to calculate the required voltage, power requirements and prop-sizes for the drone. Some estimations on the size of the drone had to be made too. This wasn't easy, as changing one component usually affected the other components as well. The page https://www.ecalc.ch/ helped a lot in this work.",
+        "description": [
+          "As a summer project, I decided I wanted to build my own drone from (mostly) scratch. I bought individual parts online, and 3D-printed the chassis of the drone using a Prusa i3 printer. When deciding on the parts for the drone I had to calculate the required voltage, power requirements and prop-sizes for the drone. Some estimations on the size of the drone had to be made too. This wasn't easy, as changing one component usually affected the other components as well. The page https://www.ecalc.ch/ helped a lot in this work."
+        ],
         "imageURL": "/assets/Drone.jpeg",
         "longDescription": "",
         "gitHubUrl": "",
         "createdAt": "2018.08.04"
       },
-      "2": {
+      "mern": {
         "title": "MERN web-page",
-        "shortDescription": "This page you are currently on is made on the MERN stack (MongoDB, Express, React, Node). The reason I made this webpage was because I had never done it by myself before, and I wanted to show myself I could develop a site using modern tools by myself from the bottom. At the same time it was a perfect opportunity to show other people what I could do.",
+        "description": [
+          "This page you are currently on is made on the MERN stack (MongoDB, Express, React, Node). The reason I made this webpage was because I had never done it by myself before, and I wanted to show myself I could develop a site using modern tools by myself from the bottom. At the same time it was a perfect opportunity to show other people what I could do."
+        ],
         "imageURL": "/assets/Code.png",
         "longDescription": "",
         "gitHubUrl": "https://github.com/Darti12/MERN",
         "createdAt": "2024.07.16"
       },
-      "3": {
+      "master": {
         "title": "Master thesis - Archaeological education in VR",
-        "shortDescription": "As my master thesis I wanted to create something useful with VR technology. The concept I landed on was to explore the possibility of using VR as an educational aid for students, more specifically the archeology study program. This was a novel and useful combination of VR and archaeology as the archaeology study-program usually had problems giving hands on experience to students, either because of the weather or the lack of relevant excavation-sites.",
+        "description": [
+          "As my master thesis I wanted to create something useful with VR technology. The concept I landed on was to explore the possibility of using VR as an educational aid for students, more specifically the archeology study program. This was a novel and useful combination of VR and archaeology as the archaeology study-program usually had problems giving hands on experience to students, either because of the weather or the lack of relevant excavation-sites."
+        ],
         "imageURL": "/assets/Excavation.jpg",
         "longDescription": "",
         "gitHubUrl": "https://github.com/Darti12/Archaeology-Simulator-VR",
