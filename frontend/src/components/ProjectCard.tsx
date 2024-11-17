@@ -37,7 +37,6 @@ const ProjectCard = (props: ProjectCardProps) => {
             />
             <CardMedia
                 component="img"
-                height="400"
                 image={t(`projects.sections.${props.project}.imageURL`)}
                 alt={t(`projects.sections.${props.project}.title`) + " image"}
             />

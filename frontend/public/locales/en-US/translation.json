@@ -3,53 +3,76 @@
     "header": "About",
     "title": "I'm Filip",
     "header1": "I am a Fullstack and Mixed Reality developer working from Oslo, Norway.",
-    "text1": "I have for the past 5 years worked in web development, both back-end and front-end, as well as some iPhone app-development.",
-    "text2": "Right now, I work as a Tech for Blank AS, based in Oslo"
+    "text1": "I have for the past 5 years worked primarily with web development, both back-end and front-end, as well as Mixed reality.",
+    "text2": "Right now, I work as a developer for Blank AS, based in Oslo"
   },
   "projects": {
     "header": "Projects",
     "title": "My projects",
     "back": "Back to project overview",
     "sections": {
+    "codeassistant": {
+          "title": "Code Assistant",
+          "description": [
+            "Code Assistant is an Electron application I developed to make AI coding more intuitive and closely integrated with the development workflow. The app allows developers to select a project folder, specify the project type, and describe desired code changes in natural language.",
+            "The application features a sophisticated file parsing system that analyzes project structure and dependencies to provide context-aware suggestions. It presents proposed changes with clear explanations of the modifications, including specific line numbers and files affected, making it easier for me to see what happens.",
+            "Under the hood, it integrates with Claude's Sonnet model (claude-3-sonnet-20240229) through their streaming API, enabling real-time, token-by-token responses that create a more interactive experience. The streaming implementation provides immediate feedback as the AI processes the request.",
+            "The user interface is built with React and TypeScript, featuring a clean, modern design. The app also has a button to automatically apply all the suggested changes."
+          ],
+          "imageURL": "/assets/codeassistant.png",
+          "gitHubUrl": "https://github.com/Darti12/codeassistant",
+          "createdAt": "2024.09.01"
+      },
       "illumie": {
-        "title": "illumie - AR navigation for the visually impaired",
-        "description": [
-          "This wasn't a private project, but one I was lucky enough to participate in at Sopra Steria. The project was about exploring the possibility of using the AR sensor on iPhones as a navigational aid for visually impaired people. The concept was that the iPhone would see and create a mesh of the surroundings using the camera, and then it would in turn use stereo sound to alert the user to any obstacles in their path."
-        ],
-        "imageURL": "/assets/Illumie.png",
-        "longDescription": "",
-        "gitHubUrl": "",
-        "createdAt": "2022.07.01"
+          "title": "illumie - AR navigation for the visually impaired",
+          "description": [
+            "illumie was an innovative project I worked on at Sopra Steria that aimed to revolutionize how visually impaired people navigate indoor spaces. The core concept was to leverage the LiDAR sensor on modern iPhones to create a sophisticated spatial awareness system that could detect and communicate obstacles to users through advanced audio feedback.",
+            "The technical implementation relied on the iPhone's ARKit framework to generate a real-time 3D mesh of the environment. This mesh was continuously analyzed to identify potential obstacles, changes in elevation, and safe pathways. One of the key challenges was optimizing the mesh generation and analysis to work in real-time without draining the device's battery.",
+            "The most innovative aspect of the project was the audio feedback system. Instead of simple beeps or verbal directions, we developed a spatial audio system that created an intuitive 'sound landscape'. Obstacles would emit subtle audio cues that appeared to come from their actual location in 3D space, allowing users to naturally understand their environment through audio alone.",
+            "User testing was crucial to the development process. We worked closely with members of the visually impaired community to refine the audio feedback system, ensuring it provided useful information without being overwhelming or distracting. This led to several iterations of the sound design, eventually landing on a system that balanced information density with usability.",
+            "The project demonstrated the potential of AR technology beyond visual applications, showing how spatial computing could be used to enhance accessibility in meaningful ways. While the project was experimental, it provided valuable insights into how emerging technologies could be adapted to serve diverse user needs."
+          ],
+          "imageURL": "/assets/Illumie.png",
+          "gitHubUrl": "",
+          "createdAt": "2022.07.01"
       },
       "drone": {
-        "title": "DIY FPV-drone",
-        "description": [
-          "As a summer project, I decided I wanted to build my own drone from (mostly) scratch. I bought individual parts online, and 3D-printed the chassis of the drone using a Prusa i3 printer. When deciding on the parts for the drone I had to calculate the required voltage, power requirements and prop-sizes for the drone. Some estimations on the size of the drone had to be made too. This wasn't easy, as changing one component usually affected the other components as well. The page https://www.ecalc.ch/ helped a lot in this work."
-        ],
-        "imageURL": "/assets/Drone.jpeg",
-        "longDescription": "",
-        "gitHubUrl": "",
-        "createdAt": "2018.08.04"
+          "title": "DIY FPV-drone",
+          "description": [
+            "As a summer project, I decided I wanted to build my own drone from (mostly) scratch. I bought individual parts online, and 3D-printed the chassis of the drone using a Prusa i3 printer. When deciding on the parts for the drone I had to calculate the required voltage, power requirements and prop-sizes for the drone. Some estimations on the size of the drone had to be made too. This wasn't easy, as changing one component usually affected the other components as well. The page https://www.ecalc.ch/ helped a lot in this work.",
+            "The frame design was downloaded from thingiverse, and adapted, focusing on both durability and weight optimization. I went through several iterations, testing different infill patterns and wall thicknesses to find the right balance between strength and weight. The final design incorporated reinforced motor mounts and a protected central compartment for the electronics.",
+            "For the electronics, I chose a OpenPilot CC3D EVO flight controller running Betaflight firmware, 1000KV brushless motors, and a 3S LiPo battery configuration. The FPV system consists of a camera connected to a 2.4GHz video transmitter. One of the challenges was properly shielding the video system from electromagnetic interference from the motors and ESCs.",
+            "The build process involved precise soldering of power distribution boards, ESCs, and various connections. I learned a lot about proper wire management and the importance of clean soldering for reliable performance. After assembly, I spent considerable time in Betaflight tuning PID settings and adjusting rates to achieve stable flight characteristics.",
+            "Flying the drone was initially challenging, but incredibly rewarding once mastered. I started in a simulator before taking the real drone out, which helped prevent costly crashes during the learning process. The project gave me valuable hands-on experience with electronics, 3D design, and the physics of flight."
+          ],
+          "imageURL": "/assets/Drone.jpeg",
+          "gitHubUrl": "",
+          "createdAt": "2018.08.04"
       },
       "mern": {
         "title": "MERN web-page",
         "description": [
-          "This page you are currently on is made on the MERN stack (MongoDB, Express, React, Node). The reason I made this webpage was because I had never done it by myself before, and I wanted to show myself I could develop a site using modern tools by myself from the bottom. At the same time it was a perfect opportunity to show other people what I could do."
+          "This page you are currently on is made on the MERN stack (MongoDB, Express, React, Node). The reason I made this webpage was because I had never done it by myself before, and I wanted to show myself I could develop a site using modern tools by myself from the bottom. At the same time it was a perfect opportunity to show other people what I could do.",
+          "The frontend is built using React with TypeScript, utilizing Material-UI for the component library and styling. I implemented Redux for state management and RTK Query for handling API calls. The site also features translation support with both English and Norwegian translations.",
+          "On the backend, I created a RESTful API using Express and Node.js, with MongoDB as the database. The authentication system uses JWT tokens for secure user sessions. The project structure follows best practices with clear separation of concerns between controllers, models, and routes.",
+          "One of the interesting features I added was integration with Claude AI, allowing for interactive chat conversations. This required careful handling of asynchronous operations and state management to maintain a smooth user experience."
         ],
         "imageURL": "/assets/Code.png",
-        "longDescription": "",
         "gitHubUrl": "https://github.com/Darti12/MERN",
-        "createdAt": "2024.07.16"
+        "createdAt": "2023.07.16"
       },
       "master": {
-        "title": "Master thesis - Archaeological education in VR",
-        "description": [
-          "As my master thesis I wanted to create something useful with VR technology. The concept I landed on was to explore the possibility of using VR as an educational aid for students, more specifically the archeology study program. This was a novel and useful combination of VR and archaeology as the archaeology study-program usually had problems giving hands on experience to students, either because of the weather or the lack of relevant excavation-sites."
-        ],
-        "imageURL": "/assets/Excavation.jpg",
-        "longDescription": "",
-        "gitHubUrl": "https://github.com/Darti12/Archaeology-Simulator-VR",
-        "createdAt": "2021.07.01"
+          "title": "Master thesis - Archaeological education in VR",
+          "description": [
+            "As my master thesis I wanted to create something useful with VR technology. The concept I landed on was to explore the possibility of using VR as an educational aid for students, more specifically the archeology study program. This was a novel and useful combination of VR and archaeology as the archaeology study-program usually had problems giving hands on experience to students, either because of the weather or the lack of relevant excavation-sites.",
+            "The project involved creating a detailed virtual environment that simulated an archaeological excavation site. Using Unity3D and the Oculus Quest platform, I developed interactive tools and mechanics that replicated real archaeological procedures - from initial site surveying to careful artifact extraction and documentation.",
+            "One of the key challenges was accurately modeling the soil stratigraphy and implementing realistic digging mechanics. I worked closely with archaeology professors to ensure the simulation was both scientifically accurate and pedagogically useful. The soil system used a voxel system to simulate digging. The tools the users used removed voxel particles where they dug.",
+            "The project also included a documentation system where students could record their findings, and take measurements - essential skills in modern archaeology.",
+            "User testing with archaeology students showed that the VR simulation helped them better understand excavation techniques and site documentation procedures before working at actual dig sites. The project demonstrated how VR technology could provide valuable hands-on training in situations where physical practice opportunities are limited."
+          ],
+          "imageURL": "/assets/Excavation.jpg",
+          "gitHubUrl": "https://github.com/Darti12/Archaeology-Simulator-VR",
+          "createdAt": "2021.07.01"
       }
     }
   },
@@ -59,6 +82,7 @@
   },
   "cv": {
     "header": "CV",
+    "now": "Now",
     "title": "Curriculum Vitae",
     "experience": "Professional Experience",
     "role": "Role",

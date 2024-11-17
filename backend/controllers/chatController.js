@@ -33,6 +33,7 @@ const createChat = async (req, res) => {
   const { messages, _id } = req.body;
   let emptyFields = [];
 
+
   if (!messages) {
     emptyFields.push("messages");
   }
@@ -79,13 +80,12 @@ const createChat = async (req, res) => {
   const combineMessages = [...formattedMessages, claudeResponse];
 
   try {
-    const user_id = req.user._id;
     let chat;
 
     if (_id) {
       // Update existing chat
       chat = await Chat.findOneAndUpdate(
-        { _id, user_id },
+        { _id },
         { messages: combineMessages },
         { new: true }
       );
@@ -94,11 +94,12 @@ const createChat = async (req, res) => {
       }
     } else {
       // Create new chat
-      chat = await Chat.create({ messages: combineMessages, user_id });
+      chat = await Chat.create({ messages: combineMessages, user_id: "blank" });
     }
 
     res.status(200).json(chat);
   } catch (error) {
+    console.log(error)
     res.status(400).json({ error: error.message });
   }
 };

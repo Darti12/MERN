@@ -3,52 +3,80 @@
     "header": "Om",
     "title": "Filip her",
     "header1": "Jeg er en Fullstack og Mixed Reality utvikler som jobber fra Oslo.",
-    "text1": "Jeg har de siste 5 årene jobbet med webutvikling, både back-end og front-end, og litt iPhone app-utvikling.",
-    "text2": "Akkurat nå jobber jeg som Teknolog i Blank A/S, midt i Oslo"
+    "text1": "Jeg har de siste 5 årene jobbet hovedsakling med webutvikling, både back-end og front-end, og Mixed reality utvikling",
+    "text2": "Akkurat nå jobber jeg som utvikler i Blank A/S, midt i Oslo"
   },
   "projects": {
     "header": "Prosjekter",
     "title": "Mine prosjekter",
     "back": "Tilbake til prosjekt-siden",
     "sections": {
-      "illumie": {
-        "title": "illumie - AR navigasjon for svaksynte",
-        "description": [
-          "Dette var ikke et prosjekt jeg gjorde for meg selv, men et prosjekt var heldig nok til å bli med på igjennom Sopra Steria. Prosjektet handlet om å utforske og utvikle en løsning for å hjelpe svaksynte navigere i ukjente omgivelser. Dette gjorde vi ved hjelp av AR sensoren på den da nye iPhonen. Konseptet var at iPhonen skulle lage en punktsky av omgivelsene og danne seg et bilde av hvor ting var, deretter skulle den si ifra til brukeren ved hjelp av stereo lyd når det var noe hindringer i veien for brukeren (gjerne før personen krasjet inn i noe :P)"
+      "codeassistant": {
+          "title": "Code Assistant",
+          "description": [
+            "Code Assistant er en Electron-applikasjon jeg utviklet for å gjøre AI-koding mer intuitiv og tettere integrert med utviklingsprosessen. Applikasjonen lar utviklere velge en prosjektmappe, spesifisere prosjekttypen, og beskrive ønskede kodeendringer med naturlig språk.",
+            "Applikasjonen har et sofistikert filanalyseringssystem som analyserer prosjektstruktur og avhengigheter for å gi kontekstbevisste forslag. Den presenterer foreslåtte endringer med tydelige forklaringer av modifikasjonene, inkludert spesifikke linjenumre og berørte filer, noe som gjør det enklere for meg å se hva som faktisk skjer.",
+            "Under panseret integrerer den med Claude's Sonnet-modell (claude-3-sonnet-20240229) gjennom deres streaming-API, som muliggjør sanntids, token-for-token-respons som skaper en mer interaktiv opplevelse. Streaming-implementeringen gir umiddelbar tilbakemelding mens AI-en behandler forespørselen.",
+            "Brukergrensesnittet er bygget med React og TypeScript, med et rent, moderne design. Appen har også en knapp for å automatisk gjøre endringene i koden som foreslås."
           ],
-        "imageURL": "/assets/Illumie.png",
-        "longDescription": "",
-        "gitHubUrl": "",
-        "createdAt": "2022.07.01"
+          "imageURL": "/assets/codeassistant.png",
+          "gitHubUrl": "https://github.com/Darti12/codeassistant",
+          "createdAt": "2024.09.01"
+      },
+      "illumie": {
+          "title": "illumie - AR navigasjon for svaksynte",
+          "description": [
+            "illumie var et innovativt prosjekt jeg jobbet med hos Sopra Steria som hadde som mål å revolusjonere hvordan svaksynte personer navigerer innendørs. Hovedkonseptet var å utnytte LiDAR-sensoren på moderne iPhoner for å skape et sofistikert system for romforståelse som kunne oppdage og kommunisere hindringer til brukerne gjennom avansert lydfeedback.",
+            "Den tekniske implementeringen var basert på iPhonens ARKit-rammeverk for å generere en sanntids 3D-mesh av omgivelsene. Denne meshen ble kontinuerlig analysert for å identifisere potensielle hindringer, høydeforskjeller og trygge passasjer. En av hovedutfordringene var å optimalisere mesh-generering og analyse til å fungere i sanntid uten å tømme enhetens batteri.",
+            "Det mest innovative aspektet ved prosjektet var systemet for lydfeedback. I stedet for enkle pip eller verbale instruksjoner, utviklet vi et romlig lydsystem som skapte et intuitivt 'lydlandskap'. Hindringer ville sende ut subtile lydspor som virket å komme fra deres faktiske plassering i 3D-rommet, noe som lot brukerne naturlig forstå omgivelsene sine gjennom lyd alene.",
+            "Brukertesting var avgjørende for utviklingsprosessen. Vi jobbet tett med medlemmer av synshemmede-miljøet for å forbedre lydfeedback-systemet, og sikre at det ga nyttig informasjon uten å være overveldende eller distraherende. Dette førte til flere iterasjoner av lyddesignet, før vi til slutt landet på et system som balanserte informasjonstetthet med brukervennlighet.",
+            "Prosjektet demonstrerte potensialet i AR-teknologi utover visuelle applikasjoner, og viste hvordan romlig databehandling kunne brukes til å forbedre tilgjengelighet på meningsfulle måter. Selv om prosjektet var eksperimentelt, ga det verdifull innsikt i hvordan fremvoksende teknologier kunne tilpasses for å tjene ulike brukerbehov."
+          ],
+          "imageURL": "/assets/Illumie.png",
+          "longDescription": "",
+          "gitHubUrl": "",
+          "createdAt": "2022.07.01"
       },
       "drone": {
-        "title": "DIY FPV-drone",
-        "description": [
-          "Som et sommer-prosjekt så bestemte jeg meg for at jeg ville lage en drone fra (nesten) scratch. Jeg kjøpte enkelt-deler for seg selv online, og 3d-printet selve 'skjelettet' til dronen ved å bruke en Prusa i3 printer. Når jeg valgte ut komponenter for dronen måtte jeg beregne vekten, batteri-volten, motor-kraften, og propell-størrelsene til dronen. Noen estimeringer på dronens størrelse måtte jeg også gjøre. Dette var ikke så rett frem som det kan virke, ettersom endringen av en komponent har bivirkninger på andre komponentene. Siden https://www.ecalc.ch/ hjalp litt i dette arbeidet."
-        ],
-        "imageURL": "/assets/Drone.jpeg",
-        "longDescription": "",
-        "gitHubUrl": "",
-        "createdAt": "2018.08.04"
+          "title": "DIY FPV-drone",
+          "description": [
+            "Som et sommer-prosjekt så bestemte jeg meg for at jeg ville lage en drone fra (nesten) scratch. Jeg kjøpte enkelt-deler for seg selv online, og 3d-printet selve 'skjelettet' til dronen ved å bruke en Prusa i3 printer. Når jeg valgte ut komponenter for dronen måtte jeg beregne vekten, batteri-volten, motor-kraften, og propell-størrelsene til dronen. Noen estimeringer på dronens størrelse måtte jeg også gjøre. Dette var ikke så rett frem som det kan virke, ettersom endringen av en komponent har bivirkninger på andre komponentene. Siden https://www.ecalc.ch/ hjalp litt i dette arbeidet.",
+            "Rammedesignet ble lastet ned fra thingiverse og tilpasset, med fokus på både holdbarhet og vektoptimalisering. Jeg gikk gjennom flere iterasjoner, testet forskjellige fyllmønstre og veggtykkelser for å finne den rette balansen mellom styrke og vekt. Det endelige designet inkluderte forsterkede motorfester og et beskyttet sentralt rom for elektronikken.",
+            "For elektronikken valgte jeg en OpenPilot CC3D EVO flykontroller som kjører Betaflight firmware, 1000KV børsteløse motorer og en 3S LiPo batterikonfigurasjon. FPV-systemet består av et kamera koblet til en 2,4 GHz antenne. En av utfordringene var å skjerme videosystemet ordentlig fra elektromagnetisk interferens fra motorene og ESC-ene.",
+            "Byggeprosessen involverte presis lodding av strømfordelingskort, ESC-er og diverse tilkoblinger. Jeg lærte mye om riktig ledningshåndtering og viktigheten av ren lodding for pålitelig ytelse. Etter montering brukte jeg en del tid i Betaflight på å finjustere PID-innstillinger og justere rates for å oppnå stabile flygeegenskaper.",
+            "Å fly dronen var utfordrende i begynnelsen, men utrolig givende når man først fikk det til. Jeg startet i en simulator før jeg tok den virkelige dronen ut, noe som hjalp til med å forhindre kostbare krasj under læringsprosessen. Prosjektet ga meg verdifull praktisk erfaring med elektronikk, 3D-design og flyfysikk."
+          ],
+          "imageURL": "/assets/Drone.jpeg",
+          "longDescription": "",
+          "gitHubUrl": "",
+          "createdAt": "2018.08.04"
       },
       "mern": {
-        "title": "MERN webside",
-        "description": [ "Siden du er på nå er laget ved hjelp av MERN stakken (MongoDB, Express, React, Node). Grunnen til at jeg utviklet denne siden var mest for å vise meg selv at jeg klarer å gjøre det på egenhånd fra bunnen av, med moderne verktøy og JWT sikkerhet for innloggede brukere. Samtidig var det å lage en egen side en god måte å vise andre hva jeg klarer."
-        ],
-        "imageURL": "/assets/Code.png",
-        "longDescription": "",
-        "gitHubUrl": "https://github.com/Darti12/MERN",
-        "createdAt": "2024.07.16"
+          "title": "MERN webside",
+          "description": [
+            "Siden du er på nå er laget ved hjelp av MERN stakken (MongoDB, Express, React, Node). Grunnen til at jeg utviklet denne siden var mest for å vise meg selv at jeg klarer å gjøre det på egenhånd fra bunnen av, med moderne verktøy og JWT sikkerhet for innloggede brukere. Samtidig var det å lage en egen side en god måte å vise andre hva jeg klarer.",
+            "Frontend er bygget med React og TypeScript, og bruker Material-UI for komponentbiblioteket og styling. Jeg implementerte Redux for tilstandshåndtering og RTK Query for API-kall. Nettstedet støtter også oversetting med både engelsk og norsk oversettelse.",
+            "På backend-siden laget jeg et RESTful API ved hjelp av Express og Node.js, med MongoDB som database. Autentiseringssystemet bruker JWT-tokens for sikre brukerøkter. Prosjektstrukturen følger beste praksis med tydelig separasjon mellom kontrollere, modeller og ruter.",
+            "En av de interessante funksjonene jeg la til var integrasjon med Claude AI, som muliggjør interaktive chattesamtaler. Dette krevde nøye håndtering av asynkrone operasjoner og tilstandshåndtering for å opprettholde en god brukeropplevelse."
+          ],
+          "imageURL": "/assets/Code.png",
+          "longDescription": "",
+          "gitHubUrl": "https://github.com/Darti12/MERN",
+          "createdAt": "2023.07.16"
       },
       "master": {
-        "title": "Masteroppgave - Arkeologisk utgravning i VR",
-        "description": [
-          "For master oppgaven min så ønsket jeg å lage noe nyttig med VR teknologi. Konseptet jeg landet på ble å utforske muligheten for å bruke VR som et pedagogisk verktøy for studenter, mer spesifikt for arkeologi studenter. Dette var en interessant og nyttig kombinasjon for arkeologi studie ettersom de vanligvis har problemer med å gi studentene sine praktisk erfaring med utgravninger, enten pga været eller mangel på relevante utgravningsfelter."
-        ],
-        "imageURL": "/assets/Excavation.jpg",
-        "longDescription": "",
-        "gitHubUrl": "https://github.com/Darti12/Archaeology-Simulator-VR",
-        "createdAt": "2021.07.01"
+          "title": "Masteroppgave - Arkeologisk utgravning i VR",
+          "description": [
+            "For master oppgaven min så ønsket jeg å lage noe nyttig med VR teknologi. Konseptet jeg landet på ble å utforske muligheten for å bruke VR som et pedagogisk verktøy for studenter, mer spesifikt for arkeologi studenter. Dette var en interessant og nyttig kombinasjon for arkeologi studie ettersom de vanligvis har problemer med å gi studentene sine praktisk erfaring med utgravninger, enten pga været eller mangel på relevante utgravningsfelter.",
+            "Prosjektet innebar å skape et detaljert virtuelt miljø som simulerte en arkeologisk utgravning. Ved hjelp av Unity3D og Oculus Quest-plattformen utviklet jeg interaktive verktøy og mekanikk som gjenskapte virkelige arkeologiske prosedyrer - fra innledende områdeundersøkelse til forsiktig artefaktutgravning og dokumentasjon.",
+            "En av hovedutfordringene var å modellere jorden nøyaktig og implementere realistisk gravemekanikk. Jeg jobbet tett med arkeologiprofessorer for å sikre at simuleringen var både vitenskapelig nøyaktig og pedagogisk nyttig. Jordsystemet var implementert via et voxel system der når brukeren gravde fjernet verktøyet partikler på og over stedet man gravde",
+            "Prosjektet inkluderte også et dokumentasjonssystem hvor studentene kunne registrere funnene sine, og ta målinger - essensielle ferdigheter i moderne arkeologi.",
+            "Brukertesting med arkeologistudenter viste at VR-simuleringen hjalp dem å bedre forstå utgravningsteknikker og dokumentasjonsprosedyrer før de jobbet på faktiske utgravningssteder. Prosjektet demonstrerte hvordan VR-teknologi kunne gi verdifull praktisk trening i situasjoner hvor muligheter for fysisk opplæring er begrenset."
+          ],
+          "imageURL": "/assets/Excavation.jpg",
+          "longDescription": "",
+          "gitHubUrl": "https://github.com/Darti12/Archaeology-Simulator-VR",
+          "createdAt": "2021.07.01"
       }
     }
   },
@@ -58,6 +86,7 @@
   },
   "cv": {
     "header": "CV",
+    "now": "Nå",
     "title": "Curriculum Vitae",
     "experience": "Arbeidserfaring",
     "role": "Rolle",

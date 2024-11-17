@@ -21,6 +21,7 @@ const ProjectCardDetails = (props: ProjectCardDetailsProps) => {
     const getTranslatedTextList = (key: string) => {
         const textList = [];
 
+        // @ts-ignore
         for (const text of t(`projects.sections.${key}.description`, {returnObjects: true})) {
             textList.push(text);
         }

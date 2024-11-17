@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Paper, Grid, Chip, Box, Card, CardContent, Avatar } from "@mui/material";
+import {Typography, Paper, Grid, Chip, Box, Card, CardContent, Avatar, List, Stack} from "@mui/material";
 import { styled } from "@mui/system";
 import PageHeader from "../components/PageHeader";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,14 @@ import WorkIcon from '@mui/icons-material/Work';
 import SchoolIcon from '@mui/icons-material/School';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import { formatDuration, intervalToDuration, parseISO } from 'date-fns';
+import {
+  Timeline,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+  TimelineItem, timelineItemClasses,
+  TimelineSeparator
+} from "@mui/lab";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -29,40 +37,38 @@ const CertificationCard = styled(Card)(({ theme }) => ({
 const CV = () => {
   const { t } = useTranslation();
 
-  const experience = {
-    company: "Sopra Steria",
-    projects: [
+  const experience =
+    [
       {
-        role: ".NET Developer",
-        startDate: "2023-10-01",
-        endDate: "2024-07-07", // null indicates current project
-        technologies: ["Unity", ".NET Core", "C#", "Azure Web Apps", "MongoDB", "Docker", "Mixed Reality", "DevOps", "Microsoft HoloLens"],
+        company: "Blank A/S",
+        positions: [
+          {
+            role: "Teknolog",
+            startDate: new Date(2025, 0),
+            endDate: null
+          },
+        ]
       },
-      {
-        role: "Full Stack Developer",
-        startDate: "2022-08-01",
-        endDate: "2024-02-29",
-        technologies: ["Scrum", "Apache Kafka", "Kotlin", "TypeScript", "Git", "React.js", "React Hooks", "Spring Boot", "GitLab CI/CD", "Redux", "Microservices", "Kubernetes", "Cypress"],
-      },
-      {
-        role: "Mixed Reality Developer",
-        startDate: "2022-06-01",
-        endDate: "2022-08-31",
-        technologies: ["Unity", "C#", ".NET Framework", "Microsoft HoloLens", "3D Modeling", "SignalR", "Oculus Quest", "Virtual Reality", "Augmented Reality"],
-      },
-      {
-        role: "Mixed Reality Developer",
-        startDate: "2021-09-01",
-        endDate: "2022-04-30",
-        technologies: ["Azure Spatial Anchors", "ARKit", "ARDK", "Unity3D", "iOS Development", "Android", "C#", "Blender", "GitHub", "Azure Cosmos DB", "Azure Table Storage", "ARCore", "Coarse Relocalization", "Xcode", ".NET Framework"],
-      },
-    ]
-  };
+        {
+          company: "Sopra Steria",
+          positions: [
+            {
+              role: "Senior Consultant",
+              startDate: new Date(2024, 6),
+              endDate: new Date(2024, 11),
+            },
+            {
+              role: "Consultant",
+              startDate: new Date(2021, 7),
+              endDate: new Date(2024, 5),
+            },
+          ]
+        },
+    ];
 
-  const calculateDuration = (startDate: string, endDate: string | null) => {
-    const start = parseISO(startDate);
-    const end = endDate ? parseISO(endDate) : new Date();
-    const duration = intervalToDuration({ start, end });
+  const calculateDuration = (startDate: Date, endDate: Date | null) => {
+    const end = endDate ? endDate : new Date();
+    const duration = intervalToDuration({start: startDate, end: end});
 
     const formatOptions: Intl.RelativeTimeFormatUnit[] = ['years', 'months'];
     const formatted = formatDuration(duration, { format: formatOptions });
@@ -98,6 +104,16 @@ const CV = () => {
     },
   ];
 
+  const dateToString = (date: Date) => {
+    const formatter = new Intl.DateTimeFormat('en', {
+      month: 'short',
+      year: 'numeric'
+    });
+
+    return formatter.format(date).toLowerCase();
+  }
+
+
   return (
       <>
         <PageHeader />
@@ -105,30 +121,47 @@ const CV = () => {
           <WorkIcon />
           {t('cv.experience')}
         </SectionHeader>
-        <Typography variant="h5">{experience.company}</Typography>
-        {experience.projects.map((project, projectIndex) => (
-            <StyledPaper key={projectIndex} elevation={3}>
-              <Typography variant="h6">{project.role}</Typography>
-              <Typography variant="subtitle1" gutterBottom>
-                {t('cv.period')}: {project.startDate} - {project.endDate || t('cv.present')}
-              </Typography>
-              <Typography variant="subtitle2" gutterBottom>
-                {t('cv.duration')}: {calculateDuration(project.startDate, project.endDate)}
-              </Typography>
-              <Box mt={2}>
-                <Typography variant="subtitle2" gutterBottom>
-                  {t('cv.technologies')}:
+        <Stack spacing={5}>
+        {experience.map((companyExperience, companyExperienceIndex) => (
+            <Paper key={companyExperienceIndex} elevation={3}>
+              <CardContent>
+                <Typography variant={"h4"}>
+                  {companyExperience.company}
                 </Typography>
-                <Grid container spacing={1}>
-                  {project.technologies.map((tech, techIndex) => (
-                      <Grid item key={techIndex}>
-                        <Chip label={tech} variant="outlined" />
-                      </Grid>
+                <Timeline position={"right"} sx={{
+                  [`& .${timelineItemClasses.root}:before`]: {
+                    flex: 0,
+                    padding: 0,
+                  },
+                }}>
+                  {companyExperience.positions.map((position, positionIndex) => (
+                      <TimelineItem key={positionIndex}>
+                        <TimelineSeparator>
+                          <TimelineDot />
+                          {positionIndex+1 !== companyExperience.positions.length && <TimelineConnector />}
+                        </TimelineSeparator>
+                        <TimelineContent >
+                          <Typography variant={"body1"}>
+                            {position.role}
+                          </Typography>
+                          <Typography variant={"body1"}>
+                            <>
+                              {dateToString(position.startDate)}
+                              {" - "}
+                              {position.endDate ? dateToString(position.endDate) : t("cv.now")}
+                            </>
+                          </Typography>
+                          <Typography variant={"body1"}>
+                            {calculateDuration(position.startDate, position.endDate)}
+                          </Typography>
+                        </TimelineContent>
+                      </TimelineItem>
                   ))}
-                </Grid>
-              </Box>
-            </StyledPaper>
+                </Timeline>
+              </CardContent>
+            </Paper>
         ))}
+        </Stack>
 
         <SectionHeader variant="h4">
           <CardMembershipIcon />
@@ -166,12 +199,14 @@ const CV = () => {
         </SectionHeader>
         {education.map((edu, index) => (
             <StyledPaper key={index} elevation={3}>
-              <Typography variant="h6">{t(`cv.education.${edu.key}.degree`)}</Typography>
-              <Typography variant="subtitle1">{t(`cv.education.${edu.key}.institution`)}</Typography>
-              <Typography variant="subtitle2" gutterBottom>
-                {t('cv.education.period')}: {edu.period}
-              </Typography>
-              <Typography variant="body2">{t(`cv.education.${edu.key}.description`)}</Typography>
+              <Stack spacing={1}>
+                <Typography variant="h5">{t(`cv.education.${edu.key}.degree`)}</Typography>
+                <Typography color="textSecondary" variant="caption">{t(`cv.education.${edu.key}.institution`)}</Typography>
+                <Typography color="textSecondary" variant="caption" gutterBottom>
+                  {t('cv.education.period')}: {edu.period}
+                </Typography>
+                <Typography color="textSecondary" variant="body2">{t(`cv.education.${edu.key}.description`)}</Typography>
+              </Stack>
             </StyledPaper>
         ))}
       </>

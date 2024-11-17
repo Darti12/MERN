@@ -11,7 +11,7 @@ const Projects = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
-  const projects = ["mern", "illumie", "drone", "master"];
+  const projects = ["codeassistant", "mern", "illumie", "master", "drone"];
 
   if (id) {
     return (

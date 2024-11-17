@@ -1,5 +1,5 @@
 import React, {FormEvent, useEffect, useState} from "react";
-import {useGetChatQuery, useLazyGetChatQuery, useUpdateChatMutation} from "../api/chatApi";
+import {useLazyGetChatQuery, useUpdateChatMutation} from "../api/chatApi";
 import {IconButton, InputBase, Paper, Stack, Typography, Container} from "@mui/material";
 import ChatBubble from "../components/ChatBubble";
 import {Controller, FieldValues, useForm} from "react-hook-form";
