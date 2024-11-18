@@ -55,7 +55,7 @@
           "This page you are currently on is made on the MERN stack (MongoDB, Express, React, Node). The reason I made this webpage was because I had never done it by myself before, and I wanted to show myself I could develop a site using modern tools by myself from the bottom. At the same time it was a perfect opportunity to show other people what I could do.",
           "The frontend is built using React with TypeScript, utilizing Material-UI for the component library and styling. I implemented Redux for state management and RTK Query for handling API calls. The site also features translation support with both English and Norwegian translations.",
           "On the backend, I created a RESTful API using Express and Node.js, with MongoDB as the database. The authentication system uses JWT tokens for secure user sessions. The project structure follows best practices with clear separation of concerns between controllers, models, and routes.",
-          "One of the interesting features I added was integration with Claude AI, allowing for interactive chat conversations. This required careful handling of asynchronous operations and state management to maintain a smooth user experience."
+          "One of the interesting features I added was integration with Claude AI, with continuous storage to mongoDB, allowing for interactive chat conversations. This required careful handling of asynchronous operations and state management to maintain a smooth user experience."
         ],
         "imageURL": "/assets/Code.png",
         "gitHubUrl": "https://github.com/Darti12/MERN",

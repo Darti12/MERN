@@ -57,7 +57,7 @@
             "Siden du er på nå er laget ved hjelp av MERN stakken (MongoDB, Express, React, Node). Grunnen til at jeg utviklet denne siden var mest for å vise meg selv at jeg klarer å gjøre det på egenhånd fra bunnen av, med moderne verktøy og JWT sikkerhet for innloggede brukere. Samtidig var det å lage en egen side en god måte å vise andre hva jeg klarer.",
             "Frontend er bygget med React og TypeScript, og bruker Material-UI for komponentbiblioteket og styling. Jeg implementerte Redux for tilstandshåndtering og RTK Query for API-kall. Nettstedet støtter også oversetting med både engelsk og norsk oversettelse.",
             "På backend-siden laget jeg et RESTful API ved hjelp av Express og Node.js, med MongoDB som database. Autentiseringssystemet bruker JWT-tokens for sikre brukerøkter. Prosjektstrukturen følger beste praksis med tydelig separasjon mellom kontrollere, modeller og ruter.",
-            "En av de interessante funksjonene jeg la til var integrasjon med Claude AI, som muliggjør interaktive chattesamtaler. Dette krevde nøye håndtering av asynkrone operasjoner og tilstandshåndtering for å opprettholde en god brukeropplevelse."
+            "En av de interessante funksjonene jeg la til var integrasjon med Claude AI, med kontinuerlig lagring til mongoDB, som muliggjør interaktive chattesamtaler. Dette krevde nøye håndtering av asynkrone operasjoner og tilstandshåndtering for å opprettholde en god brukeropplevelse."
           ],
           "imageURL": "/assets/Code.png",
           "longDescription": "",

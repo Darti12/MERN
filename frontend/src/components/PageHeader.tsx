@@ -19,7 +19,7 @@ const PageHeader = (props: PageHeaderProps) => {
         variant={"h2"}
         fontStyle={"bold"}
         fontFamily={""}
-        sx={{ marginLeft: "auto", marginRight: "auto", marginBottom: "100px" }}
+        sx={{ marginLeft: "auto", marginRight: "auto", marginBottom: "50px" }}
       >
           {props?.overrideHeader &&
               (
