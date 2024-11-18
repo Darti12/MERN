@@ -87,6 +87,7 @@
     "experience": "Professional Experience",
     "role": "Role",
     "period": "Period",
+    "to": "to",
     "duration": "Duration",
     "technologies": "Technologies Used",
     "present": "Present",
@@ -116,7 +117,8 @@
     }
   },
   "footer": {
-    "header": "My Homepage"
+    "header": "My Homepage",
+    "rights": "All Rights Reserved."
   },
   "home": {
     "header": "Hi \uD83D\uDC4B I'm Filip. A Developer"

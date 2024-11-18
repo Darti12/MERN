@@ -34,6 +34,17 @@ const CertificationCard = styled(Card)(({ theme }) => ({
   justifyContent: 'space-between',
 }));
 
+interface Position {
+  role: string;
+  startDate: Date;
+  endDate: Date | null;
+}
+
+interface Experience {
+  company: string;
+  positions: Position[];
+}
+
 const CV = () => {
   const { t } = useTranslation();
 
@@ -64,7 +75,22 @@ const CV = () => {
             },
           ]
         },
-    ];
+    ] as Experience[];
+
+  const getCompanyDuration = (experience: Experience): string => {
+    const dates = experience.positions.map(pos => ({
+      start: pos.startDate,
+      end: pos.endDate || new Date()
+    }));
+
+    const earliestStart = dates.reduce((min, curr) =>
+        curr.start < min ? curr.start : min, dates[0].start);
+
+    const latestEnd = dates.reduce((max, curr) =>
+        curr.end > max ? curr.end : max, dates[0].end);
+
+    return calculateDuration(earliestStart, latestEnd);
+  };
 
   const calculateDuration = (startDate: Date, endDate: Date | null) => {
     const end = endDate ? endDate : new Date();
@@ -85,22 +111,42 @@ const CV = () => {
   };
 
   const certifications = [
-    { name: "Kotlin for Java Developers", date: "07.2022" },
-    { name: "Unity Certified Expert: Programmer", date: "04.2022" },
-    { name: "Unity Certified Professional: Programmer", date: "10.2021" },
-    { name: "AZ-400: Microsoft Azure DevOps Solutions", date: "09.2021" },
-    { name: "Microsoft Certified: DevOps Engineer Expert", date: "09.2021" },
-    { name: "Microsoft Certified: Azure Developer Associate", date: "08.2021" },
+    {
+      name: "Kotlin for Java Developers",
+      date: new Date(2022, 6)
+    },
+    {
+      name: "Unity Certified Expert: Programmer",
+      date: new Date(2022, 3)
+    },
+    {
+      name: "Unity Certified Professional: Programmer",
+      date: new Date(2021, 9)
+    },
+    {
+      name: "AZ-400: Microsoft Azure DevOps Solutions",
+      date: new Date(2021, 8)
+    },
+    {
+      name: "Microsoft Certified: DevOps Engineer Expert",
+      date: new Date(2021, 8)
+    },
+    {
+      name: "Microsoft Certified: Azure Developer Associate",
+      date: new Date(2021, 7)
+    },
   ];
 
   const education = [
     {
       key: 'master',
-      period: "08.2019 - 06.2021",
+      startDate: new Date(2019, 7),
+      endDate: new Date(2021, 5),
     },
     {
       key: 'bachelor',
-      period: "08.2016 - 06.2019",
+      startDate: new Date(2016, 7),
+      endDate: new Date(2019, 5),
     },
   ];
 
@@ -119,7 +165,7 @@ const CV = () => {
         <PageHeader />
         <SectionHeader variant="h4">
           <WorkIcon />
-          {t('cv.experience')}
+          { } {t('cv.experience')}
         </SectionHeader>
         <Stack spacing={5}>
         {experience.map((companyExperience, companyExperienceIndex) => (
@@ -127,6 +173,9 @@ const CV = () => {
               <CardContent>
                 <Typography variant={"h4"}>
                   {companyExperience.company}
+                </Typography>
+                <Typography variant={"body2"}>
+                  {getCompanyDuration(companyExperience)}
                 </Typography>
                 <Timeline position={"right"} sx={{
                   [`& .${timelineItemClasses.root}:before`]: {
@@ -165,7 +214,7 @@ const CV = () => {
 
         <SectionHeader variant="h4">
           <CardMembershipIcon />
-          {t('cv.certifications')}
+          { } {t('cv.certifications')}
         </SectionHeader>
         <Grid container spacing={2}>
           {certifications.map((cert, index) => (
@@ -176,7 +225,7 @@ const CV = () => {
                       {cert.name}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      {t('cv.obtained')}: {cert.date}
+                      {t('cv.obtained')}: {dateToString(cert.date)}
                     </Typography>
                   </CardContent>
                   <Avatar
@@ -195,7 +244,7 @@ const CV = () => {
 
         <SectionHeader variant="h4">
           <SchoolIcon />
-          {t('cv.education.header')}
+          { } {t('cv.education.header')}
         </SectionHeader>
         {education.map((edu, index) => (
             <StyledPaper key={index} elevation={3}>
@@ -203,7 +252,7 @@ const CV = () => {
                 <Typography variant="h5">{t(`cv.education.${edu.key}.degree`)}</Typography>
                 <Typography color="textSecondary" variant="caption">{t(`cv.education.${edu.key}.institution`)}</Typography>
                 <Typography color="textSecondary" variant="caption" gutterBottom>
-                  {t('cv.education.period')}: {edu.period}
+                  {dateToString(edu.startDate)} {t("to")} {dateToString(edu.endDate)}
                 </Typography>
                 <Typography color="textSecondary" variant="body2">{t(`cv.education.${edu.key}.description`)}</Typography>
               </Stack>

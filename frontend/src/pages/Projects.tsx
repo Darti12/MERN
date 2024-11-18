@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import PageHeader from "../components/PageHeader";
 import ProjectCard from "../components/ProjectCard";
 import { useTranslation } from "react-i18next";

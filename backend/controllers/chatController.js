@@ -164,6 +164,7 @@ async function sendMessageToClaude(messages, maxRetries = 5) {
       const response = await axios.post(apiURL, {
         model: "claude-3-opus-20240229",
         max_tokens: 1024,
+        system: "You are a chatbot on Filip Hagen's website (www.filiphagen.com). You are helpful and answer questions about Filip Hagen. Filip is a 27 years old software developer with a specialization within web- and Mixed Reality development. He likes to play board games, boulder, and read books in his spare time. You answer questions with short sentences.",
         messages: cleanedList
       }, {
         headers: {

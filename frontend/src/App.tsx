@@ -25,6 +25,7 @@ import CV from "./pages/CV";
 import Footer from "./components/Footer";
 import Chat from "./pages/Chat";
 import {usePingServerMutation} from "./api/authApi";
+import ScrollToTop from "./components/ScrollToTop";
 
 const lightTheme = createTheme({
   palette: {
@@ -105,7 +106,8 @@ const App = () => {
                   flexDirection: 'column',
                 }}
             >
-<Routes>
+              <ScrollToTop />
+              <Routes>
                 <Route index element={<Navigate to={"/about"} />} />
                 <Route path={"about"} element={<About />} />
                 <Route path={"projects"} element={<Projects />} />

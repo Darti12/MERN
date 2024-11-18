@@ -96,6 +96,7 @@
     "present": "Nåværende",
     "lessThanAMonth": "Mindre enn en måned",
     "year": "år",
+    "to": "til",
     "years": "år",
     "month": "måned",
     "months": "måneder",
@@ -120,7 +121,8 @@
     }
   },
   "footer": {
-    "header": "My Homepage"
+    "header": "My Homepage",
+    "rights": "Alle rettigheter forbeholdt."
   },
   "home": {
     "header": "Hei \uD83D\uDC4B Filip her. En Utvikler"

@@ -10,11 +10,19 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import {usePingServerMutation} from "../api/authApi";
 
+
+
 const Chat = () => {
     const methods = useForm();
     let { id } = useParams();
     const navigate = useNavigate();
-    const [messages, setMessages] = useState([] as Message[]);
+    const [messages, setMessages] = useState([{
+        role: "assistant",
+        content: [
+            {type: "text", text: "Hi! How can I help you?"}
+        ],
+        time: new Date().toString()
+    }] as Message[]);
 
     const [updateChat, { isLoading, error, isSuccess, data: newChat }] = useUpdateChatMutation();
     const [getChat, {data: initialChat}] = useLazyGetChatQuery();
@@ -34,7 +42,7 @@ const Chat = () => {
         };
 
         checkServerStatus();
-        const interval = setInterval(checkServerStatus, 15000); // Check every 15 seconds
+        const interval = setInterval(checkServerStatus, 30000); // Check every 30 seconds
 
         return () => clearInterval(interval);
     }, [pingServer]);
@@ -95,9 +103,9 @@ const Chat = () => {
         <Container maxWidth="md">
             <PageHeader overrideHeader={"Claude Sonnet"}/>
             <Typography>
-                Service: {serviceStatus}
+                {serviceStatus}
             </Typography>
-            <Stack spacing={2} alignItems="stretch">
+            <Stack spacing={2} alignItems="stretch" marginTop={2}>
                 {messages.map((item, index) => (
                     <ChatBubble key={index} message={item}/>
                 ))}

@@ -23,6 +23,7 @@ const Footer = (props: FooterProps) => {
               width: "100%",
               height: "20vh",
               marginTop: "3em",
+              textAlign: "center",
           }}
       >
           <Divider sx={{width: "80vw", color: "black"}}/>
@@ -34,7 +35,7 @@ const Footer = (props: FooterProps) => {
           >
               {t(`footer.header`)}
           </Typography>
-          © {currentYear} Filip Hagen. All Rights Reserved.
+          © {currentYear} Filip Hagen. {t("footer.rights")}
       </div>
   );
 };
