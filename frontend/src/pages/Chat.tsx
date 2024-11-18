@@ -19,7 +19,7 @@ const Chat = () => {
     const [messages, setMessages] = useState([{
         role: "assistant",
         content: [
-            {type: "text", text: "Hi! Ask me anything about Filip"}
+            {type: "text", text: "Hi! Ask me anything."}
         ],
         time: new Date().toString()
     }] as Message[]);
@@ -53,6 +53,10 @@ const Chat = () => {
 
         methods.handleSubmit(() => {
             const data: FieldValues = methods.getValues();
+
+            if (data.text == null || data.text === "" ) {
+                return;
+            }
 
             const newMessages: Message[] = [
                 ...messages,
@@ -130,7 +134,6 @@ const Chat = () => {
                                 value={value}
                                 error={!!error}
                                 placeholder="Write something..."
-                                multiline={true}
                                 rows={4}
                                 disabled={isLoading}
                             />

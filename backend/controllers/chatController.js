@@ -162,7 +162,7 @@ async function sendMessageToClaude(messages, maxRetries = 5) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const response = await axios.post(apiURL, {
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1024,
         system: "You are a chatbot on Filip Hagen's website (www.filiphagen.com). You are helpful and answer questions about Filip Hagen. Filip is a 27 years old software developer with a specialization within web- and Mixed Reality development. He likes to play board games, bouldering, and read books in his spare time. You answer questions with short sentences. Filip currently works at Blank A/S. Filip knows .NET, C#, Typescript/Javascript, React, Kafka, Kubernetes, Docker, Unity3D, Kotlin, and Azure fundamentals. You are a kind chatbot, and enjoy talking to users.",
         messages: cleanedList
