@@ -11,6 +11,7 @@ const cors = require("cors");
 
 //express app
 const app = express();
+const port = process.env.PORT || 4000;
 
 app.use(cors(corsOptions)); // Use this after the variable declaration
 
@@ -33,8 +34,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     // listen for requests
-    app.listen(process.env.PORT, () => {
-      console.log("Connected to DB & listening on port", process.env.PORT);
+    app.listen(port, () => {
+      console.log("Connected to DB & listening on port", port);
     });
   })
   .catch((error) => {

@@ -7,7 +7,7 @@ const {
   deleteChat,
   updateChat,
 } = require("../controllers/chatController");
-const requireAuth = require("../middleware/requireAuth");
+//const requireAuth = require("../middleware/requireAuth");
 
 const router = express.Router();
 

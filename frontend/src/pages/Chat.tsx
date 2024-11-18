@@ -8,6 +8,7 @@ import {Message} from "../types/Chat";
 import {useParams} from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
+import {usePingServerMutation} from "../api/authApi";
 
 const Chat = () => {
     const methods = useForm();
@@ -17,6 +18,27 @@ const Chat = () => {
 
     const [updateChat, { isLoading, error, isSuccess, data: newChat }] = useUpdateChatMutation();
     const [getChat, {data: initialChat}] = useLazyGetChatQuery();
+
+    const [serviceStatus, setServiceStatus] = useState<'Offline' | 'Turning on...' | 'Online'>('Offline');
+    const [pingServer] = usePingServerMutation();
+
+    useEffect(() => {
+        const checkServerStatus = async () => {
+            try {
+                setServiceStatus('Turning on...');
+                await pingServer().unwrap();
+                setServiceStatus('Online');
+            } catch (error) {
+                setServiceStatus('Offline');
+            }
+        };
+
+        checkServerStatus();
+        const interval = setInterval(checkServerStatus, 15000); // Check every 15 seconds
+
+        return () => clearInterval(interval);
+    }, [pingServer]);
+
     const onSubmit = (e?: FormEvent) => {
         e?.preventDefault();
         // do your early validation here
@@ -71,7 +93,10 @@ const Chat = () => {
 
     return (
         <Container maxWidth="md">
-            <PageHeader overrideHeader={"Claude Opus"}/>
+            <PageHeader overrideHeader={"Claude Sonnet"}/>
+            <Typography>
+                Service: {serviceStatus}
+            </Typography>
             <Stack spacing={2} alignItems="stretch">
                 {messages.map((item, index) => (
                     <ChatBubble key={index} message={item}/>
