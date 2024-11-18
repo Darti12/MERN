@@ -156,7 +156,7 @@ const CV = () => {
       year: 'numeric'
     });
 
-    return formatter.format(date).toLowerCase();
+    return formatter.format(date);
   }
 
 
@@ -225,7 +225,7 @@ const CV = () => {
                       {cert.name}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      {t('cv.obtained')}: {dateToString(cert.date)}
+                      {dateToString(cert.date)}
                     </Typography>
                   </CardContent>
                   <Avatar
