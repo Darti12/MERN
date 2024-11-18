@@ -13,6 +13,19 @@ const Projects = () => {
   const theme = useTheme();
   const projects = ["codeassistant", "mern", "illumie", "master", "drone"];
 
+  // Add error boundary
+  const [error, setError] = React.useState<Error | null>(null);
+
+  if (error) {
+    return (
+      <Container maxWidth="md">
+        <Typography color="error">
+          An error occurred while loading projects. Please try refreshing the page.
+        </Typography>
+      </Container>
+    );
+  }
+
   if (id) {
     return (
       <Container maxWidth="md">
@@ -44,9 +57,14 @@ const Projects = () => {
     <Container maxWidth="md">
       <PageHeader />
       <Stack spacing={4} alignItems="center">
-        {projects.map((item, index) => (
-          <ProjectCard project={item} key={index} />
-        ))}
+        {projects.map((item, index) => {
+          try {
+            return <ProjectCard project={item} key={index} />;
+          } catch (err) {
+            setError(err as Error);
+            return null;
+          }
+        })}
       </Stack>
     </Container>
   );
