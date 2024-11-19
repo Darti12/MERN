@@ -21,7 +21,7 @@
           ],
           "imageURL": "/assets/codeassistant.png",
           "gitHubUrl": "https://github.com/Darti12/codeassistant",
-          "createdAt": "2024.09.01"
+          "createdAt": "2024-09-01"
       },
       "illumie": {
           "title": "illumie - AR navigasjon for svaksynte",
@@ -35,7 +35,7 @@
           "imageURL": "/assets/Illumie.png",
           "longDescription": "",
           "gitHubUrl": "",
-          "createdAt": "2022.07.01"
+          "createdAt": "2022-07-01"
       },
       "drone": {
           "title": "DIY FPV-drone",
@@ -49,7 +49,7 @@
           "imageURL": "/assets/Drone.jpeg",
           "longDescription": "",
           "gitHubUrl": "",
-          "createdAt": "2018.08.04"
+          "createdAt": "2018-08-04"
       },
       "mern": {
           "title": "MERN webside",
@@ -62,7 +62,7 @@
           "imageURL": "/assets/Code.png",
           "longDescription": "",
           "gitHubUrl": "https://github.com/Darti12/MERN",
-          "createdAt": "2023.07.16"
+          "createdAt": "2023-07-16"
       },
       "master": {
           "title": "Masteroppgave - Arkeologisk utgravning i VR",
@@ -76,7 +76,7 @@
           "imageURL": "/assets/Excavation.jpg",
           "longDescription": "",
           "gitHubUrl": "https://github.com/Darti12/Archaeology-Simulator-VR",
-          "createdAt": "2021.07.01"
+          "createdAt": "2021-07-01"
       }
     }
   },
