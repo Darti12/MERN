@@ -65,13 +65,13 @@ const CV = () => {
           positions: [
             {
               role: "Senior Consultant",
-              startDate: new Date(2024, 6),
-              endDate: new Date(2024, 11),
+              startDate: new Date(2024, 6, 1),
+              endDate: new Date(2024, 11, 31),
             },
             {
               role: "Consultant",
-              startDate: new Date(2021, 7),
-              endDate: new Date(2024, 5),
+              startDate: new Date(2021, 7, 1),
+              endDate: new Date(2024, 5, 30),
             },
           ]
         },
@@ -93,8 +93,13 @@ const CV = () => {
   };
 
   const calculateDuration = (startDate: Date, endDate: Date | null) => {
-    const end = endDate ? endDate : new Date();
+    const end = endDate ?? new Date();
     const duration = intervalToDuration({start: startDate, end: end});
+
+    // Include partial months by adding a month if there are any days
+    if (duration.days && duration.days > 0) {
+      duration.months = (duration.months ?? 0) + 1;
+    }
 
     const formatOptions: Intl.RelativeTimeFormatUnit[] = ['years', 'months'];
     const formatted = formatDuration(duration, { format: formatOptions });
