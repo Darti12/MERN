@@ -5,7 +5,13 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand",
+    "test:models": "node tests/runTests.js models",
+    "test:controllers": "node tests/runTests.js controllers", 
+    "test:middleware": "node tests/runTests.js middleware",
+    "test:user": "node tests/runTests.js user",
+    "test:workout": "node tests/runTests.js workout",
+    "test:coverage": "jest --coverage",
     "start": "node server.js"
   },
   "keywords": [],
@@ -20,5 +26,15 @@
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.3.2",
     "validator": "^13.9.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.4",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000,
+    "setupFilesAfterEnv": ["./tests/setup.js"]
   }
 }

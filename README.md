@@ -38,3 +38,44 @@ This project was made by Filip, but it was based on a lot of different tutorials
 - jsonwebtoken
 - mongoose
 - validator
+
+## Testing (Backend)
+- jest
+- supertest
+- mongodb-memory-server
+
+# Testing
+
+## Backend Tests
+The backend includes comprehensive test coverage for models, controllers, and middleware.
+
+### Running Tests
+- Run all tests: `cd backend && npm test`
+- Run model tests: `cd backend && npm run test:models`
+- Run controller tests: `cd backend && npm run test:controllers`
+- Run middleware tests: `cd backend && npm run test:middleware`
+- Run user-related tests: `cd backend && npm run test:user`
+- Run workout-related tests: `cd backend && npm run test:workout`
+- Generate coverage report: `cd backend && npm run test:coverage`
+
+### Test Structure
+```
+backend/
+  tests/
+    setup.js                 # Test setup configuration
+    runTests.js              # Custom test runner script
+    models/                  # Model tests
+      userModel.test.js
+      workoutModel.test.js
+    controllers/             # Controller tests
+      userController.test.js
+      workoutController.test.js
+    middleware/              # Middleware tests
+      requireAuth.test.js
+```
+
+### Testing Strategy
+- **Models**: Tests validate schemas, validations, and static methods
+- **Controllers**: Tests API endpoints with mocked requests/responses
+- **Middleware**: Tests authentication behavior with mocked tokens and users
+- **Integration**: Uses mongodb-memory-server for in-memory database testing
