@@ -19,7 +19,7 @@ const Chat = () => {
     const [messages, setMessages] = useState([{
         role: "assistant",
         content: [
-            {type: "text", text: "Hi! Ask me anything."}
+            {type: "text", text: "Hi! Ask me anything about Filip!"}
         ],
         time: new Date().toString()
     }] as Message[]);
