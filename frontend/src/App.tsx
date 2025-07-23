@@ -26,6 +26,7 @@ import Footer from "./components/Footer";
 import Chat from "./pages/Chat";
 import {usePingServerMutation} from "./api/authApi";
 import ScrollToTop from "./components/ScrollToTop";
+import PointCloud from "./components/PointCloud";
 
 const lightTheme = createTheme({
   palette: {
@@ -95,6 +96,13 @@ const App = () => {
                 navBarData={navBarData}
                 darkEnabled={!light}
                 setDarkMode={toggleDarkMode}
+            />
+            <PointCloud
+                darkEnabled={true}
+                maxDistance={150}
+                pointSize={3}
+                pointCount={30}
+                speed={10}
             />
             <Container
                 maxWidth="md"
