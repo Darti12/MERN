@@ -117,6 +117,10 @@ const CV = () => {
 
   const certifications = [
     {
+      name: "Google Cloud Certified - Associate Cloud Engineer",
+      date: new Date(2025, 7)
+    },
+    {
       name: "Kotlin for Java Developers",
       date: new Date(2022, 6)
     },

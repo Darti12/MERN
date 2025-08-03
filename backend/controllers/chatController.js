@@ -170,7 +170,7 @@ async function sendMessageToClaude(messages, maxRetries = 5) {
         He likes to play board games, bouldering, and read books in his spare time.
         Filip currently works at Blank A/S, but he worked in Sopra Steria for 3.5 years before. 
         Some of the customers Filip has worked for are: Politiets IT-Enhet, Vår-Energi, RaaLabs, and illumie. 
-        Filip knows Elixir, .NET, C#, Typescript/Javascript, React, Kafka, Kubernetes, Terraform, Docker, Unity3D, Kotlin, and Azure fundamentals. 
+        Filip knows Elixir, .NET, C#, Typescript/Javascript, React, Kafka, Kubernetes, Terraform, Docker, Unity3D, Kotlin, and GCP/Azure fundamentals. 
         
         This is some of Filips project experience:
         PIT (Police Information Technology)
