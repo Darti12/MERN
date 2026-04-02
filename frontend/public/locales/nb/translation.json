@@ -64,6 +64,30 @@
           "gitHubUrl": "https://github.com/Darti12/MERN",
           "createdAt": "2023-07-16"
       },
+      "financialpredictor": {
+          "title": "Geo-Økonomisk Investeringssimulator",
+          "description": [
+            "En interaktiv webapplikasjon som simulerer globale handelssjokk og deres økonomiske ringvirkninger på tvers av 51 store økonomier. Brukere kan modellere forstyrrelser i råvareflyt — som en krig i Taiwan som forstyrrer halvledereksport, eller Russland som kutter gass til Europa — og umiddelbart se hvilke land som vinner eller taper på et fargekodet verdenskart.",
+            "Frontenden er bygget med React og react-simple-maps, med et tre-panel layout: et LLM-chat-grensesnitt for å skrive inn scenarioer på naturlig språk, et interaktivt SVG-verdenskart som viser resultater, og et landdetaljpanel med rangerte vinnere og tapere. Tailwind CSS brukes til styling.",
+            "Backenden er et Node.js/Express API som kjører en avhengighetsbasert propagasjonssimulering. Den beregner importgap og konkurransefordeler på tvers av 12 råvarekategorier ved hjelp av realistiske handelsdata fra 2022–2023 hentet fra Verdensbanken og UN Comtrade.",
+            "Claude AI (Sonnet 4) er integrert for to formål: tolke fritekst-scenarioer til strukturerte handelssjokk, og generere investeringsfokuserte narrativer som oppsummerer simuleringsresultater med handlingsorientert innsikt."
+          ],
+          "imageURL": "/assets/financial-predictor.png",
+          "gitHubUrl": "https://github.com/Darti12/financial-predictor",
+          "createdAt": "2026-02-01"
+      },
+      "topologyoptimization": {
+          "title": "Topologioptimalisering",
+          "description": [
+            "Et nettbasert topologioptimaliseringsverktøy hvor du kan laste opp en STEP-fil, definere grensebetingelser, og kjøre en SIMP-algoritme (Solid Isotropic Material with Penalization) for å finne den optimale materialfordelingen innenfor en gitt volumfraksjon.",
+            "Frontenden er bygget med React og Three.js, og gir interaktiv 3D-visualisering av den importerte geometrien. Brukere kan velge flater for å påføre krefter eller feste begrensninger, definere eksklusjonssoner, og følge optimaliseringen i sanntid via WebSocket-oppdateringer.",
+            "Backenden er en Python FastAPI-tjeneste som håndterer STEP-parsing med CadQuery, vokseliserer geometrien, setter opp en elementmetode-stivhetsmatrise med SciPy sparse-løsere, og itererer SIMP-optimalisatoren til konvergens. Den ferdig optimaliserte meshen kan eksporteres som en binær STL-fil.",
+            "Prosjektet ga meg praktisk erfaring med å kombinere beregningsmekanikk og moderne webteknologi, og bro mellom ingeniørsimulerings verktøy og tilgjengelige nettleserbaserte grensesnitt."
+          ],
+          "imageURL": "/assets/topology-optimization.png",
+          "gitHubUrl": "https://github.com/Darti12/topology-optimization",
+          "createdAt": "2026-04-01"
+      },
       "master": {
           "title": "Masteroppgave - Arkeologisk utgravning i VR",
           "description": [

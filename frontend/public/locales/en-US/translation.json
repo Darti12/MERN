@@ -61,6 +61,30 @@
         "gitHubUrl": "https://github.com/Darti12/MERN",
         "createdAt": "2023-07-16"
       },
+      "financialpredictor": {
+          "title": "GeoEconomic Investment Simulator",
+          "description": [
+            "An interactive web application that simulates global trade shocks and their economic ripple effects across 51 major economies. Users can model disruptions to commodity flows — such as a war in Taiwan disrupting semiconductor exports or Russia cutting gas to Europe — and instantly see which countries win or lose on a color-coded world map.",
+            "The frontend is built with React and react-simple-maps, featuring a three-panel layout: an LLM chat interface for entering natural language scenarios, an interactive SVG world map showing results, and a country detail panel with ranked winners and losers. Tailwind CSS is used for styling.",
+            "The backend is a Node.js/Express API that runs a dependency-based propagation simulation engine. It calculates import gaps and competitor gains across 12 commodity categories using realistic 2022–2023 trade data sourced from the World Bank and UN Comtrade.",
+            "Claude AI (Sonnet 4) is integrated for two purposes: interpreting free-text scenarios into structured trade shocks, and generating investment-focused narratives that summarize simulation results with actionable insights."
+          ],
+          "imageURL": "/assets/financial-predictor.png",
+          "gitHubUrl": "https://github.com/Darti12/financial-predictor",
+          "createdAt": "2026-02-01"
+      },
+      "topologyoptimization": {
+          "title": "Topology Optimization Tool",
+          "description": [
+            "A web-based topology optimization tool that lets you upload a STEP file, define boundary conditions, and run a SIMP (Solid Isotropic Material with Penalization) algorithm to find the optimal material distribution within a given volume fraction.",
+            "The frontend is built with React and Three.js, allowing interactive 3D visualization of the imported geometry. Users can select faces to apply forces or fix constraints, define exclusion zones, and watch the optimization converge in real time via WebSocket progress updates.",
+            "The backend is a Python FastAPI service that handles STEP parsing with CadQuery, voxelizes the geometry, assembles a finite element stiffness matrix using SciPy sparse solvers, and iterates the SIMP optimizer until convergence. The resulting optimized mesh can be exported as a binary STL file.",
+            "The project gave me hands-on experience combining computational mechanics with modern web technologies, bridging the gap between engineering simulation tools and accessible browser-based interfaces."
+          ],
+          "imageURL": "/assets/topology-optimization.png",
+          "gitHubUrl": "https://github.com/Darti12/topology-optimization",
+          "createdAt": "2026-04-01"
+      },
       "master": {
           "title": "Master thesis - Archaeological education in VR",
           "description": [

@@ -11,7 +11,12 @@ const Projects = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
-  const projects = ["codeassistant", "mern", "illumie", "master", "drone"];
+  const projects = ["codeassistant", "topologyoptimization", "financialpredictor", "mern", "illumie", "master", "drone"]
+    .sort((a, b) => {
+      const dateA = t(`projects.sections.${a}.createdAt`);
+      const dateB = t(`projects.sections.${b}.createdAt`);
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
 
   // Add error boundary
   const [error, setError] = React.useState<Error | null>(null);
