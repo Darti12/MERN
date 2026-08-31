@@ -36,8 +36,20 @@ export async function streamChatUpdate(
     });
 
     if (!response.ok || !response.body) {
-      const text = await response.text().catch(() => "");
-      handlers.onError(text || `Request failed with status ${response.status}`);
+      // The API returns errors as {"error": "..."} — including the abuse
+      // guard's 429 and 503 (ADR 0002), which are the ones a real visitor is
+      // most likely to see. Passing the raw body through showed them the JSON
+      // itself. Surface the message, and only fall back to the raw text if
+      // the body isn't the shape we expect.
+      const raw = await response.text().catch(() => "");
+      let message = raw;
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.error === "string") message = parsed.error;
+      } catch {
+        // Not JSON — keep the raw text.
+      }
+      handlers.onError(message || `Request failed with status ${response.status}`);
       return;
     }
 
