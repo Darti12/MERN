@@ -23,6 +23,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// health check — infrastructure only, deliberately outside /api
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 //routes
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/projects", projectRoutes);
