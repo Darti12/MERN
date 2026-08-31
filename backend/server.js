@@ -37,21 +37,53 @@ app.get("/health", (req, res) => {
 // ADR 0002), and the remaining routes get an ordinary parser scoped to
 // their own mount so the chat route's cap can't be bypassed by a parser
 // that already ran upstream.
-//routes
-app.use("/api/workouts", express.json(), workoutRoutes);
-app.use("/api/projects", express.json(), projectRoutes);
-app.use("/api/user", express.json(), userRoutes);
-app.use("/api/chat", chatRoutes);
+//
+// `routeManifest` is the single source of truth for which router mounts
+// where: the loop just below is the only place any of these routers get
+// mounted, and this same manifest is what fitness function f3
+// (backend/tests/security/routeAllowlist.test.js) walks to enumerate every
+// live route and check it against backend/security/routeAllowlist.json.
+// There is no separate hand-maintained list to fall out of sync with the
+// mounting code, only with the routers themselves -- and those are
+// introspected live, not hand-copied. See docs/architecture/adr/0002.
+const routeManifest = {
+  standalone: [{ method: "GET", path: "/health" }],
+  mounts: [
+    { prefix: "/api/workouts", router: workoutRoutes },
+    { prefix: "/api/projects", router: projectRoutes },
+    { prefix: "/api/user", router: userRoutes },
+    // /api/chat applies its own body parser (see routes/chats.js), so it is
+    // mounted without the shared express.json() the other three get.
+    { prefix: "/api/chat", router: chatRoutes },
+  ],
+};
 
-// connect to db
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    // listen for requests
-    app.listen(port, () => {
-      console.log("Connected to DB & listening on port", port);
+routeManifest.mounts.forEach(({ prefix, router }) => {
+  if (prefix === "/api/chat") {
+    app.use(prefix, router);
+  } else {
+    app.use(prefix, express.json(), router);
+  }
+});
+
+app.routeManifest = routeManifest;
+
+module.exports = app;
+
+// Only connect to Mongo and start listening when this file is run directly
+// (`node server.js` / `npm start`), not when it's merely required. Fitness
+// function f3 requires this module to get the real, fully-mounted `app` and
+// its `routeManifest` without opening a DB connection or a port.
+if (require.main === module) {
+  mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => {
+      // listen for requests
+      app.listen(port, () => {
+        console.log("Connected to DB & listening on port", port);
+      });
+    })
+    .catch((error) => {
+      console.log(error);
     });
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+}
