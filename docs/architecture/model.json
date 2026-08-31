@@ -579,13 +579,21 @@
       "likelihood": "medium",
       "mitigation": "Fitness function f3 enumerates the live Express router stack and fails the build on any route missing from the checked-in exposure allowlist.",
       "scenario": "s1"
+    },
+    {
+      "id": "r10",
+      "text": "A database outage now disables the chatbot outright, because the spend ceiling fails closed and the API stays up to serve /health. Previously an outage kept the port shut, which hid this behind a different failure.",
+      "severity": "low",
+      "likelihood": "medium",
+      "mitigation": "Accepted deliberately: refusing to spend beats spending unverified. The portfolio is unaffected either way (ADR 0001), Mongo reconnects with exponential backoff without a redeploy, and the refusal is a fast 503 rather than a hang.",
+      "scenario": "s1"
     }
   ],
   "fitnessFunctions": [
     {
       "id": "f1",
       "protects": "security",
-      "check": "An integration test fires N+1 requests at /api/chat from one IP and asserts the last one returns 429; a second test sets the daily token counter to its ceiling and asserts the next request is rejected before any Anthropic call is made (the SDK client is stubbed and must record zero calls).",
+      "check": "An integration test fires N+1 requests at /api/chat from one IP and asserts the last one returns 429; a second test sets the daily token counter to its ceiling and asserts the next request is rejected before any Anthropic call is made (the SDK client is stubbed and must record zero calls). A third case asserts the guard FAILS CLOSED: with the usage counter unreadable, the request is refused with 503 and the stubbed client records zero calls.",
       "mechanism": "ci"
     },
     {

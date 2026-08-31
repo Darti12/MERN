@@ -81,3 +81,32 @@ The decision is unchanged; only the stated scope of the problem is corrected. Th
 keeping is the one now encoded in fitness function f3: enumerate the routes that exist rather
 than reasoning about the routes you remember. A control that covers the path you were thinking
 about is not a control over the system.
+
+## Amendment 2 — 2026-08-31: the guard fails closed
+
+The first implementation of the token ceiling failed *open*: if the usage
+counter could not be read, the request was allowed through and the Anthropic
+call went ahead unmetered. The reasoning was that a database blip should not
+take the chatbot down.
+
+That is the wrong trade for a cost control, and it fails in the worst possible
+direction. The single promise this ADR makes is that worst-case spend is a
+number Filip chooses. Failing open voids that promise precisely when the
+infrastructure is unhealthy and nobody is watching the bill.
+
+It also interacted badly with a change made at the same time. The API used to
+call `app.listen` inside `mongoose.connect().then(...)`, so a database outage
+meant the port never opened and no request ever reached the guard — the system
+was protected by accident. Opening the port first (so `/health` can answer
+during an outage, rather than failing the deploy) removed that accident and
+made the fail-open path genuinely reachable in production.
+
+`checkTokenCeiling` now returns **503** when the counter cannot be read: the
+budget is not known to be exhausted, the service is temporarily unable to
+verify it, which is a different statement from the 429 returned when the
+ceiling really has been hit. The cost is that a database outage disables the
+chatbot entirely. That is the same trade this ADR already made when it chose a
+global ceiling over an unbounded bill, applied consistently.
+
+Guarded by a regression test in `backend/tests/security/chatGuard.tokenCeiling.test.js`.
+

@@ -38,11 +38,23 @@ async function checkTokenCeiling(req, res, next) {
 
     next();
   } catch (error) {
-    // Fail open on infra errors (e.g. a transient DB blip) rather than
-    // taking the chatbot down entirely; the rate limiter and body size cap
-    // still apply regardless.
-    console.error("checkTokenCeiling error:", error);
-    next();
+    // FAIL CLOSED. This is a cost control, so if we cannot read how much has
+    // already been spent today, we do not spend more. Failing open would
+    // break the one promise ADR 0002 makes — that worst-case spend is a
+    // number Filip chooses — and would break it precisely when the
+    // infrastructure is unhealthy and nobody is watching.
+    //
+    // This matters more than it looks: the API now opens its port before
+    // Mongo connects (see server.js), so a database outage no longer keeps
+    // requests away from this middleware by accident. The counter is
+    // unreadable exactly when the chatbot would otherwise run unmetered.
+    //
+    // 503 rather than 429: the budget is not known to be exhausted, the
+    // service is temporarily unable to verify it.
+    console.error("checkTokenCeiling error, refusing to spend:", error);
+    return res.status(503).json({
+      error: "Chat is temporarily unavailable. Please try again shortly.",
+    });
   }
 }
 

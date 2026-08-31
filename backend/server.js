@@ -23,9 +23,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// health check — infrastructure only, deliberately outside /api
+// Health check — infrastructure only, deliberately outside /api.
+//
+// This reports LIVENESS, not readiness, and therefore always returns 200
+// while the process is running. Render treats a non-2xx healthCheckPath as
+// a failed deploy, and a transient Atlas outage should not tear down a
+// service whose portfolio traffic never touches the database at all
+// (ADR 0001). Database state is reported in the body instead, for humans
+// and for uptime checks that want to distinguish the two.
+const DB_STATES = ["disconnected", "connected", "connecting", "disconnecting"];
+
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.status(200).json({
+    status: "ok",
+    db: DB_STATES[mongoose.connection.readyState] ?? "unknown",
+  });
 });
 
 // There is deliberately no app-wide `express.json()`. /api/chat applies its
@@ -60,16 +72,40 @@ module.exports = app;
 // (`node server.js`), not when it's merely required. Fitness function f3
 // requires this module to get the real, fully-mounted `app` and its
 // `routeManifest` without opening a DB connection or a port.
-if (require.main === module) {
+// Fail fast rather than hang. Mongoose's defaults buffer a query for 10s and
+// spend 30s selecting a server, so with the database down a chat request
+// would sit open for ten seconds before the guard could refuse it, and the
+// retry loop below would barely turn. Five seconds is long enough to ride
+// out a blip and short enough that a refusal feels like a refusal.
+mongoose.set("bufferTimeoutMS", 5000);
+
+function connectWithRetry(attempt = 1) {
   mongoose
-    .connect(process.env.MONGO_URI)
-    .then(() => {
-      // listen for requests
-      app.listen(port, () => {
-        console.log("Connected to DB & listening on port", port);
-      });
-    })
+    .connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
+    .then(() => console.log("Connected to DB"))
     .catch((error) => {
-      console.log(error);
+      // Exponential backoff, capped at 30s. A free-tier Atlas cluster can be
+      // slow to accept the first connection; retrying beats requiring a
+      // redeploy to recover from a cold database.
+      const delay = Math.min(30000, 1000 * 2 ** (attempt - 1));
+      console.error(
+        `Mongo connection attempt ${attempt} failed, retrying in ${delay}ms:`,
+        error.message
+      );
+      setTimeout(() => connectWithRetry(attempt + 1), delay);
     });
+}
+
+if (require.main === module) {
+  // Open the port FIRST, before the database is reachable. /health must be
+  // answerable even when Mongo is down: previously app.listen sat inside
+  // mongoose.connect().then(), so a database that was merely slow meant the
+  // port never opened, the healthcheck never answered, and the deploy was
+  // marked failed. Liveness is the process being up; database state is
+  // reported by /health rather than gating it.
+  app.listen(port, () => {
+    console.log("Listening on port", port);
+  });
+
+  connectWithRetry();
 }

@@ -6,6 +6,10 @@
 // stubbed Anthropic client recorded ZERO calls. That second assertion is
 // the whole point of this test.
 //
+// A second case asserts the guard FAILS CLOSED: when the usage counter
+// cannot be read at all, the request is refused rather than allowed
+// through unmetered.
+//
 // Kept in its own file (see chatGuard.rateLimit.test.js for why) so this
 // check's small CHAT_DAILY_TOKEN_CEILING can't interact with the rate
 // limit test's own env config.
@@ -62,5 +66,28 @@ describe("Chat abuse guard: daily token spend ceiling (fitness function f1)", ()
     // billable call, not after. Zero calls, not "one that got billed and
     // then apologized for." See ADR 0002.
     expect(mockStream).not.toHaveBeenCalled();
+  });
+
+  it("FAILS CLOSED with 503 and makes ZERO Anthropic calls when the counter cannot be read", async () => {
+    // A cost control that fails open is not a cost control. If the usage
+    // counter is unreadable we cannot know what has been spent today, so we
+    // must not spend more -- and this is exactly the situation in which
+    // nobody is watching. Since server.js now opens its port before Mongo
+    // connects, a database outage no longer keeps traffic away from this
+    // middleware by accident, so this path is reachable in production.
+    const findOne = jest
+      .spyOn(Usage, "findOne")
+      .mockRejectedValueOnce(new Error("simulated database outage"));
+
+    try {
+      const res = await request(app).post("/api/chat").send(chatPayload());
+
+      // 503, not 429: the budget is not known to be exhausted; we are
+      // temporarily unable to verify it.
+      expect(res.status).toBe(503);
+      expect(mockStream).not.toHaveBeenCalled();
+    } finally {
+      findOne.mockRestore();
+    }
   });
 });
