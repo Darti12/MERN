@@ -93,16 +93,14 @@ export const chatApi = createApi({
   }),
   tagTypes: ["Chat"],
   endpoints: (builder) => ({
+    // `id` here is the conversation's high-entropy token (see
+    // backend/models/ChatModel.js), not its Mongo ObjectId -- that's the
+    // hardened lookup key GET /api/chat/:id expects. There is no
+    // list-all-chats endpoint: chat is anonymous by constraint (ADR 0002),
+    // so there is no ownership model to list against.
     getChat: builder.query<Chat, string>({
       query: (id) => ({
         url: `/${id}`,
-        method: "GET",
-      }),
-      providesTags: ["Chat"],
-    }),
-    getChats: builder.query<Chat[], void>({
-      query: () => ({
-        url: `/`,
         method: "GET",
       }),
       providesTags: ["Chat"],
@@ -123,6 +121,5 @@ export const chatApi = createApi({
 export const {
   useGetChatQuery,
   useLazyGetChatQuery,
-  useGetChatsQuery,
   useDeleteChatMutation
 } = chatApi;
