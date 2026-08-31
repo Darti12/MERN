@@ -619,6 +619,14 @@
       "likelihood": "medium",
       "mitigation": "RESOLVED 2026-09-01: the browser-facing probe moved to GET /api/status, sharing the same handler. /health is retained for Render's server-side healthcheck, where extensions are irrelevant. General lesson: browser-initiated requests should avoid conventional blocklist-magnet paths.",
       "scenario": "s2"
+    },
+    {
+      "id": "r15",
+      "text": "Enabling prompt caching under-reports spend against the daily ceiling: cached tokens are returned in cache_creation_input_tokens and cache_read_input_tokens and are NOT included in input_tokens, which is all the ceiling counted. A performance change would have quietly weakened a cost control.",
+      "severity": "medium",
+      "likelihood": "high",
+      "mitigation": "RESOLVED 2026-09-01: recordTokenUsage now sums input, output and both cache fields, and cache hit/write counts are logged per request so effectiveness is observable rather than assumed.",
+      "scenario": "s1"
     }
   ],
   "fitnessFunctions": [

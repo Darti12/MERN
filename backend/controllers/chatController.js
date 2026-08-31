@@ -68,15 +68,10 @@ Filip worked on data-driven product development for Autodesk, centred on A/B tes
 You are a kind chatbot, and enjoy talking to users. You answer questions with short sentences.
 `;
 }
-// ^ Roughly 950 tokens: still under the ~1024-token
-// minimum cacheable prefix
-// (ADR 0004), so prompt caching will not engage as written. If this prompt
-// grows, add a cache breakpoint by turning the `system` param above into
-// `[{ type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } }]`
-// (the age changes one day a year, so the cached prefix stays stable)
-// — it is identical on every request and close to free to cache once it
-// clears the minimum. Do not add the breakpoint below that threshold; it
-// would just add overhead for a prefix that never gets reused.
+// ^ Measured at 1071 tokens by scripts/count-prompt-tokens.js — just over the
+// ~1024-token minimum cacheable prefix, so the cache breakpoint below is now
+// live. The margin is only ~47 tokens: if this prompt is trimmed, caching
+// silently stops engaging with no error. Re-run that script after editing it.
 
 // Headers for the streamed chat reply. Sent once, before any Anthropic
 // token or DB write, so the abuse guard's 429s (routes/chats.js) always
@@ -292,7 +287,17 @@ async function sendMessageToClaude(messages, { onDelta } = {}) {
   const stream = anthropic.messages.stream({
     model: MODEL,
     max_tokens: 1024,
-    system: buildSystemPrompt(),
+    // Cache breakpoint. Measured at 1071 tokens (scripts/count-prompt-tokens.js),
+    // which clears the ~1024-token minimum cacheable prefix — below it, caching
+    // silently does nothing. The prompt is byte-identical on every request
+    // except the one day a year the age changes, so the prefix is stable.
+    system: [
+      {
+        type: "text",
+        text: buildSystemPrompt(),
+        cache_control: { type: "ephemeral" },
+      },
+    ],
     messages: cleanedList,
   });
 
@@ -311,7 +316,25 @@ async function sendMessageToClaude(messages, { onDelta } = {}) {
   // on the final message of the stream.
   const usage = finalMessage.usage;
   if (usage) {
-    const totalTokens = (usage.input_tokens || 0) + (usage.output_tokens || 0);
+    // Cached tokens are reported in their OWN fields and are NOT included in
+    // input_tokens. Counting only input+output would silently under-report
+    // spend the moment prompt caching was enabled — cache writes cost about
+    // 1.25x and reads about 0.1x, but both are real. The ceiling (ADR 0002)
+    // is only meaningful if it counts everything billable.
+    const totalTokens =
+      (usage.input_tokens || 0) +
+      (usage.output_tokens || 0) +
+      (usage.cache_creation_input_tokens || 0) +
+      (usage.cache_read_input_tokens || 0);
+
+    // Logged so cache effectiveness is observable in Render's logs rather
+    // than assumed: a breakpoint that never gets a hit is worse than none.
+    console.log(
+      `chat usage: in=${usage.input_tokens || 0} out=${usage.output_tokens || 0} ` +
+        `cache_write=${usage.cache_creation_input_tokens || 0} ` +
+        `cache_read=${usage.cache_read_input_tokens || 0}`
+    );
+
     recordTokenUsage(totalTokens).catch((err) =>
       console.error("Failed to record token usage:", err)
     );

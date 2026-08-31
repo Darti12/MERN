@@ -44,3 +44,32 @@ on picking a cheap model.
 minimum cacheable prefix, so prompt caching will not engage as written. If the prompt grows past
 that threshold, add a cache breakpoint after it — the prompt is identical on every request and is
 close to free to cache.
+
+## Amendment 2 — 2026-09-01: prompt caching is now enabled
+
+The note above said the system prompt was "roughly 800 tokens, just under the
+~1024-token minimum cacheable prefix", and told the reader not to add a cache
+breakpoint below that threshold. After adding the Autodesk section and the
+personal detail, the prompt was **measured** at 1071 tokens — just over. The
+breakpoint is now live.
+
+Two things this exposed:
+
+- **The estimate was wrong.** "Roughly 800" and later "roughly 950" were both
+  guesses from character count. Whether caching engages is a threshold
+  behaviour with no error when you fall short, so it is a measurement, not a
+  judgement. `scripts/count-prompt-tokens.js` now answers it exactly; re-run it
+  after editing the prompt. The margin is only ~47 tokens, so trimming the
+  prompt would silently switch caching off again.
+
+- **Enabling caching quietly under-reported spend.** Cached tokens are returned
+  in their own `usage` fields and are *not* included in `input_tokens`. The
+  daily ceiling from ADR 0002 counted only input plus output, so every cached
+  request would have under-counted against the budget — a cost control
+  weakened as a side effect of a performance change. It now counts
+  `cache_creation_input_tokens` and `cache_read_input_tokens` too.
+
+Cache effectiveness is logged per request, because a breakpoint that never
+gets a hit is worse than no breakpoint: it costs ~1.25x on every write and
+returns nothing.
+
