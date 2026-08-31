@@ -42,5 +42,24 @@ describe("buildSystemPrompt", () => {
     expect(prompt).toContain("Autodesk");
     expect(prompt).toContain("A/B testing");
     expect(prompt).toContain("Mixpanel");
+    expect(prompt).toContain("event tracking");
+    expect(prompt).toContain("collecting user feedback");
+    expect(prompt).toContain("product growth");
+  });
+
+  it("keeps the personal detail that makes the bot sound like Filip", () => {
+    // Not decoration: visitors ask what he is like, and these are the only
+    // non-professional facts the bot has. Easy to lose in a careless edit.
+    const prompt = buildSystemPrompt();
+    for (const hobby of [
+      "board games",
+      "bouldering",
+      "read books",
+      "3D-printing",
+      "flying drones",
+      "Mocca",
+    ]) {
+      expect(prompt).toContain(hobby);
+    }
   });
 });
