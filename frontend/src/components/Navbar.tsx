@@ -12,13 +12,11 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useLogout } from "../hooks/useLogout";
 import { useTranslation } from "react-i18next";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import MenuIcon from "@mui/icons-material/Menu";
 import LanguageIcon from "@mui/icons-material/Language";
-import { useGetUser } from "../hooks/useGetUser";
 import {
   BrowserView,
   MobileView,
@@ -38,13 +36,6 @@ const Navbar = (props: NavbarProps) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const { logoutUser } = useLogout();
-
-  const { user } = useGetUser();
-  const handleLogout = () => {
-    logoutUser();
-    navigate("/");
-  };
 
   const toggleLanguage = () => {
     if (i18n.language == "nb") {

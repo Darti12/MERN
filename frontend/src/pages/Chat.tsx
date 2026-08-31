@@ -8,9 +8,6 @@ import {Message} from "../types/Chat";
 import {useParams} from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
-import {usePingServerMutation} from "../api/authApi";
-
-
 
 const Chat = () => {
     const methods = useForm();
@@ -28,13 +25,15 @@ const Chat = () => {
     const [getChat, {data: initialChat}] = useLazyGetChatQuery();
 
     const [serviceStatus, setServiceStatus] = useState<'Offline' | 'Turning on...' | 'Online'>('Offline');
-    const [pingServer] = usePingServerMutation();
 
     useEffect(() => {
         const checkServerStatus = async () => {
             try {
                 setServiceStatus('Turning on...');
-                await pingServer().unwrap();
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/health`);
+                if (!response.ok) {
+                    throw new Error('Health check failed');
+                }
                 setServiceStatus('Online');
             } catch (error) {
                 setServiceStatus('Offline');
@@ -45,7 +44,7 @@ const Chat = () => {
         const interval = setInterval(checkServerStatus, 30000); // Check every 30 seconds
 
         return () => clearInterval(interval);
-    }, [pingServer]);
+    }, []);
 
     const onSubmit = (e?: FormEvent) => {
         e?.preventDefault();

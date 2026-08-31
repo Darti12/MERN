@@ -1,21 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { RootState } from "../store";
 import { Project } from "../types/Project";
 import {Chat} from "../types/Chat";
 
 const apiURI = process.env.REACT_APP_API_URL;
 export const chatApi = createApi({
   reducerPath: "chatApi",
-  // Setting the baseUrl for every endpoint below
+  // Setting the baseUrl for every endpoint below.
+  // No auth header: /api/chat is deliberately unauthenticated (see ADR 0002 —
+  // anonymity is a hard constraint for the portfolio chatbot), and there is
+  // no user state left in the store to source a token from since ADR 0005.
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiURI}/api/chat`,
-    prepareHeaders: (headers, api) => {
-      headers.set(
-        "Authorization",
-        `Bearer ${(api.getState() as RootState).userState.user?.token}`,
-      );
-      return headers;
-    },
   }),
   tagTypes: ["Chat"],
   endpoints: (builder) => ({

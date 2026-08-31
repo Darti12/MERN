@@ -1,27 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { workoutApi } from "./api/workoutApi";
-import { projectApi } from "./api/projectApi";
-import { authApi } from "./api/authApi";
-import userReducer from "./user/userSlice";
 import {chatApi} from "./api/chatApi";
 
 export const store = configureStore({
   reducer: {
     // Add the generated reducer as a specific top-level slice
-    [workoutApi.reducerPath]: workoutApi.reducer,
-    [authApi.reducerPath]: authApi.reducer,
-    [projectApi.reducerPath]: projectApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
-    userState: userReducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({}).concat([
-        workoutApi.middleware,
-        projectApi.middleware,
-        authApi.middleware,
         chatApi.middleware
     ]),
   devTools: true,

@@ -9,12 +9,14 @@ const {
   updateChat,
 } = require("../controllers/chatController");
 const { checkTokenCeiling } = require("../middleware/tokenCeiling");
-//const requireAuth = require("../middleware/requireAuth");
 
 const router = express.Router();
 
-//middleware for authentication
-//router.use(requireAuth);
+// No auth middleware here by design: /api/chat is deliberately
+// unauthenticated (ADR 0002). requireAuth and the rest of the private app
+// were removed entirely rather than left commented out (ADR 0005) —
+// exposure is now governed by the explicit route allowlist fitness
+// function f3 checks against.
 
 // --- Abuse guard (ADR 0002) ---
 // POST /api/chat is unauthenticated by design (identity is unavailable as an
