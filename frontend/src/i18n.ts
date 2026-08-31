@@ -20,17 +20,22 @@ i18n
   // init i18next
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
-    fallbackLng: "en-US",
-
-    // Only these two bundles exist under public/locales. Without
-    // nonExplicitSupportedLngs, a browser reporting "nb-NO" makes i18next
-    // request /locales/nb-NO/translation.json, which does not exist — and
-    // because the SPA rewrite answers every unknown path with index.html,
-    // i18next receives HTML and logs a JSON parse error on the first load for
-    // every Norwegian visitor. Resolving nb-NO to the "nb" bundle avoids the
-    // wasted request entirely.
-    supportedLngs: ["en-US", "nb"],
-    nonExplicitSupportedLngs: true,
+    // Both bundles are BASE languages (public/locales/en, public/locales/nb),
+    // and `load: "languageOnly"` strips any region before requesting one. So
+    // a browser reporting nb-NO, en-US or en-GB all resolve to a file that
+    // actually exists.
+    //
+    // This replaced a supportedLngs + nonExplicitSupportedLngs setup that
+    // looked right and was subtly broken: with an "en-US" bundle, i18next
+    // resolved the language down to base "en" and requested
+    // /locales/en/translation.json, which did not exist. The SPA rewrite
+    // answered with index.html, the JSON parse failed, and the UI rendered
+    // raw keys ("about.header") instead of English. Keeping both bundles at
+    // the base level removes the specific/base mismatch entirely rather than
+    // trying to configure around it.
+    fallbackLng: "en",
+    supportedLngs: ["en", "nb"],
+    load: "languageOnly",
 
     // Developer noise; do not ship it to visitors.
     debug: import.meta.env.DEV,

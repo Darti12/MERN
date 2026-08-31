@@ -635,6 +635,14 @@
       "likelihood": "high",
       "mitigation": "RESOLVED 2026-09-01: the controller keeps only text blocks when persisting, and the frontend reads a messageText() helper that joins every text block instead of indexing block 0. Regression test in backend/tests/controllers/thinkingBlocks.test.js. General lesson: never index content[0] on a model response.",
       "scenario": "s1"
+    },
+    {
+      "id": "r17",
+      "text": "English was unreachable. Two faults compounded: the language toggle compared i18n.language to the literal \"nb\", but a Norwegian browser reports \"nb-NO\", so the check failed and the toggle set Norwegian again; and once it did reach en-US, i18next resolved that to base \"en\" and requested /locales/en/translation.json, which did not exist, so the SPA rewrite returned index.html, the JSON parse failed, and the UI rendered raw keys like \"about.header\".",
+      "severity": "high",
+      "likelihood": "high",
+      "mitigation": "RESOLVED 2026-09-01: the en-US bundle was renamed to en so both bundles are base languages, and load: \"languageOnly\" strips any region before a request, so nb-NO, en-US and en-GB all resolve to files that exist. The toggle now compares the base language. This removes the specific/base mismatch rather than configuring around it.",
+      "scenario": "s2"
     }
   ],
   "fitnessFunctions": [

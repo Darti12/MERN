@@ -38,11 +38,13 @@ const Navbar = (props: NavbarProps) => {
   const theme = useTheme();
 
   const toggleLanguage = () => {
-    if (i18n.language == "nb") {
-      i18n.changeLanguage("en-US");
-    } else {
-      i18n.changeLanguage("nb");
-    }
+    // Compare on the BASE language, never the raw value. A browser reporting
+    // "nb-NO" made the old `i18n.language == "nb"` check false, so the toggle
+    // set Norwegian again and English was unreachable until you had clicked
+    // enough times to walk the language through nb-NO -> nb -> en.
+    const current = i18n.resolvedLanguage ?? i18n.language ?? "";
+    const isNorwegian = current.toLowerCase().startsWith("nb");
+    i18n.changeLanguage(isNorwegian ? "en" : "nb");
   };
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
