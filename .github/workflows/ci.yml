@@ -49,6 +49,23 @@ jobs:
       - name: Scan built frontend for leaked secrets (fitness function f2)
         run: node scripts/check-frontend-secrets.js
 
+      # Fitness function f4, assertion 1 of 2 (docs/architecture/README.md,
+      # section 11): the initial JS bundle stays under a gzip size ceiling,
+      # so a heavy dependency added later fails CI instead of quietly taxing
+      # every visitor's cold load. Must run after the build step above,
+      # against its output; see the ceiling and how it was chosen in the
+      # comment at the top of the script.
+      - name: Check initial JS bundle stays under gzip ceiling (fitness function f4)
+        run: node scripts/check-bundle-size.js
+
+      # Fitness function f4, assertion 2 of 2 (docs/architecture/README.md,
+      # section 11; ADR 0001's explicit follow-up): no route other than
+      # /chat may issue an API request. Static source check, so it doesn't
+      # need the build output and could run anywhere in this job -- kept
+      # next to the other f4 assertion for readability.
+      - name: Check portfolio routes never call the API (fitness function f4)
+        run: node scripts/check-portfolio-api-independence.js
+
       # Runs the full backend test suite, which includes:
       #   - backend/tests/security/chatGuard.rateLimit.test.js and
       #     chatGuard.tokenCeiling.test.js (fitness function f1): assert the
