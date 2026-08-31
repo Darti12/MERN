@@ -1,111 +1,136 @@
 # Deploying filiphagen.com
 
-Two services, per [ADR 0001](docs/architecture/adr/0001-static-first-spa.md):
+## The services already exist
 
-| Service | What | Why |
-|---|---|---|
-| `filiphagen-web` | The SPA as static files on Render's CDN | No process, so no cold start. The portfolio never waits on the API |
-| `filiphagen-api` | Express, scale-to-zero | Only `/chat` needs it, which is the one place a cold start is tolerable |
+This was already a static-first deployment before the hardening run — the
+design document inferred otherwise from `Dockerfile` and `docker-compose.yml`,
+which Render never used. Both services are native (non-Docker) and predate this
+work:
 
-**Do these in order.** Step 1 must complete before you push, or nothing serves
-the frontend: the container and `npm start` now run the API only.
+| Service | Type | ID | URL |
+|---|---|---|---|
+| `MERN-frontend` | Static site | `srv-cio45al9aq06u3mh5al0` | https://mern-0tft.onrender.com |
+| `MERN-backend` | Web service (free, Frankfurt) | `srv-cio6mst9aq06u3n16lp0` | https://mern-backend-sjet.onrender.com |
+
+`www.filiphagen.com` CNAMEs to the static site via Cloudflare. SPA fallback is
+already configured — deep links like `/cv` and `/projects/mern` return 200.
+
+**So there is nothing to create.** `render.yaml` records this configuration; it
+is not a proposal.
 
 ---
 
-## 1. Create the static site (before pushing)
+## Blocker: Render cannot access the repo
 
-Render dashboard → **New → Static Site**, pointed at this repo.
+Both services failed to build commit `9076b62` on 2026-08-31:
 
-| Setting | Value |
+```
+It looks like we don't have access to your repo, but we'll try to clone it anyway.
+fatal: could not read Username for 'https://github.com': terminal prompts disabled
+==> Unable to clone https://github.com/Darti12/MERN
+```
+
+The repository is **private**, and Render's GitHub App no longer has access to
+it. This blocks everything: builds fail, and even environment-variable updates
+fail with `404 not found: https://api.github.com/repositories/665725523`,
+because Render resolves the repo on every write.
+
+**Fix (Dashboard, cannot be done via API or MCP):**
+
+Render Dashboard → account settings → **GitHub** → reconnect, and grant access
+to `Darti12/MERN` specifically. If the GitHub App is installed with "only
+select repositories", add this repo to the selection. Then retry a deploy on
+either service.
+
+Until that is done, both services keep serving their last successful builds —
+the static site from 2026-04-02 and the API from 2025-08-03. The live site is
+not broken; it is just stale.
+
+---
+
+## Once access is restored
+
+### 1. Set environment variables
+
+**`MERN-frontend`** (static site):
+
+| Var | Value |
 |---|---|
-| Build command | `cd frontend && npm ci && npm run build` |
-| Publish directory | `frontend/build` |
-| Environment variable | `VITE_API_URL` = the API service's URL (see step 2) |
+| `VITE_API_URL` | `https://mern-backend-sjet.onrender.com` |
+| `NODE_VERSION` | `22` |
 
-Then **Redirects/Rewrites**: source `/*`, destination `/index.html`, action
-**Rewrite**. Without it, `/cv` and `/projects/mern` 404 on refresh or a direct
-link — the routes only exist client-side.
+`VITE_API_URL` is **renamed** from `REACT_APP_API_URL` by the Vite migration.
+Leave the old one in place until the first successful Vite build, then delete
+it. It is baked in at build time, so changing it needs a rebuild.
 
-> `VITE_API_URL` is **renamed** from `REACT_APP_API_URL`, and it is baked into
-> the bundle at build time. Changing it requires a rebuild, not a restart.
+**`MERN-backend`** (web service):
 
-### Using the Blueprint instead
-
-`render.yaml` declares both services. It only applies via **New → Blueprint**;
-if your existing services were created by hand, pushing this file changes
-nothing. Adopting the Blueprint is optional — the tables here are equivalent.
-
-## 2. Configure the API service
-
-| Setting | Value |
-|---|---|
-| Build command | `cd backend && npm ci` |
-| Start command | `node backend/server.js` |
-| Health check path | `/health` |
-
-Environment variables — full list and defaults in `backend/.env.example`:
-
-| Var | Required | Note |
+| Var | Value | Note |
 |---|---|---|
-| `MONGO_URI` | yes | Atlas connection string |
-| `ANTHROPIC_API_KEY` | yes | Server-side only, never in the frontend |
-| `STATIC_SITE_URL` | yes | The step-1 site's origin. **Without it CORS blocks every chat request** |
-| `CHAT_DAILY_TOKEN_CEILING` | no | Default 300000 (~$4.50/day worst case). This is the number that bounds your bill |
-| `CHAT_RATE_LIMIT_MAX` | no | Default 20 requests per IP per day |
+| `STATIC_SITE_URL` | `https://mern-0tft.onrender.com` | **Without this CORS blocks every chat request** |
+| `NODE_VERSION` | `22` | Node 18 is end-of-life; the build tooling requires ≥20.19 |
+| `CHAT_DAILY_TOKEN_CEILING` | `300000` | Optional. The number that bounds your bill |
+| `CHAT_RATE_LIMIT_MAX` | `20` | Optional, per IP per day |
 
-Chicken-and-egg: create the API first to learn its URL for `VITE_API_URL`, or
-create both and fill each in afterwards, redeploying the static site last.
+`MONGO_URI` and `ANTHROPIC_API_KEY` are already set. Full list in
+`backend/.env.example`.
 
-## 3. Push
+### 2. Change the backend build command
+
+Currently `npm install`; change to **`npm ci`**. The lockfile is now in sync,
+and `npm ci` installs exactly what was tested rather than silently resolving
+newer versions at deploy time.
+
+### 3. Push and watch
 
 ```bash
 git push origin main
 ```
 
-This triggers both deploys and the first-ever CI run. Watch all three.
-
-## 4. Move the domain
-
-Only once the static site serves correctly: point `www.filiphagen.com` at
-`filiphagen-web`. Give the API its own subdomain (e.g. `api.filiphagen.com`)
-and set `VITE_API_URL` to it, then rebuild the static site.
-
-`backend/config/allowedOrigins.js` already permits `filiphagen.com` and
-`www.filiphagen.com` alongside `STATIC_SITE_URL`.
+Watch the GitHub Actions run and both Render deploys.
 
 ---
 
 ## Verifying
 
 ```bash
-curl https://<api>/health
+curl https://mern-backend-sjet.onrender.com/health
 # {"status":"ok","db":"connected"}
 ```
 
-`db` may read `connecting` right after a deploy — that is fine and by design.
-`/health` reports liveness and always returns 200 while the process is up, so
-a database blip cannot fail the deploy. It retries the connection with
-exponential backoff without needing a redeploy.
+`db` may read `connecting` right after a deploy — that is fine. `/health`
+reports liveness and always returns 200 while the process is up, so a database
+blip cannot fail the deploy; the connection retries with exponential backoff.
 
 Then load the site with the API asleep. The portfolio must render instantly;
 only `/chat` should show a warming notice.
 
-## If chat returns 503
+## Failure modes
 
-The spend ceiling **fails closed**: if it cannot read the usage counter it
-refuses rather than spending unverified money
+**Chat returns 503** — the spend ceiling **fails closed**: it refuses rather
+than spending money it cannot account for
 ([ADR 0002, amendment 2](docs/architecture/adr/0002-chat-abuse-guard.md)).
-A 503 means the database is unreachable — check `MONGO_URI` and Atlas network
-access. A **429** is different: that is the daily budget genuinely exhausted,
-and it clears at midnight UTC.
+Means the database is unreachable; check `MONGO_URI` and Atlas network access.
 
-## If chat requests fail with a CORS error
+**Chat returns 429** — different thing entirely: the daily budget is genuinely
+spent, or one IP hit the rate limit. Clears at midnight UTC.
 
-`STATIC_SITE_URL` on the API doesn't match the static site's actual origin.
-It must include the scheme and no trailing slash.
+**Chat fails with a CORS error** — `STATIC_SITE_URL` doesn't match the static
+site's real origin. Scheme included, no trailing slash.
+
+**Build fails on a Node version error** — `NODE_VERSION` wasn't set. These
+services were created in 2023 and may default to a Node older than Vite 8
+requires.
 
 ## Rolling back
 
-The static site and API deploy independently and can be rolled back
-independently in Render. The portfolio staying up while the API is broken is a
-property of the architecture, not an accident — use it.
+The two services deploy and roll back independently in Render. The portfolio
+staying up while the API is broken is a property of the architecture, not an
+accident — use it.
+
+## Unused files
+
+`Dockerfile` and `docker-compose.yml` are **not used by Render** — both
+services are native runtimes. They were the source of the design run's wrong
+inference about how this deploys. Keep them only if you want a local container
+workflow; otherwise they are misleading and worth deleting.

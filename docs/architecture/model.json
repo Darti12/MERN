@@ -595,6 +595,14 @@
       "likelihood": "high",
       "mitigation": "Resolved 2026-08-31: concurrently moved to devDependencies and upgraded (it is a dev tool that production never loads); express bumped from a pinned 5.0.0 to ^5.2.1, clearing the cookie, qs, path-to-regexp and body-parser advisories in shipping code; vite and vitest upgraded past their vulnerable majors; Node moved to 22 LTS across CI, Dockerfile and render.yaml, with engines declared so a wrong runtime fails at install rather than mid-build. f5 keeps this from recurring silently.",
       "scenario": "s3"
+    },
+    {
+      "id": "r12",
+      "text": "Render lost GitHub access to the repository (it is private and the GitHub App's grant no longer covers it), so every build fails at clone and even environment-variable writes fail with a GitHub 404. Both services are serving stale builds from 2025 and 2026-04.",
+      "severity": "high",
+      "likelihood": "high",
+      "mitigation": "Reconnect GitHub in the Render dashboard and grant access to Darti12/MERN. Cannot be done via API or MCP. Until then the live site is stale but not broken. See DEPLOY.md.",
+      "scenario": "s2"
     }
   ],
   "fitnessFunctions": [
@@ -764,7 +772,8 @@
     "First contentful paint under 1.5s p95 and first chat reply under 8s p95 are proposed targets anchored on typical CDN delivery and Render cold-start times, not measured.",
     "Render is assumed to remain scale-to-zero. If the API is moved to always-on, scenario s2's cold-start half disappears and step 4's urgency drops — though its availability benefit remains.",
     "Chat transcripts are assumed to have no value beyond the reload-continuity feature. If they are ever read for interest, the 30-day TTL is wrong.",
-    "The daily ceiling was implemented as CHAT_DAILY_TOKEN_CEILING, default 300000 tokens (~$4.50/day worst case on current pricing) — the concrete form of the assumed $5/day cap. Change this env var, not the code, to move it."
+    "The daily ceiling was implemented as CHAT_DAILY_TOKEN_CEILING, default 300000 tokens (~$4.50/day worst case on current pricing) — the concrete form of the assumed $5/day cap. Change this env var, not the code, to move it.",
+    "The design run inferred the deployment topology from Dockerfile and docker-compose.yml, both of which are unused — Render runs native services and the static/API split already existed. Corrected in ADR 0001's amendment. Treat repo deployment config as a claim, not evidence."
   ],
   "openQuestions": [
     "RESOLVED 2026-08-31 (task `static`): Render Static Site was chosen over Cloudflare Pages for single-vendor simplicity. A portable _redirects file is kept so the decision stays cheap to reverse.",

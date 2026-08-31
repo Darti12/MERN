@@ -53,3 +53,34 @@ data, tracing across processes) apply. That asymmetry is the whole reason this d
 **Follow-up:** fitness function f4 asserts that no route other than `/chat` issues an API
 request, because the independence bought here is exactly the kind of property that erodes the
 first time someone finds it convenient to fetch something on the About page.
+
+## Amendment — 2026-08-31: this was already the deployment
+
+The Context above says the site "is hosted on Render as a single service that
+runs both the React dev server and the Express API." That was wrong, and it was
+inferred from `Dockerfile` and `docker-compose.yml` — which Render has never
+used. Both Render services are native runtimes, and they have been split since
+2023:
+
+- `MERN-frontend`, a static site serving `frontend/build` on Render's CDN, with
+  `www.filiphagen.com` pointed at it and SPA fallback already configured.
+- `MERN-backend`, a Node web service running `node server.js` from `backend/`.
+
+So the decision recorded here did not change the deployment topology. What it
+actually did was make the codebase match a topology that already existed: the
+API had been serving routes the SPA reached by relative URL assumptions, the
+Dockerfile described a single-process deployment nobody ran, and nothing
+enforced the portfolio's independence from the API.
+
+The consequences claimed above still hold — the portfolio does not wait on the
+API, and chat is the only attackable surface — but they were properties of the
+hosting, not gains from this decision. The genuine gains were narrower: the API
+base URL became explicit configuration, CORS became real rather than incidental,
+and fitness function f4 now enforces the independence that was previously only
+true by accident.
+
+The lesson: deployment config in the repo is not evidence of how something
+deploys. `Dockerfile` and `docker-compose.yml` were the most confident-looking
+artifacts available and both were dead. Checking the actual hosting provider
+first would have cost one command.
+

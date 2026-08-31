@@ -1,25 +1,37 @@
-# Render blueprint for filiphagen.com.
+# Render Blueprint for filiphagen.com.
 #
-# Two services, per ADR 0001 (static-first client/server):
+# This mirrors the TWO SERVICES THAT ALREADY EXIST in the Render workspace —
+# it is a written record of their configuration, not a proposal:
 #
-#   filiphagen-web  — the SPA as pure static assets on Render's CDN. No Node
-#                     process, so it cannot cold-start. This is what makes the
-#                     portfolio's load time independent of the API.
-#   filiphagen-api  — the Express API, scale-to-zero. Only the chat page
-#                     depends on it, which is the one place a cold start is
-#                     tolerable.
+#   MERN-frontend  static site  srv-cio45al9aq06u3mh5al0  https://mern-0tft.onrender.com
+#   MERN-backend   web service  srv-cio6mst9aq06u3n16lp0  https://mern-backend-sjet.onrender.com
 #
-# The static site is deliberately listed first: it serves ~90% of the site's
-# value and must never be coupled to the API's availability.
+# www.filiphagen.com already CNAMEs to the static site (via Cloudflare), so the
+# static-first split described in ADR 0001 was already the deployed reality.
+#
+# Names must match the existing services exactly. Adopting this Blueprint with
+# different names would create duplicates rather than adopt what is there.
 
 services:
+  # The SPA as static files on Render's CDN. No process, so no cold start:
+  # the portfolio never waits on the API (ADR 0001).
   - type: web
     runtime: static
-    name: filiphagen-web
-    buildCommand: cd frontend && npm ci && npm run build
-    staticPublishPath: frontend/build
-    # SPA fallback: client-side routing means /projects/mern and /cv are not
-    # files on disk. Without this rewrite a deep link or a refresh 404s.
+    name: MERN-frontend
+    repo: https://github.com/Darti12/MERN
+    branch: main
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: build
+    buildFilter:
+      paths:
+        - frontend/**
+      ignoredPaths:
+        - backend/**
+    # SPA fallback. Client-side routing means /cv and /projects/mern are not
+    # files on disk; without this they 404 on refresh or a direct link.
+    # NOTE: Render does NOT read Netlify-style _redirects files. This is the
+    # only mechanism that works here (or the Dashboard's Redirects/Rewrites).
     routes:
       - type: rewrite
         source: /*
@@ -29,38 +41,47 @@ services:
       # ^20.19 || >=22.12, and Node 18 went end-of-life in April 2025.
       - key: NODE_VERSION
         value: "22"
-      # Absolute origin of the API. Set in the Render dashboard to the API
-      # service's URL. Baked into the bundle at build time, so changing it
-      # requires a rebuild, not just a restart. Renamed from REACT_APP_API_URL
-      # to VITE_API_URL by the Create React App -> Vite migration (ADR 0003) —
-      # only VITE_-prefixed vars get inlined into the Vite bundle.
+      # Absolute origin of the API. Renamed from REACT_APP_API_URL by the
+      # Vite migration (ADR 0003). Baked into the bundle at build time, so
+      # changing it needs a rebuild, not a restart.
       - key: VITE_API_URL
-        sync: false
-      # Sourcemaps are disabled explicitly in frontend/vite.config.ts
-      # (build.sourcemap: false) rather than via an env var — Vite has no
-      # GENERATE_SOURCEMAP convention the way CRA did. Fitness function f2
-      # still greps the build output as a backstop against publishing one.
+        value: https://mern-backend-sjet.onrender.com
 
+  # The Express API, scale-to-zero on the free plan. Only /chat needs it.
   - type: web
     runtime: node
-    name: filiphagen-api
+    name: MERN-backend
+    repo: https://github.com/Darti12/MERN
+    branch: main
+    region: frankfurt
     plan: free
-    buildCommand: cd backend && npm ci
-    startCommand: node backend/server.js
-    # Uses the real /health route rather than the phantom one the old
-    # Dockerfile healthcheck polled.
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: node server.js
+    # Real route since the health task; the old Dockerfile healthcheck polled
+    # a /health that did not exist. server.js now opens the port before Mongo
+    # connects, so this answers during a database outage instead of failing
+    # the deploy.
     healthCheckPath: /health
+    buildFilter:
+      paths:
+        - backend/**
+      ignoredPaths:
+        - frontend/**
     envVars:
       - key: NODE_VERSION
         value: "22"
+      # Origin of the static site, so CORS admits it
+      # (backend/config/allowedOrigins.js). The apex and www domains are
+      # already hardcoded there.
+      - key: STATIC_SITE_URL
+        value: https://mern-0tft.onrender.com
       - key: MONGO_URI
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
-      # The static site's origin, so CORS admits it (backend/config/allowedOrigins.js).
-      - key: STATIC_SITE_URL
-        sync: false
-      # Abuse guard (ADR 0002). Defaults live in code; set here to override.
+      # Abuse guard (ADR 0002). Code defaults match these; set here so the
+      # number that bounds the bill is visible in version control.
       - key: CHAT_DAILY_TOKEN_CEILING
         value: "300000"
       - key: CHAT_RATE_LIMIT_MAX

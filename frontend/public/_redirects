@@ -1,1 +1,5 @@
+# NOTE: Render does NOT read this file. SPA fallback on Render is configured
+# via the Dashboard (Settings > Redirects/Rewrites) or render.yaml's `routes`.
+# This file is kept only so a move to Cloudflare Pages or Netlify stays a
+# hosting change rather than a code change.
 /*    /index.html   200
