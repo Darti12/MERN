@@ -1,6 +1,12 @@
 const Chat = require("../models/ChatModel");
 const mongoose = require("mongoose");
 const axios = require("axios")
+const { recordTokenUsage } = require("../middleware/tokenCeiling");
+
+// Part of the abuse guard (ADR 0002): reject oversized message arrays before
+// any Anthropic call, independent of the request body size cap (a payload
+// can be small in bytes but still carry an absurd number of turns).
+const MAX_MESSAGES = Number(process.env.CHAT_MAX_MESSAGES) || 40;
 
 //get all chats
 const getChats = async (req, res) => {
@@ -45,6 +51,13 @@ const createChat = async (req, res) => {
   // Ensure messages is an array and is not empty
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "Messages must be a non-empty array" });
+  }
+
+  // Reject oversized conversations before any billable call.
+  if (messages.length > MAX_MESSAGES) {
+    return res
+      .status(400)
+      .json({ error: `Too many messages; max is ${MAX_MESSAGES}` });
   }
 
   // Validate and format the messages
@@ -130,6 +143,16 @@ const updateChat = async (req, res) => {
     return res.status(404).json({ error: "No such chat" });
   }
 
+  // Same message-array cap as createChat — this path also calls Anthropic.
+  if (
+    !Array.isArray(req.body.messages) ||
+    req.body.messages.length > MAX_MESSAGES
+  ) {
+    return res
+      .status(400)
+      .json({ error: `Messages must be an array of at most ${MAX_MESSAGES}` });
+  }
+
   const claudeResponse = await sendMessageToClaude(req.body.messages)
 
   console.log(claudeResponse)
@@ -198,14 +221,38 @@ async function sendMessageToClaude(messages, maxRetries = 5) {
 
       const msg = response.data;
 
+      // Part of the abuse guard (ADR 0002): add this call's spend to the
+      // persisted daily counter so the ceiling check on the next request
+      // sees it. Fire-and-forget with its own error handling so a logging
+      // failure never breaks the chat response itself.
+      const usage = msg.usage;
+      if (usage) {
+        const totalTokens = (usage.input_tokens || 0) + (usage.output_tokens || 0);
+        recordTokenUsage(totalTokens).catch((err) =>
+          console.error("Failed to record token usage:", err)
+        );
+      }
+
       return {
         role: msg.role,
         time: new Date().toString(),
         content: msg.content
       };
     } catch (error) {
-      console.error(`Attempt ${attempt + 1} failed:`);
-      if (attempt === maxRetries - 1) throw error;
+      const status = error.response?.status;
+      // Only retry on connection errors (no response received), 429
+      // (rate limited by Anthropic), or 5xx (their transient failures).
+      // A 400 means malformed input — retrying it just multiplies spend
+      // on a request that will never succeed. This was the retry bug.
+      const isRetryable =
+        !error.response || status === 429 || (status >= 500 && status < 600);
+
+      console.error(
+        `Attempt ${attempt + 1} failed${status ? ` (status ${status})` : ""}:`,
+        error.message
+      );
+
+      if (!isRetryable || attempt === maxRetries - 1) throw error;
     }
   }
 }
