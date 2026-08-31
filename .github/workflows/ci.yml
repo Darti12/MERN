@@ -30,21 +30,16 @@ jobs:
         working-directory: backend
 
       - name: Build frontend
-        # GENERATE_SOURCEMAP=false mirrors what render.yaml ships. CRA emits
-        # sourcemaps by default, which publish the entire original source —
-        # comments included — to anyone who fetches them. CI must build what
-        # production builds, or fitness function f2 below is checking an
-        # artifact nobody deploys.
-        #
-        # CI=false is deliberate and temporary. GitHub Actions sets CI=true
-        # automatically, and react-scripts turns every eslint warning into a
-        # build error when it is set. This repo carries ~20 pre-existing
-        # warnings (unused imports, exhaustive-deps, one eqeqeq), so the build
-        # would fail on day one for reasons unrelated to any change being
-        # tested. Clearing the backlog belongs with the Vite migration
-        # (ADR 0003), which replaces react-scripts' bundled eslint integration
-        # outright. Remove this once that lands and lint is its own step.
-        run: CI=false GENERATE_SOURCEMAP=false npm run build-frontend
+        # react-scripts is gone (ADR 0003, Vite migration): CI=false and
+        # GENERATE_SOURCEMAP=false were both CRA-specific workarounds --
+        # react-scripts turned every eslint warning into a build error under
+        # GitHub Actions' automatic CI=true, and CRA emitted sourcemaps by
+        # default. Vite has neither behaviour: it has no bundled lint-as-error
+        # step, and frontend/vite.config.ts sets build.sourcemap: false
+        # explicitly (see the comment there). `npm run build-frontend` alone
+        # now produces what production ships, which is what fitness function
+        # f2 below must scan.
+        run: npm run build-frontend
 
       # Fitness function f2 (docs/architecture/README.md, section 11): the
       # built frontend must contain no "ANTHROPIC" string and no key-shaped
