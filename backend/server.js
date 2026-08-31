@@ -28,24 +28,48 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-// NOTE: there used to be a single app-wide `express.json()` here. It has
-// been removed in favor of per-route body parsing: /api/chat applies its
-// own bounded size cap as part of the abuse guard (see routes/chats.js and
-// ADR 0002). Since ADR 0005 this is also the only route mounted — the
-// private app (workouts, projects, user/auth) was deleted rather than left
-// dormant behind this parser.
-//routes
-app.use("/api/chat", chatRoutes);
+// There is deliberately no app-wide `express.json()`. /api/chat applies its
+// own bounded size cap as the first link of the abuse guard (see
+// routes/chats.js and ADR 0002); a parser that already ran upstream would
+// silently bypass that cap.
+//
+// `routeManifest` is the single source of truth for which router mounts
+// where: the loop just below is the only place any router gets mounted, and
+// this same manifest is what fitness function f3
+// (backend/tests/security/routeAllowlist.test.js) walks to enumerate every
+// live route and check it against backend/security/routeAllowlist.json.
+//
+// Since ADR 0005 the API is portfolio-only: the workouts, projects and user
+// routers are gone, so /api/chat is the sole mount. Anything added here must
+// also be declared in routeAllowlist.json or f3 fails the build — that is the
+// point of the check (see risk r9 in model.json).
+const routeManifest = {
+  standalone: [{ method: "GET", path: "/health" }],
+  mounts: [{ prefix: "/api/chat", router: chatRoutes }],
+};
 
-// connect to db
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    // listen for requests
-    app.listen(port, () => {
-      console.log("Connected to DB & listening on port", port);
+routeManifest.mounts.forEach(({ prefix, router }) => {
+  app.use(prefix, router);
+});
+
+app.routeManifest = routeManifest;
+
+module.exports = app;
+
+// Only connect to Mongo and start listening when this file is run directly
+// (`node server.js`), not when it's merely required. Fitness function f3
+// requires this module to get the real, fully-mounted `app` and its
+// `routeManifest` without opening a DB connection or a port.
+if (require.main === module) {
+  mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => {
+      // listen for requests
+      app.listen(port, () => {
+        console.log("Connected to DB & listening on port", port);
+      });
+    })
+    .catch((error) => {
+      console.log(error);
     });
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+}

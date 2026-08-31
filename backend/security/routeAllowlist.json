@@ -1,0 +1,38 @@
+[
+  {
+    "method": "GET",
+    "path": "/health",
+    "exposure": "public",
+    "notes": "Infrastructure healthcheck, deliberately outside /api."
+  },
+  {
+    "method": "GET",
+    "path": "/api/chat",
+    "exposure": "public",
+    "notes": "Anonymous by design (ADR 0002) -- identity is unavailable as an abuse control. NOT covered by the request-size/rate-limit/token-ceiling guard; see docs/architecture/README.md section 12 risk register."
+  },
+  {
+    "method": "GET",
+    "path": "/api/chat/:id",
+    "exposure": "public",
+    "notes": "Anonymous by design (ADR 0002). Returns a transcript by id with no ownership check; see docs/architecture/README.md section 12 risk register."
+  },
+  {
+    "method": "POST",
+    "path": "/api/chat",
+    "exposure": "public",
+    "notes": "Anonymous by design (ADR 0002). Protected instead by the abuse guard: body size cap -> per-IP rate limit -> daily token ceiling, all before any Anthropic call. See fitness function f1."
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/chat/:id",
+    "exposure": "public",
+    "notes": "Anonymous by design (ADR 0002). Not billable, so outside the abuse guard's scope."
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/chat/:id",
+    "exposure": "public",
+    "notes": "Anonymous by design (ADR 0002). Protected instead by the abuse guard, same as POST /api/chat. See fitness function f1."
+  }
+]

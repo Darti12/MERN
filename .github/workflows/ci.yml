@@ -32,6 +32,25 @@ jobs:
       - name: Build frontend
         run: npm run build-frontend
 
+      # Fitness function f2 (docs/architecture/README.md, section 11): the
+      # built frontend must contain no "ANTHROPIC" string and no key-shaped
+      # literal. Guards the specific mistake the CRA -> Vite migration
+      # (ADR 0003) makes likely, since env-var inlining rules change between
+      # the two. Must run after the build step above, against its output.
+      - name: Scan built frontend for leaked secrets (fitness function f2)
+        run: node scripts/check-frontend-secrets.js
+
+      # Runs the full backend test suite, which includes:
+      #   - backend/tests/security/chatGuard.rateLimit.test.js and
+      #     chatGuard.tokenCeiling.test.js (fitness function f1): assert the
+      #     /api/chat abuse guard actually blocks -- N+1 requests from one
+      #     IP get a 429, and once the daily token ceiling is reached the
+      #     next request is rejected with ZERO calls made to the (stubbed)
+      #     Anthropic client.
+      #   - backend/tests/security/routeAllowlist.test.js (fitness function
+      #     f3): enumerates every mounted Express route and asserts it's
+      #     declared public or protected in backend/security/routeAllowlist.json,
+      #     matching its actual requireAuth exposure.
       - name: Run backend tests
         working-directory: backend
         run: |
