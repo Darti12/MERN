@@ -1,0 +1,759 @@
+{
+  "name": "filiphagen.com",
+  "kind": "brownfield",
+  "tier": "sketch",
+  "phase": 7,
+  "updated": "2026-08-31",
+  "purpose": "A personal portfolio site for Filip Hagen with an LLM-backed chatbot that answers questions about him. This design run hardens what already exists rather than rebuilding it: bound the cost and abuse exposure of the public chat endpoint, stop cold starts from delaying the portfolio itself, and get the toolchain off unmaintained Create React App. Success means the site loads instantly for a recruiter, the chatbot cannot spend unbounded money, and a dependency upgrade three months from now is a 30-minute job.",
+  "context": {
+    "actors": [
+      {
+        "id": "visitor",
+        "name": "Anonymous visitor",
+        "description": "Recruiter, colleague or curious reader. Never authenticates. Reads portfolio content and may chat."
+      },
+      {
+        "id": "abuser",
+        "name": "Opportunistic abuser",
+        "description": "Scripted or manual caller of the public chat endpoint, using it as free LLM access or to run up cost."
+      },
+      {
+        "id": "filip",
+        "name": "Filip (maintainer)",
+        "description": "Sole developer and operator. Evenings and weekends."
+      }
+    ],
+    "externalSystems": [
+      {
+        "id": "anthropic",
+        "name": "Anthropic Messages API",
+        "description": "Generates chatbot replies. Metered, billed per token.",
+        "critical": true
+      },
+      {
+        "id": "atlas",
+        "name": "MongoDB Atlas",
+        "description": "Managed Mongo free tier. Stores chat transcripts.",
+        "critical": false
+      },
+      {
+        "id": "render",
+        "name": "Render",
+        "description": "PaaS hosting the API. Currently scale-to-zero, causing cold starts.",
+        "critical": true
+      }
+    ]
+  },
+  "drivers": {
+    "functional": [
+      {
+        "id": "chat",
+        "title": "Anonymous visitor converses with a Claude-backed chatbot about Filip",
+        "significance": "The only dynamic path in the system. Touches SPA, API, Anthropic and the datastore, and is the sole place where an anonymous request causes billable spend. It sets the entire abuse and cost boundary, and it is the reason this architecture is more than static files."
+      },
+      {
+        "id": "portfolio",
+        "title": "Visitor browses About, Projects, CV and Contact in English or Norwegian",
+        "significance": "Ninety percent of the site's value and one hundred percent of its first impression. Content lives in i18n JSON and a hardcoded project list, not in the database, so this path needs no backend at all. Recognising that is what unlocks the style decision."
+      },
+      {
+        "id": "transcript",
+        "title": "A chat conversation survives a page reload via /chat/:id",
+        "significance": "The only reason the API is stateful and the only reason MongoDB is in the architecture at all. Worth naming because dropping it would remove a whole container."
+      }
+    ],
+    "constraints": [
+      {
+        "id": "c1",
+        "kind": "team",
+        "text": "One developer, part-time. No dedicated ops. Anything requiring routine attention will not get it."
+      },
+      {
+        "id": "c2",
+        "kind": "business",
+        "text": "Personal-project budget. The Anthropic key is real money with no revenue behind it."
+      },
+      {
+        "id": "c3",
+        "kind": "technical",
+        "text": "The chatbot must work for anonymous visitors. Putting it behind a login defeats its purpose, so identity is unavailable as an abuse control."
+      },
+      {
+        "id": "c4",
+        "kind": "technical",
+        "text": "www.filiphagen.com must keep working throughout. No flag day."
+      },
+      {
+        "id": "c5",
+        "kind": "technical",
+        "text": "Hosted on Render today. Scale-to-zero is the current cost/latency tradeoff."
+      }
+    ],
+    "concerns": [
+      "No observability beyond console.log — abuse would be invisible until the bill arrives",
+      "No CI. Tests exist for user and workout code that is about to be deleted; the chat path that actually runs in production is untested",
+      "react-scripts 5.0.1 is unmaintained, pinning TypeScript to 4.x and blocking dependency upgrades",
+      "Secrets are handled correctly today (server-side only) but nothing enforces that they stay that way"
+    ],
+    "team": {
+      "engineers": 1,
+      "teams": 1,
+      "experience": "Strong TypeScript, React, .NET, Elixir, Kafka, Kubernetes, Terraform. Comfortable with cloud fundamentals.",
+      "ops": "none"
+    }
+  },
+  "characteristics": {
+    "driving": [
+      {
+        "name": "security",
+        "top3": true,
+        "why": "An unauthenticated endpoint spends money on every call. This is the only characteristic whose failure has an unbounded downside, and it is already failing in production."
+      },
+      {
+        "name": "responsiveness",
+        "top3": true,
+        "why": "A recruiter waiting on a cold Node process is the failure mode that costs the most and is noticed the least. The portfolio must not be coupled to the API's wake-up time."
+      },
+      {
+        "name": "maintainability",
+        "top3": true,
+        "why": "One part-time developer. An upgrade path that hurts means the site rots, and CRA is already making it hurt."
+      },
+      {
+        "name": "affordability",
+        "top3": false,
+        "why": "The twin of security here. The architecture must make worst-case monthly spend a number Filip chooses, not a number an attacker chooses."
+      },
+      {
+        "name": "availability",
+        "top3": false,
+        "why": "A CV that 404s during a job search is expensive. Modest target, but the portfolio should survive the API being down."
+      },
+      {
+        "name": "deployability",
+        "top3": false,
+        "why": "Push-to-deploy already works and should keep working. Not a bottleneck, so not promoted."
+      },
+      {
+        "name": "observability",
+        "top3": false,
+        "why": "Promoted from implicit because abuse you cannot see is abuse you cannot stop. Minimum viable: request counts and token spend."
+      }
+    ],
+    "implicit": [
+      "feasibility",
+      "testability"
+    ],
+    "othersConsidered": [
+      {
+        "name": "scalability",
+        "why": "Traffic is a personal portfolio's traffic. One small instance is oversized already. Designing for scale here would be pure cost."
+      },
+      {
+        "name": "elasticity",
+        "why": "No bursts to absorb. Scale-to-zero is being used for cost, not elasticity."
+      },
+      {
+        "name": "fault tolerance",
+        "why": "A chatbot outage is an inconvenience, not an incident. Graceful degradation in the UI is enough; redundancy is not warranted."
+      },
+      {
+        "name": "data integrity",
+        "why": "The only stored data is anonymous chat transcripts of no lasting value. Losing them costs nothing, which is itself an argument for a TTL."
+      },
+      {
+        "name": "interoperability",
+        "why": "No third party integrates with this system and none will."
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "s1",
+      "characteristic": "security",
+      "source": "An anonymous script with no credentials",
+      "stimulus": "POSTs to /api/chat continuously from a handful of IPs",
+      "artifact": "the chat endpoint and its Anthropic egress",
+      "environment": "unattended, e.g. overnight or over a weekend",
+      "response": "requests beyond a per-IP allowance are rejected with 429 and requests beyond a global daily token ceiling are rejected outright; a genuine visitor asking a normal number of questions is never rejected",
+      "measure": "worst-case Anthropic spend in any 24h window stays under a configured cap (assumed $5/day), while a visitor sending up to 20 messages/day never sees a 429",
+      "importance": "H",
+      "difficulty": "H",
+      "assumed": true
+    },
+    {
+      "id": "s2",
+      "characteristic": "responsiveness",
+      "source": "A first-time visitor following a link from a CV or LinkedIn",
+      "stimulus": "loads www.filiphagen.com",
+      "artifact": "the SPA and its hosting",
+      "environment": "the API has been idle for hours and is scaled to zero",
+      "response": "the portfolio renders and is fully navigable with no dependency on the API; only the chat page shows a warming indicator",
+      "measure": "first contentful paint under 1.5s p95 regardless of API state; first chat reply within 8s p95 including cold start",
+      "importance": "H",
+      "difficulty": "M",
+      "assumed": true
+    },
+    {
+      "id": "s3",
+      "characteristic": "maintainability",
+      "source": "Filip, returning after three months away",
+      "stimulus": "adds a portfolio project and upgrades dependencies",
+      "artifact": "the frontend build and the API",
+      "environment": "a clean checkout, no memory of the codebase",
+      "response": "install, build and tests succeed without touching unrelated code or fighting the toolchain",
+      "measure": "clean install to green build in under 30 minutes, with no unmaintained build-tool dependency in the tree",
+      "importance": "M",
+      "difficulty": "H",
+      "assumed": true
+    }
+  ],
+  "styles": {
+    "partitioning": "technical",
+    "chosen": "static-first client/server (layered API behind a statically hosted SPA)",
+    "rationale": "The decisive observation is that the portfolio — the overwhelming majority of the site's value — needs no runtime at all. Its content lives in i18n JSON and a hardcoded list in Projects.tsx, not in MongoDB. Once the frontend is served as static assets from a CDN, the API's cold start stops being the visitor's problem and becomes only the chatbot's problem, which is exactly where it is tolerable. This buys responsiveness and availability essentially for free, because the SPA has no runtime to distribute: this is a two-deployable system with none of the distributed-systems cost, since one of the two halves is a bag of files. Technical partitioning is kept deliberately — there is no domain here worth slicing, only two capabilities, and drawing domain boundaries across a system this small would be ceremony. The API itself stays a layered Express monolith, hardened rather than restructured.",
+    "candidates": [
+      {
+        "name": "static-first client/server",
+        "score": 45,
+        "perCharacteristic": {
+          "security": 5,
+          "responsiveness": 5,
+          "maintainability": 4,
+          "affordability": 5,
+          "availability": 4,
+          "deployability": 5,
+          "observability": 3
+        },
+        "pros": [
+          "Portfolio load time fully decoupled from API cold start",
+          "Chat is the only attackable dynamic surface; everything else is static files",
+          "Portfolio stays up when the API is down or over budget",
+          "Frontend deploys independently on push",
+          "API can stay scale-to-zero, keeping cost near zero"
+        ],
+        "cons": [
+          "Two deploy targets instead of one",
+          "CORS and the API base URL become real configuration rather than an afterthought",
+          "A second vendor in the picture if the static host is not Render"
+        ]
+      },
+      {
+        "name": "single-service layered monolith (status quo, fixed)",
+        "score": 33,
+        "perCharacteristic": {
+          "security": 4,
+          "responsiveness": 2,
+          "maintainability": 4,
+          "affordability": 4,
+          "availability": 2,
+          "deployability": 4,
+          "observability": 3
+        },
+        "pros": [
+          "One deploy, one log stream, one URL",
+          "No CORS",
+          "Smallest possible change from today"
+        ],
+        "cons": [
+          "Couples the CV's load time to a sleeping Node process — the actual cold-start pain",
+          "Portfolio goes down whenever the API does",
+          "Paying for always-on to fix responsiveness costs money the static option does not"
+        ]
+      },
+      {
+        "name": "static site + serverless function for chat",
+        "score": 39,
+        "perCharacteristic": {
+          "security": 5,
+          "responsiveness": 3,
+          "maintainability": 3,
+          "affordability": 5,
+          "availability": 4,
+          "deployability": 5,
+          "observability": 3
+        },
+        "pros": [
+          "True scale-to-zero economics",
+          "No server to patch",
+          "Excellent deployability"
+        ],
+        "cons": [
+          "Rewrites the Express layer, which directly contradicts a hardening run",
+          "Per-invocation Mongo connection handling is a known sharp edge",
+          "Cold start moves onto the chat path rather than disappearing",
+          "Vendor coupling and worse local testing for a solo maintainer"
+        ]
+      }
+    ]
+  },
+  "containers": [
+    {
+      "id": "spa",
+      "name": "Portfolio SPA",
+      "kind": "ui",
+      "tech": "React 18 + TypeScript + MUI, built with Vite, served as static assets from a CDN",
+      "responsibility": "Renders all portfolio content (About, Projects, CV, Contact) from bundled i18n resources with no backend dependency, and hosts the chat UI which is the only view that calls the API.",
+      "dependsOn": [
+        {
+          "id": "api",
+          "how": "HTTPS/JSON, chat only",
+          "sync": true
+        }
+      ],
+      "external": false
+    },
+    {
+      "id": "api",
+      "name": "Chat API",
+      "kind": "service",
+      "tech": "Node 18 + Express 5 on Render",
+      "responsibility": "Serves /api/chat and /health. Applies the abuse guard (per-IP rate limit, request size cap, global daily token budget) before any billable call, then relays the conversation to Anthropic and persists the transcript. The abuse guard is the architecturally significant part; the CRUD around it is not.",
+      "dependsOn": [
+        {
+          "id": "anthropic",
+          "how": "HTTPS via Anthropic SDK",
+          "sync": true
+        },
+        {
+          "id": "chatstore",
+          "how": "Mongoose over TLS",
+          "sync": true
+        }
+      ],
+      "external": false
+    },
+    {
+      "id": "chatstore",
+      "name": "Chat transcripts",
+      "kind": "store",
+      "tech": "MongoDB Atlas free tier, with a TTL index",
+      "responsibility": "Stores anonymous chat transcripts so a conversation survives a reload via /chat/:id. Documents expire automatically after 30 days.",
+      "dependsOn": [],
+      "external": true
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic Messages API",
+      "kind": "external",
+      "tech": "claude-opus-5 via @anthropic-ai/sdk",
+      "responsibility": "Generates chatbot replies from the system prompt describing Filip plus the conversation history.",
+      "dependsOn": [],
+      "external": true
+    }
+  ],
+  "deployment": [
+    {
+      "id": "prod",
+      "name": "Production",
+      "nodes": [
+        {
+          "name": "CDN static host (Cloudflare Pages or Render Static Site)",
+          "contains": [
+            "spa"
+          ]
+        },
+        {
+          "name": "Render web service, scale-to-zero",
+          "contains": [
+            "api"
+          ]
+        },
+        {
+          "name": "MongoDB Atlas",
+          "contains": [
+            "chatstore"
+          ]
+        },
+        {
+          "name": "Anthropic",
+          "contains": [
+            "anthropic"
+          ]
+        }
+      ]
+    }
+  ],
+  "technology": [
+    {
+      "for": "spa",
+      "choice": "Vite",
+      "stage": "commodity",
+      "decision": "adopt",
+      "alternatives": [
+        "Keep react-scripts 5 (CRA)",
+        "Next.js",
+        "Remix"
+      ],
+      "why": "CRA is unmaintained and is what pins TypeScript to 4.x and blocks the MUI and React upgrade path — it is the direct cause of the stated maintainability pain. Vite is a like-for-like replacement for an SPA: the migration is mostly config plus an env-var prefix rename, and it preserves the static-output property the style decision depends on.",
+      "cost": "One migration of moderate risk. REACT_APP_* becomes VITE_*, and any CRA-specific import behaviour must be checked."
+    },
+    {
+      "for": "spa",
+      "choice": "Cloudflare Pages (or Render Static Site)",
+      "stage": "commodity",
+      "decision": "buy",
+      "alternatives": [
+        "Render Static Site",
+        "Netlify",
+        "Vercel",
+        "Keep serving from the Node process"
+      ],
+      "why": "Free tier, global CDN, push-to-deploy, and it puts the portfolio permanently out of reach of API downtime. Cloudflare additionally offers edge rate limiting that can front the API later. Render Static Site is the lower-friction alternative if staying single-vendor matters more than the edge controls.",
+      "cost": "A second vendor and a second DNS record. Either choice satisfies the style; this is a preference, not a structural decision."
+    },
+    {
+      "for": "api",
+      "choice": "Keep Express 5 on Render",
+      "stage": "commodity",
+      "decision": "keep",
+      "alternatives": [
+        "Fastify",
+        "Serverless function",
+        "Hono"
+      ],
+      "why": "The run's purpose is hardening. The Express layer works, and replacing it would spend the entire budget of attention on a change that improves no driving characteristic. Feasibility is implicit and a rewrite is a schedule risk with no payoff here.",
+      "cost": "Express keeps its ecosystem's habits, including easy-to-forget middleware ordering."
+    },
+    {
+      "for": "api",
+      "choice": "express-rate-limit + a persisted daily token budget counter",
+      "stage": "product",
+      "decision": "build on bought parts",
+      "alternatives": [
+        "Cloudflare Turnstile alone",
+        "An API gateway",
+        "Requiring login",
+        "Doing nothing"
+      ],
+      "why": "This is the direct answer to scenario s1 and the reason the whole design exists. Rate limiting bounds per-caller volume; the budget counter bounds total spend, which rate limiting alone does not — a distributed caller defeats per-IP limits but cannot defeat a global ceiling. Login is unavailable by constraint c3. Turnstile is a good later addition for bot proof-of-humanity but does not itself cap spend.",
+      "cost": "The global ceiling means a determined abuser can deny the chatbot to real visitors for the rest of the day. That is a deliberate trade: denial of service on a personal chatbot is strictly preferable to an unbounded bill."
+    },
+    {
+      "for": "anthropic",
+      "choice": "@anthropic-ai/sdk with claude-opus-5",
+      "stage": "product",
+      "decision": "buy",
+      "alternatives": [
+        "Keep hand-rolled axios calls to claude-3-7-sonnet-20250219",
+        "claude-haiku-4-5 for lower cost"
+      ],
+      "why": "The current code hand-rolls HTTP with a 5-attempt retry loop that retries on any error, including 400s — a bug that multiplies spend on malformed input, which is precisely the abuse case. The SDK has correct retry semantics, typed errors and streaming. claude-3-7-sonnet-20250219 is superseded. Streaming also improves the responsiveness scenario, since first token arrives long before the full reply.",
+      "cost": "Model choice is a live cost lever the maintainer should own: claude-haiku-4-5 is materially cheaper per token and adequate for short biographical answers. The architecture deliberately makes this decision safe to change either way, because the budget guard caps spend regardless of model."
+    },
+    {
+      "for": "chatstore",
+      "choice": "Keep MongoDB Atlas, add a 30-day TTL index",
+      "stage": "commodity",
+      "decision": "keep",
+      "alternatives": [
+        "Drop persistence entirely and make the API stateless",
+        "Move to sessionStorage in the browser"
+      ],
+      "why": "Transcripts back the /chat/:id reload behaviour. The TTL index is data minimisation: these are unauthenticated strangers' messages with no lasting value, so keeping them indefinitely is a liability with no benefit.",
+      "cost": "Keeps a database, and therefore a connection and a vendor, in an architecture that is one feature away from being stateless. Flagged as an open question rather than decided away."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "0001",
+      "title": "Use a statically hosted SPA with a separate API",
+      "status": "accepted",
+      "file": "adr/0001-static-first-spa.md",
+      "drivers": [
+        "responsiveness",
+        "availability",
+        "security"
+      ]
+    },
+    {
+      "id": "0002",
+      "title": "Use a rate limit and spend ceiling instead of authentication to protect the chat endpoint",
+      "status": "accepted",
+      "file": "adr/0002-chat-abuse-guard.md",
+      "drivers": [
+        "security",
+        "affordability"
+      ]
+    },
+    {
+      "id": "0003",
+      "title": "Use Vite in place of Create React App",
+      "status": "accepted",
+      "file": "adr/0003-vite-over-cra.md",
+      "drivers": [
+        "maintainability"
+      ]
+    },
+    {
+      "id": "0004",
+      "title": "Use the Anthropic SDK in place of hand-rolled HTTP calls",
+      "status": "accepted",
+      "file": "adr/0004-anthropic-sdk.md",
+      "drivers": [
+        "security",
+        "affordability",
+        "maintainability"
+      ]
+    },
+    {
+      "id": "0005",
+      "title": "Remove the workouts and admin application from the codebase",
+      "status": "accepted",
+      "file": "adr/0005-remove-private-app.md",
+      "drivers": [
+        "maintainability",
+        "security"
+      ]
+    }
+  ],
+  "risks": [
+    {
+      "id": "r1",
+      "text": "The chat endpoint is unauthenticated and unmetered in production right now. Anyone who finds it has free Claude access on Filip's key. This is not a future risk; it is a live one. Applies to PATCH /api/chat/:id as well as POST /api/chat — both call the Anthropic API.",
+      "severity": "high",
+      "likelihood": "high",
+      "mitigation": "RESOLVED 2026-08-31 (task `guard`): body size cap, per-IP rate limit and a persisted global daily token ceiling now run before any Anthropic call on both billable routes. Verified by fitness function f1.",
+      "scenario": "s1"
+    },
+    {
+      "id": "r2",
+      "text": "GET /api/chat reads req.user._id but no middleware sets req.user, so the route throws on every call. GET /api/chat/:id returns any stranger's transcript by id.",
+      "severity": "medium",
+      "likelihood": "high",
+      "mitigation": "Remove the listing route entirely — with anonymous chat there is no owner to list by — and make transcript retrieval require an unguessable id, which Mongo ObjectIds only weakly provide. Prefer a random token in the URL.",
+      "scenario": "s1"
+    },
+    {
+      "id": "r3",
+      "text": "ANTHROPIC_API_KEY leaks into the frontend bundle during the Vite migration, when env-var prefixes change from REACT_APP_ to VITE_ and inlining rules differ.",
+      "severity": "high",
+      "likelihood": "low",
+      "mitigation": "A CI check that greps the built bundle for key-shaped strings and for the variable name. Listed as fitness function f2.",
+      "scenario": "s1"
+    },
+    {
+      "id": "r4",
+      "text": "The container healthcheck polls /health, which does not exist. Under any orchestrator that acts on health, this is a permanent restart loop; on Render today it is simply a lie.",
+      "severity": "medium",
+      "likelihood": "medium",
+      "mitigation": "RESOLVED 2026-08-31 (task `health`): GET /health added to backend/server.js, returning 200 {\"status\":\"ok\"} outside /api.",
+      "scenario": "s2"
+    },
+    {
+      "id": "r5",
+      "text": "The Dockerfile builds the frontend and then runs react-scripts start, the development server, in production. The built assets are never served.",
+      "severity": "medium",
+      "likelihood": "high",
+      "mitigation": "RESOLVED 2026-08-31 (task `health`): the frontend was removed from the Dockerfile entirely — no frontend COPY, npm ci, build step or EXPOSE 3000 — and CMD is now `node backend/server.js`. Per ADR 0001 the container has no reason to touch frontend code.",
+      "scenario": "s2"
+    },
+    {
+      "id": "r6",
+      "text": "The CRA to Vite migration breaks the build or a runtime behaviour in a way that is only visible in production.",
+      "severity": "medium",
+      "likelihood": "medium",
+      "mitigation": "Migrate after the static host is in place, so the previous build output can be redeployed as an instant rollback.",
+      "scenario": "s3"
+    },
+    {
+      "id": "r7",
+      "text": "Sole maintainer with no ops. Any solution requiring routine attention silently stops receiving it.",
+      "severity": "medium",
+      "likelihood": "high",
+      "mitigation": "Every control chosen here is set-and-forget: a middleware, a TTL index, a CI check. Nothing in this design requires a human to look at a dashboard.",
+      "scenario": "s1"
+    },
+    {
+      "id": "r8",
+      "text": "The chat path — the only code that runs in production and the highest-churn code in the repo — has no tests, while the tested code (user, workouts) is being deleted.",
+      "severity": "medium",
+      "likelihood": "high",
+      "mitigation": "Port the test harness to cover the abuse guard specifically. The guard is the one piece where a silent regression costs money.",
+      "scenario": "s1"
+    },
+    {
+      "id": "r9",
+      "text": "The original analysis found the exposure on POST /api/chat and missed PATCH /api/chat/:id, which calls the same Anthropic path. Reasoning about remembered routes rather than enumerated ones is the failure mode; it will recur as the API grows.",
+      "severity": "medium",
+      "likelihood": "medium",
+      "mitigation": "Fitness function f3 enumerates the live Express router stack and fails the build on any route missing from the checked-in exposure allowlist.",
+      "scenario": "s1"
+    }
+  ],
+  "fitnessFunctions": [
+    {
+      "id": "f1",
+      "protects": "security",
+      "check": "An integration test fires N+1 requests at /api/chat from one IP and asserts the last one returns 429; a second test sets the daily token counter to its ceiling and asserts the next request is rejected before any Anthropic call is made (the SDK client is stubbed and must record zero calls).",
+      "mechanism": "ci"
+    },
+    {
+      "id": "f2",
+      "protects": "security",
+      "check": "After the frontend build, CI greps the output directory for the string ANTHROPIC and for key-shaped literals, and fails if either appears. Guards the one mistake that turns a private key public.",
+      "mechanism": "ci"
+    },
+    {
+      "id": "f3",
+      "protects": "security",
+      "check": "A test enumerates the Express router stack and asserts every mounted route is on an explicit allowlist of public endpoints. A newly added route fails the build until someone declares its exposure deliberately.",
+      "mechanism": "ci"
+    },
+    {
+      "id": "f4",
+      "protects": "responsiveness",
+      "check": "CI asserts the initial JS bundle stays under a gzip ceiling (start at the current size, ratchet down), and that the built SPA contains no request to the API on any route other than /chat — the property that keeps the portfolio independent of API cold start.",
+      "mechanism": "ci"
+    },
+    {
+      "id": "f5",
+      "protects": "maintainability",
+      "check": "A clean install from lockfile plus build plus test runs in CI on every push, and npm audit gates at high severity. Catches toolchain rot at the moment it appears rather than three months later.",
+      "mechanism": "ci"
+    }
+  ],
+  "migration": [
+    {
+      "step": 1,
+      "title": "Add the abuse guard to /api/chat",
+      "proves": "Spend is bounded by a number Filip chooses. Closes the live risk r1 without touching anything else.",
+      "risk": "low",
+      "rollback": "Remove the middleware; behaviour returns to today's."
+    },
+    {
+      "step": 2,
+      "title": "Add a real /health route and fix the container CMD to serve built assets",
+      "proves": "The deployment tells the truth about its own state.",
+      "risk": "low",
+      "rollback": "Revert two files."
+    },
+    {
+      "step": 3,
+      "title": "Delete the workouts, admin, projects and user surface",
+      "proves": "The portfolio-only scope holds — nothing public depended on those routes.",
+      "risk": "low",
+      "rollback": "Revert the commit; the code is in git history and nothing else references it."
+    },
+    {
+      "step": 4,
+      "title": "Publish the built SPA to a static host and point it at the API by absolute URL",
+      "proves": "The portfolio renders while the API is asleep — scenario s2's core claim.",
+      "risk": "medium",
+      "rollback": "Repoint DNS at the Render service, which still serves the app until step 5."
+    },
+    {
+      "step": 5,
+      "title": "Migrate the build from Create React App to Vite",
+      "proves": "The dependency tree can move again.",
+      "risk": "medium",
+      "rollback": "Redeploy the previous static build, which is already live and independent."
+    },
+    {
+      "step": 6,
+      "title": "Replace hand-rolled axios calls with the Anthropic SDK, update the model, add streaming",
+      "proves": "Retry semantics are correct and first token arrives fast.",
+      "risk": "low",
+      "rollback": "The axios path is a single function; revert it."
+    },
+    {
+      "step": 7,
+      "title": "Add the TTL index and drop the user_id placeholder from the chat model",
+      "proves": "Anonymous data does not accumulate indefinitely.",
+      "risk": "low",
+      "rollback": "Drop the index."
+    }
+  ],
+  "roadmap": [
+    {
+      "id": "guard",
+      "title": "Abuse guard on /api/chat: per-IP rate limit, body size cap, global daily token ceiling",
+      "proves": "Scenario s1. The one thing with an unbounded downside.",
+      "dependsOn": []
+    },
+    {
+      "id": "ci",
+      "title": "CI pipeline running install, build and test on push",
+      "proves": "Fitness functions can exist at all. Worthless if added after the erosion.",
+      "dependsOn": []
+    },
+    {
+      "id": "f-security",
+      "title": "Fitness functions f1, f2, f3",
+      "proves": "The guard cannot silently regress and secrets cannot reach the bundle.",
+      "dependsOn": [
+        "guard",
+        "ci"
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Real /health route; container serves built assets instead of the dev server",
+      "proves": "Deployment honesty.",
+      "dependsOn": []
+    },
+    {
+      "id": "scope",
+      "title": "Delete workouts, admin, projects and user code across frontend and backend",
+      "proves": "Portfolio-only scope. Removes auth, the largest untested surface.",
+      "dependsOn": [
+        "health"
+      ]
+    },
+    {
+      "id": "static",
+      "title": "Walking skeleton: build the SPA, publish to a static host, point chat at the API by absolute URL, verify end to end",
+      "proves": "The whole shape — static portfolio, remote API, external LLM, datastore — holds together.",
+      "dependsOn": [
+        "scope"
+      ]
+    },
+    {
+      "id": "f-perf",
+      "title": "Fitness function f4: bundle ceiling and no-API-on-portfolio-routes assertion",
+      "proves": "Scenario s2 cannot regress.",
+      "dependsOn": [
+        "static",
+        "ci"
+      ]
+    },
+    {
+      "id": "vite",
+      "title": "Migrate the frontend build to Vite",
+      "proves": "Scenario s3. Dependencies can move again.",
+      "dependsOn": [
+        "static"
+      ]
+    },
+    {
+      "id": "sdk",
+      "title": "Adopt @anthropic-ai/sdk, move to claude-opus-5, stream responses to the chat UI",
+      "proves": "Correct retries and fast first token.",
+      "dependsOn": [
+        "guard"
+      ]
+    },
+    {
+      "id": "ttl",
+      "title": "TTL index on chats; remove the user_id placeholder; harden transcript retrieval",
+      "proves": "Anonymous data minimisation, and closes risk r2.",
+      "dependsOn": [
+        "scope"
+      ]
+    }
+  ],
+  "assumptions": [
+    "The $5/day spend cap in scenario s1 is proposed, not given. It is the single most likely number in this document to be wrong — pick the figure you would be annoyed but not alarmed to see on a monthly bill, divided by 30.",
+    "20 messages per visitor per day as the threshold below which no legitimate user is ever rate-limited. Chosen to be generous; a real visitor sends closer to 5.",
+    "First contentful paint under 1.5s p95 and first chat reply under 8s p95 are proposed targets anchored on typical CDN delivery and Render cold-start times, not measured.",
+    "Render is assumed to remain scale-to-zero. If the API is moved to always-on, scenario s2's cold-start half disappears and step 4's urgency drops — though its availability benefit remains.",
+    "Chat transcripts are assumed to have no value beyond the reload-continuity feature. If they are ever read for interest, the 30-day TTL is wrong.",
+    "The daily ceiling was implemented as CHAT_DAILY_TOKEN_CEILING, default 300000 tokens (~$4.50/day worst case on current pricing) — the concrete form of the assumed $5/day cap. Change this env var, not the code, to move it."
+  ],
+  "openQuestions": [
+    "Is the /chat/:id reload-continuity feature actually used? If not, dropping persistence removes MongoDB from the architecture entirely and makes the API stateless — the largest available simplification in this design, and it is one feature away.",
+    "Cloudflare Pages or Render Static Site for the SPA? Both satisfy the architecture. Cloudflare adds edge rate limiting that would strengthen scenario s1; Render keeps everything with one vendor.",
+    "claude-opus-5 or claude-haiku-4-5 for the chatbot? The budget guard makes either safe, so this is a quality-versus-cost preference rather than an architectural decision.",
+    "Should the chatbot also require a Turnstile token? It stops casual scripted abuse before it reaches the rate limiter, at the cost of a third-party script on the page."
+  ]
+}
