@@ -1,0 +1,57 @@
+# Render blueprint for filiphagen.com.
+#
+# Two services, per ADR 0001 (static-first client/server):
+#
+#   filiphagen-web  — the SPA as pure static assets on Render's CDN. No Node
+#                     process, so it cannot cold-start. This is what makes the
+#                     portfolio's load time independent of the API.
+#   filiphagen-api  — the Express API, scale-to-zero. Only the chat page
+#                     depends on it, which is the one place a cold start is
+#                     tolerable.
+#
+# The static site is deliberately listed first: it serves ~90% of the site's
+# value and must never be coupled to the API's availability.
+
+services:
+  - type: web
+    runtime: static
+    name: filiphagen-web
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/build
+    # SPA fallback: client-side routing means /projects/mern and /cv are not
+    # files on disk. Without this rewrite a deep link or a refresh 404s.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Absolute origin of the API. Set in the Render dashboard to the API
+      # service's URL. Baked into the bundle at build time, so changing it
+      # requires a rebuild, not just a restart.
+      - key: REACT_APP_API_URL
+        sync: false
+
+  - type: web
+    runtime: node
+    name: filiphagen-api
+    plan: free
+    buildCommand: cd backend && npm ci
+    startCommand: node backend/server.js
+    # Uses the real /health route rather than the phantom one the old
+    # Dockerfile healthcheck polled.
+    healthCheckPath: /health
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # The static site's origin, so CORS admits it (backend/config/allowedOrigins.js).
+      - key: STATIC_SITE_URL
+        sync: false
+      # Abuse guard (ADR 0002). Defaults live in code; set here to override.
+      - key: CHAT_DAILY_TOKEN_CEILING
+        value: "300000"
+      - key: CHAT_RATE_LIMIT_MAX
+        value: "20"
+      - key: CHAT_BODY_LIMIT
+        value: 16kb
