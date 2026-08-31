@@ -20,13 +20,34 @@ const MAX_MESSAGES = Number(process.env.CHAT_MAX_MESSAGES) || 40;
 // maintainer decides cost should win for these short biographical answers.
 const MODEL = "claude-sonnet-5";
 
-const SYSTEM_PROMPT = `
+// Filip's date of birth, so the prompt never states a stale age. A hardcoded
+// age rots silently and without warning: this one had drifted to three years
+// out of date before anyone noticed, and the chatbot confidently repeated it.
+// Month is 0-based, and UTC is used throughout so the value does not flip a
+// day early or late depending on where the server runs.
+const BIRTHDATE = { year: 1997, month: 7, day: 16 }; // 16 August 1997
+
+function currentAge(now = new Date()) {
+  let age = now.getUTCFullYear() - BIRTHDATE.year;
+  const hadBirthdayThisYear =
+    now.getUTCMonth() > BIRTHDATE.month ||
+    (now.getUTCMonth() === BIRTHDATE.month && now.getUTCDate() >= BIRTHDATE.day);
+  if (!hadBirthdayThisYear) age -= 1;
+  return age;
+}
+
+// Built per request rather than once at module load: a long-running process
+// would otherwise keep serving last year's age indefinitely. The string only
+// actually changes on one day a year, so this stays stable enough for prompt
+// caching to work if it is ever enabled (see the note below).
+function buildSystemPrompt() {
+  return `
 You are a chatbot on Filip Hagen's website (www.filiphagen.com). You are helpful and answer questions about Filip Hagen.
-Filip is a 27 years old software developer with a specialization within web, data-pipeline, and Mixed Reality development.
+Filip is a ${currentAge()} years old software developer with a specialization within web, data-pipeline, and Mixed Reality development.
 He likes to play board games, bouldering, and read books in his spare time.
 Filip currently works at Blank A/S, but he worked in Sopra Steria for 3.5 years before.
-Some of the customers Filip has worked for are: Politiets IT-Enhet, Vår-Energi, RaaLabs, and illumie.
-Filip knows Elixir, .NET, C#, Typescript/Javascript, React, Kafka, Kubernetes, Terraform, Docker, Unity3D, Kotlin, and GCP/Azure fundamentals.
+Some of the customers Filip has worked for are: Politiets IT-Enhet, Vår-Energi, RaaLabs, Autodesk, and illumie.
+Filip knows Elixir, .NET, C#, Typescript/Javascript, React, Kafka, Kubernetes, Terraform, Docker, Unity3D, Kotlin, Mixpanel, and GCP/Azure fundamentals.
 
 This is some of Filips project experience:
 PIT (Police Information Technology)
@@ -41,12 +62,18 @@ Filip worked on a well planning visualization system, developing both a containe
 RaaLabs (Maritime Data Platform)
 Filip contributed to a maritime data-as-a-service platform serving major shipping companies. He worked across a three-tier data pipeline: an Upstreamer module using .NET, AKKA.NET and CBOR for sensor data collection and compression; a processing layer handling Azure Event Hub traffic and routing to TimescaleDB; and an Elixir/Phoenix API with pre-generated aggregations supporting multiple output formats.
 
+Autodesk (Experimentation and Data)
+Filip worked on data-driven product development for Autodesk, centred on A/B testing and experimentation. He drafted and implemented experiments end to end, instrumented and analysed them in Mixpanel, and worked across data science and AI-driven development.
+
 You are a kind chatbot, and enjoy talking to users. You answer questions with short sentences.
 `;
-// ^ Roughly 800 tokens: just under the ~1024-token minimum cacheable prefix
+}
+// ^ Roughly 900 tokens after the Autodesk section: still under the ~1024-token
+// minimum cacheable prefix
 // (ADR 0004), so prompt caching will not engage as written. If this prompt
 // grows, add a cache breakpoint by turning the `system` param above into
-// `[{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }]`
+// `[{ type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } }]`
+// (the age changes one day a year, so the cached prefix stays stable)
 // — it is identical on every request and close to free to cache once it
 // clears the minimum. Do not add the breakpoint below that threshold; it
 // would just add overhead for a prefix that never gets reused.
@@ -265,7 +292,7 @@ async function sendMessageToClaude(messages, { onDelta } = {}) {
   const stream = anthropic.messages.stream({
     model: MODEL,
     max_tokens: 1024,
-    system: SYSTEM_PROMPT,
+    system: buildSystemPrompt(),
     messages: cleanedList,
   });
 
@@ -310,6 +337,8 @@ function cleanObjects(objects, variablesToKeep) {
 }
 
 module.exports = {
+  currentAge,
+  buildSystemPrompt,
   getChat,
   createChat,
   deleteChat,
