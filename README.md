@@ -1,81 +1,91 @@
-# Introduction
-This is a sample/template project made using the MERN stack (Mongodb, Express, React, Node). 
-It was made to learn more about the stack and how one authenticates with JWT tokens. 
+# filiphagen.com
 
-This project was made by Filip, but it was based on a lot of different tutorials out there.
+Personal portfolio site with a Claude-backed chatbot that answers questions
+about Filip.
 
-# Setting up the project
+It began as a MERN learning project and still uses that stack, but it is no
+longer a template: the private half (JWT auth, user accounts, a workouts CRUD,
+an admin area) was removed in [ADR 0005](docs/architecture/adr/0005-remove-private-app.md).
+What remains is a portfolio and one chat endpoint.
 
-## Prerequisites 
-- A MongoDB Atlas service. This is a free service and is easy to setup. Go watch a youtube video on it if you want, but it should be fairly self-explanatory.
-- A code editor. I used webstorm, it has a 30-day free trial if you want to try it. I highly recommend it. I tried to use vscode as a lot of people do, but there is just so many extensions to set up correctly before it works like it should.
-- Node. I used v18.16.1
+## Shape
 
-
-## How to start the app
-1. Get the MONGO_URI from the MongoDB atlas instance and paste it into the corresponding variable in the -env file in the backend folder.
-2. Generate a random password for the SECRET variable in the .env folder. Use a password generator for this, make it at least 30 random characters.
-3. Navigate to the root folder "MERN" containing both the backend and frontend folder
-4. Run the command "npm run setup". This will install all packages required for both the backend and the frontend parts of the code
-5. Then run the command "npm run start". This will run both the frontend and the backend server concurrently in the same terminal. To run them separately, cd into both of the folders and run "npm run dev" for the backend, and "npm run start" for the frontend.
-
-
-# Packages used in the project
-## Frontend
-- React
-- React-router-dom
-- Redux
-- MUI
-- react-hook-form
-- yup
-- date-fns
-
-## Backend
-- bcrpyt
-- cors
-- dotenv
-- express
-- jsonwebtoken
-- mongoose
-- validator
-
-## Testing (Backend)
-- jest
-- supertest
-- mongodb-memory-server
-
-# Testing
-
-## Backend Tests
-The backend includes comprehensive test coverage for models, controllers, and middleware.
-
-### Running Tests
-- Run all tests: `cd backend && npm test`
-- Run model tests: `cd backend && npm run test:models`
-- Run controller tests: `cd backend && npm run test:controllers`
-- Run middleware tests: `cd backend && npm run test:middleware`
-- Run user-related tests: `cd backend && npm run test:user`
-- Run workout-related tests: `cd backend && npm run test:workout`
-- Generate coverage report: `cd backend && npm run test:coverage`
-
-### Test Structure
 ```
-backend/
-  tests/
-    setup.js                 # Test setup configuration
-    runTests.js              # Custom test runner script
-    models/                  # Model tests
-      userModel.test.js
-      workoutModel.test.js
-    controllers/             # Controller tests
-      userController.test.js
-      workoutController.test.js
-    middleware/              # Middleware tests
-      requireAuth.test.js
+Visitor ──► Portfolio SPA (static, CDN)          no backend, no cold start
+                │
+                └── /chat only ──► Express API ──► Anthropic Messages API
+                                        └───────► MongoDB Atlas (transcripts)
 ```
 
-### Testing Strategy
-- **Models**: Tests validate schemas, validations, and static methods
-- **Controllers**: Tests API endpoints with mocked requests/responses
-- **Middleware**: Tests authentication behavior with mocked tokens and users
-- **Integration**: Uses mongodb-memory-server for in-memory database testing
+The portfolio renders entirely from bundled i18n JSON and a hardcoded project
+list — it makes no API calls at all, which is why it can be served as static
+files and never waits on a sleeping backend. Only the chat page talks to the
+API. This is enforced, not just intended: a CI check fails the build if any
+non-chat route reaches the API.
+
+Full reasoning is in [`docs/architecture/`](docs/architecture/README.md) —
+arc42 document, five ADRs, and `model.json` as the source of truth.
+
+## Running locally
+
+**Prerequisites:** Node 18+, and a MongoDB (Atlas free tier, or local `mongod`).
+
+```bash
+npm run setup                      # install root, frontend and backend deps
+
+cp backend/.env.example backend/.env      # then fill in MONGO_URI and ANTHROPIC_API_KEY
+cp frontend/.env.example frontend/.env    # VITE_API_URL=http://localhost:4000
+
+npm run dev                        # API (nodemon) + Vite dev server together
+```
+
+Or separately: `npm run dev-backend` / `npm run dev-frontend`.
+
+`npm start` runs the **API alone** — it is the production entry point, and the
+frontend is served by a separate static host in production.
+
+## Tests and checks
+
+```bash
+cd backend && npm test             # Jest + supertest + in-memory Mongo
+
+npm run build-frontend             # tsc --noEmit && vite build
+node scripts/check-frontend-secrets.js            # no secrets in the bundle
+node scripts/check-bundle-size.js                 # initial JS under the gzip ceiling
+node scripts/check-portfolio-api-independence.js  # no non-chat route calls the API
+```
+
+The three scripts are **fitness functions**: automated checks that fail the
+build when an architectural property erodes. They run in CI on every push
+along with the backend suite and a route-exposure allowlist test. See
+[section 11](docs/architecture/README.md) of the architecture document for
+what each one protects and why.
+
+## The chat endpoint
+
+`/api/chat` is deliberately **unauthenticated** — a portfolio chatbot behind a
+login is useless. Since identity is unavailable as an abuse control, it is
+protected by an ordered guard instead, all of it before any billable call:
+
+```
+request body size cap → per-IP rate limit → daily token ceiling → Anthropic
+```
+
+The daily ceiling (`CHAT_DAILY_TOKEN_CEILING`) is what bounds the bill, and it
+**fails closed**: if the usage counter can't be read, the request is refused
+rather than spent. The trade — a database outage disables chat — is deliberate
+and recorded in [ADR 0002](docs/architecture/adr/0002-chat-abuse-guard.md).
+
+## Deploying
+
+See [DEPLOY.md](DEPLOY.md). Short version: a static site and an API service on
+Render, created in that order, with `VITE_API_URL` and `STATIC_SITE_URL`
+pointing at each other.
+
+## Stack
+
+**Frontend** — React 18, TypeScript 5, Vite, MUI, Redux Toolkit + RTK Query,
+react-router, react-hook-form + yup, i18next (English and Norwegian).
+
+**Backend** — Node 18, Express 5, Mongoose, `@anthropic-ai/sdk`,
+express-rate-limit. Jest, supertest and mongodb-memory-server for tests.

@@ -3,6 +3,12 @@
 Brownfield design run, **Sketch** tier, 2026-08-31. Purpose: harden an existing live system,
 not rebuild it.
 
+> **Status: built.** All ten roadmap slices were implemented and merged on 2026-08-31.
+> The design below is the reasoning; `roadmap.md` records the order it was built in, and
+> the risk table marks which risks the build actually closed. Two things this document got
+> wrong were found during implementation and are recorded as amendments in ADR 0002 and as
+> risk r9 — read those before trusting any single claim here.
+
 > This is a *considered* architecture, not a correct one. The scorecard below is an argument;
 > the numbers in the scenarios are estimates I proposed. Both are wrong in ways only building
 > will reveal — which is why the roadmap is ordered riskiest-first and the fitness functions

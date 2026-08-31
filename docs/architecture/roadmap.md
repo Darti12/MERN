@@ -1,4 +1,9 @@
-# Build roadmap
+# Build roadmap — COMPLETE
+
+All ten slices were executed on 2026-08-31 and merged to `main`. Kept as a record
+of the intended order and what each step was meant to prove; the outcome of each
+is recorded on the tasks themselves and summarised in the architecture README.
+
 
 Slices, ordered riskiest-first among steps that are independently valuable. Every step is
 independently abandonable — if you stop after any one of them, the site is in a better state
