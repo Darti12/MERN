@@ -348,13 +348,13 @@
       "name": "Production",
       "nodes": [
         {
-          "name": "Render Static Site (CDN) — SPA published as static assets",
+          "name": "Render Static Site 'MERN-frontend' (CDN) — srv-cio45al9aq06u3mh5al0, mern-0tft.onrender.com, www.filiphagen.com via Cloudflare",
           "contains": [
             "spa"
           ]
         },
         {
-          "name": "Render web service, scale-to-zero",
+          "name": "Render Web Service 'MERN-backend' (free, Frankfurt, scale-to-zero) — srv-cio6mst9aq06u3n16lp0, mern-backend-sjet.onrender.com",
           "contains": [
             "api"
           ]
@@ -601,7 +601,7 @@
       "text": "Render lost GitHub access to the repository (it is private and the GitHub App's grant no longer covers it), so every build fails at clone and even environment-variable writes fail with a GitHub 404. Both services are serving stale builds from 2025 and 2026-04.",
       "severity": "high",
       "likelihood": "high",
-      "mitigation": "Reconnect GitHub in the Render dashboard and grant access to Darti12/MERN. Cannot be done via API or MCP. Until then the live site is stale but not broken. See DEPLOY.md.",
+      "mitigation": "RESOLVED 2026-08-31: the repository was made public again, restoring the anonymous clone path the services were wired to in 2023. Both services now build and are live on f43640e. NOTE the underlying fragility remains — the services connect to GitHub anonymously, not through the Render GitHub App, so making the repo private again will break deploys the same way. Rewiring each service's repository connection through the App is the durable fix.",
       "scenario": "s2"
     }
   ],
