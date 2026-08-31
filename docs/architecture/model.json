@@ -348,7 +348,7 @@
       "name": "Production",
       "nodes": [
         {
-          "name": "CDN static host (Cloudflare Pages or Render Static Site)",
+          "name": "Render Static Site (CDN) — SPA published as static assets",
           "contains": [
             "spa"
           ]
@@ -390,17 +390,17 @@
     },
     {
       "for": "spa",
-      "choice": "Cloudflare Pages (or Render Static Site)",
+      "choice": "Render Static Site (CDN)",
       "stage": "commodity",
       "decision": "buy",
       "alternatives": [
-        "Render Static Site",
+        "Cloudflare Pages",
         "Netlify",
         "Vercel",
         "Keep serving from the Node process"
       ],
-      "why": "Free tier, global CDN, push-to-deploy, and it puts the portfolio permanently out of reach of API downtime. Cloudflare additionally offers edge rate limiting that can front the API later. Render Static Site is the lower-friction alternative if staying single-vendor matters more than the edge controls.",
-      "cost": "A second vendor and a second DNS record. Either choice satisfies the style; this is a preference, not a structural decision."
+      "why": "Chosen over Cloudflare Pages to keep a single vendor and one dashboard for a solo maintainer with no ops time. Free tier, global CDN, push-to-deploy, and it puts the portfolio permanently out of reach of API downtime — which is the property ADR 0001 is buying. A frontend/public/_redirects file is kept alongside render.yaml so a move to Cloudflare Pages or Netlify stays a DNS change rather than a code change.",
+      "cost": "Forgoes Cloudflare's edge rate limiting, which would have strengthened scenario s1 by shedding abusive traffic before it reaches the API. The in-process guard from ADR 0002 still bounds spend, so this is a defence-in-depth loss, not a control loss."
     },
     {
       "for": "api",
@@ -751,8 +751,8 @@
     "The daily ceiling was implemented as CHAT_DAILY_TOKEN_CEILING, default 300000 tokens (~$4.50/day worst case on current pricing) — the concrete form of the assumed $5/day cap. Change this env var, not the code, to move it."
   ],
   "openQuestions": [
+    "RESOLVED 2026-08-31 (task `static`): Render Static Site was chosen over Cloudflare Pages for single-vendor simplicity. A portable _redirects file is kept so the decision stays cheap to reverse.",
     "Is the /chat/:id reload-continuity feature actually used? If not, dropping persistence removes MongoDB from the architecture entirely and makes the API stateless — the largest available simplification in this design, and it is one feature away.",
-    "Cloudflare Pages or Render Static Site for the SPA? Both satisfy the architecture. Cloudflare adds edge rate limiting that would strengthen scenario s1; Render keeps everything with one vendor.",
     "claude-opus-5 or claude-haiku-4-5 for the chatbot? The budget guard makes either safe, so this is a quality-versus-cost preference rather than an architectural decision.",
     "Should the chatbot also require a Turnstile token? It stops casual scripted abuse before it reaches the rate limiter, at the cost of a third-party script on the page."
   ]

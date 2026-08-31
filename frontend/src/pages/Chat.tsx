@@ -1,6 +1,6 @@
 import React, {FormEvent, useEffect, useState} from "react";
 import {useLazyGetChatQuery, useUpdateChatMutation} from "../api/chatApi";
-import {IconButton, InputBase, Paper, Stack, Typography, Container} from "@mui/material";
+import {Alert, IconButton, InputBase, Paper, Stack, Typography, Container} from "@mui/material";
 import ChatBubble from "../components/ChatBubble";
 import {Controller, FieldValues, useForm} from "react-hook-form";
 import SendIcon from '@mui/icons-material/Send';
@@ -8,6 +8,7 @@ import {Message} from "../types/Chat";
 import {useParams} from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
+import { HEALTH_URL, isApiConfigured } from "../config";
 
 const Chat = () => {
     const methods = useForm();
@@ -27,10 +28,17 @@ const Chat = () => {
     const [serviceStatus, setServiceStatus] = useState<'Offline' | 'Turning on...' | 'Online'>('Offline');
 
     useEffect(() => {
+        // With no API configured there is nothing to poll — stay Offline and
+        // let the banner below explain it, rather than failing every 30s.
+        if (!isApiConfigured) {
+            setServiceStatus('Offline');
+            return;
+        }
+
         const checkServerStatus = async () => {
             try {
                 setServiceStatus('Turning on...');
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/health`);
+                const response = await fetch(HEALTH_URL);
                 if (!response.ok) {
                     throw new Error('Health check failed');
                 }
@@ -46,6 +54,13 @@ const Chat = () => {
         return () => clearInterval(interval);
     }, []);
 
+    // The API is scale-to-zero (ADR 0001), so Offline is an ordinary state
+    // rather than an error: the portfolio is unaffected and only this page
+    // degrades. Sending is blocked while offline so a message cannot be
+    // silently swallowed.
+    const isOffline = serviceStatus === 'Offline';
+    const canSend = !isLoading && !isOffline;
+
     const onSubmit = (e?: FormEvent) => {
         e?.preventDefault();
         // do your early validation here
@@ -54,6 +69,10 @@ const Chat = () => {
             const data: FieldValues = methods.getValues();
 
             if (data.text == null || data.text === "" ) {
+                return;
+            }
+
+            if (isOffline) {
                 return;
             }
 
@@ -108,6 +127,13 @@ const Chat = () => {
             <Typography>
                 {serviceStatus}
             </Typography>
+            {isOffline && (
+                <Alert severity="info" sx={{ mt: 1 }}>
+                    {isApiConfigured
+                        ? "The chat service is asleep and waking up. This can take up to a minute on the first message of the day — everything else on the site works normally in the meantime."
+                        : "The chat service is not configured for this build. The rest of the site is unaffected."}
+                </Alert>
+            )}
             <Stack spacing={2} alignItems="stretch" marginTop={2}>
                 {messages.map((item, index) => (
                     <ChatBubble key={index} message={item}/>
@@ -134,10 +160,10 @@ const Chat = () => {
                                 error={!!error}
                                 placeholder="Write something..."
                                 rows={4}
-                                disabled={isLoading}
+                                disabled={!canSend}
                             />
                             <IconButton type="button" sx={{p: '10px'}} onClick={onSubmit}
-                                        disabled={isLoading || !methods.getValues("text")}>
+                                        disabled={!canSend || !methods.getValues("text")}>
                                 <SendIcon/>
                             </IconButton>
                         </Paper>

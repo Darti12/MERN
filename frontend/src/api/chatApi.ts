@@ -1,8 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Project } from "../types/Project";
 import {Chat} from "../types/Chat";
-
-const apiURI = process.env.REACT_APP_API_URL;
+import { CHAT_API_BASE_URL } from "../config";
 export const chatApi = createApi({
   reducerPath: "chatApi",
   // Setting the baseUrl for every endpoint below.
@@ -10,7 +8,7 @@ export const chatApi = createApi({
   // anonymity is a hard constraint for the portfolio chatbot), and there is
   // no user state left in the store to source a token from since ADR 0005.
   baseQuery: fetchBaseQuery({
-    baseUrl: `${apiURI}/api/chat`,
+    baseUrl: CHAT_API_BASE_URL,
   }),
   tagTypes: ["Chat"],
   endpoints: (builder) => ({
