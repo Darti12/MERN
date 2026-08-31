@@ -587,6 +587,14 @@
       "likelihood": "medium",
       "mitigation": "Accepted deliberately: refusing to spend beats spending unverified. The portfolio is unaffected either way (ADR 0001), Mongo reconnects with exponential backoff without a redeploy, and the refusal is a fast 503 rather than a hang.",
       "scenario": "s1"
+    },
+    {
+      "id": "r11",
+      "text": "Transitive dependency vulnerabilities reached high and critical severity across all three package roots, and Node 18 went end-of-life in April 2025. Fitness function f5 caught this on CI's first run rather than at an unknown later date.",
+      "severity": "medium",
+      "likelihood": "high",
+      "mitigation": "Resolved 2026-08-31: concurrently moved to devDependencies and upgraded (it is a dev tool that production never loads); express bumped from a pinned 5.0.0 to ^5.2.1, clearing the cookie, qs, path-to-regexp and body-parser advisories in shipping code; vite and vitest upgraded past their vulnerable majors; Node moved to 22 LTS across CI, Dockerfile and render.yaml, with engines declared so a wrong runtime fails at install rather than mid-build. f5 keeps this from recurring silently.",
+      "scenario": "s3"
     }
   ],
   "fitnessFunctions": [

@@ -16,7 +16,7 @@
     "@anthropic-ai/sdk": "^0.122.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "5.0.0",
+    "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
     "mongoose": "^7.3.2"
   },
@@ -28,6 +28,11 @@
   "jest": {
     "testEnvironment": "node",
     "testTimeout": 30000,
-    "setupFilesAfterEnv": ["./tests/setup.js"]
+    "setupFilesAfterEnv": [
+      "./tests/setup.js"
+    ]
+  },
+  "engines": {
+    "node": ">=20.19"
   }
 }

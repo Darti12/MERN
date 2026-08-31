@@ -25,6 +25,10 @@ services:
         source: /*
         destination: /index.html
     envVars:
+      # Node 22 LTS. Vite 8 and @vitejs/plugin-react 6 require
+      # ^20.19 || >=22.12, and Node 18 went end-of-life in April 2025.
+      - key: NODE_VERSION
+        value: "22"
       # Absolute origin of the API. Set in the Render dashboard to the API
       # service's URL. Baked into the bundle at build time, so changing it
       # requires a rebuild, not just a restart. Renamed from REACT_APP_API_URL
@@ -47,6 +51,8 @@ services:
     # Dockerfile healthcheck polled.
     healthCheckPath: /health
     envVars:
+      - key: NODE_VERSION
+        value: "22"
       - key: MONGO_URI
         sync: false
       - key: ANTHROPIC_API_KEY

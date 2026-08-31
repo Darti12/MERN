@@ -28,7 +28,7 @@ arc42 document, five ADRs, and `model.json` as the source of truth.
 
 ## Running locally
 
-**Prerequisites:** Node 18+, and a MongoDB (Atlas free tier, or local `mongod`).
+**Prerequisites:** Node 22 (Node 18 is end-of-life; the build tooling requires ≥20.19), and a MongoDB (Atlas free tier, or local `mongod`).
 
 ```bash
 npm run setup                      # install root, frontend and backend deps
@@ -87,5 +87,5 @@ pointing at each other.
 **Frontend** — React 18, TypeScript 5, Vite, MUI, Redux Toolkit + RTK Query,
 react-router, react-hook-form + yup, i18next (English and Norwegian).
 
-**Backend** — Node 18, Express 5, Mongoose, `@anthropic-ai/sdk`,
+**Backend** — Node 22, Express 5, Mongoose, `@anthropic-ai/sdk`,
 express-rate-limit. Jest, supertest and mongodb-memory-server for tests.
