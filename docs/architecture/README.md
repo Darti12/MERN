@@ -115,6 +115,11 @@ value. A 30-day TTL index makes retention a property of the schema rather than a
 **Governance** — five CI checks, listed in §11. All fail the build; none require anyone to look
 at a dashboard, which matters for a maintainer with no ops time.
 
+Dependabot (`.github/dependabot.yml`) keeps the tree current so f5 has nothing to catch: minor
+and patch updates arrive grouped as one weekly PR per package root, majors as individual PRs
+because in this repo they are real migrations. Every PR runs the full pipeline, so a bump that
+breaks an architectural invariant fails before merge. f5 detects rot; Dependabot prevents it.
+
 ## 9. Decisions
 
 | ADR | Title |

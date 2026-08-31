@@ -1,0 +1,68 @@
+# Automated dependency maintenance.
+#
+# This repo went ~18 months without dependency updates and accumulated a
+# critical and several high advisories, plus a Node version that had reached
+# end-of-life. Fitness function f5 (npm audit in CI) now catches that, but
+# catching it is not the same as fixing it — this keeps the tree current so f5
+# has nothing to catch.
+#
+# Structure: minor and patch updates are GROUPED into one PR per directory, so
+# routine maintenance is a single weekly review. Major updates deliberately
+# arrive as their own PRs, because in this repo they are real migrations
+# (React 19, MUI 9, Redux Toolkit 2, Mongoose 9) and should never be merged
+# without reading the changelog.
+#
+# Every PR runs the full CI pipeline — install, build, tests, and the three
+# fitness function checks — so a bump that breaks the architecture's
+# invariants fails before it can be merged.
+
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "deps(root)"
+    groups:
+      root-minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "frontend"]
+    commit-message:
+      prefix: "deps(frontend)"
+    groups:
+      frontend-minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "backend"]
+    commit-message:
+      prefix: "deps(backend)"
+    groups:
+      backend-minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  # The CI workflow's own actions rot too, and a stale action is how a
+  # pipeline starts failing for reasons unrelated to the code.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "deps(actions)"
