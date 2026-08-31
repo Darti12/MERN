@@ -340,10 +340,23 @@ async function sendMessageToClaude(messages, { onDelta } = {}) {
     );
   }
 
+  // Keep ONLY text blocks.
+  //
+  // claude-sonnet-5 runs adaptive thinking by default, so a reply to anything
+  // non-trivial comes back as [thinking, text] rather than [text]. Thinking
+  // display defaults to omitted, so that first block carries an EMPTY string.
+  // Storing it caused two problems: the UI rendered content[0].text and got
+  // undefined (an empty bubble on exactly the interesting questions), and the
+  // block was replayed to the API on the next turn of the conversation.
+  //
+  // The thinking content is empty and has no value to keep, so it is dropped
+  // at the boundary rather than every consumer having to know about it.
+  const textBlocks = finalMessage.content.filter((b) => b.type === "text");
+
   return {
     role: finalMessage.role,
     time: new Date().toString(),
-    content: finalMessage.content,
+    content: textBlocks.length ? textBlocks : [{ type: "text", text: "" }],
   };
 }
 

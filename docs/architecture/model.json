@@ -627,6 +627,14 @@
       "likelihood": "high",
       "mitigation": "RESOLVED 2026-09-01: recordTokenUsage now sums input, output and both cache fields, and cache hit/write counts are logged per request so effectiveness is observable rather than assumed.",
       "scenario": "s1"
+    },
+    {
+      "id": "r16",
+      "text": "claude-sonnet-5 runs adaptive thinking by default, so replies to non-trivial questions arrive as [thinking, text] rather than [text], and thinking display defaults to omitted so the leading block carries an empty string. The UI read content[0].text, got undefined, and rendered an empty bubble on exactly the questions worth asking — while the network tab showed the reply had arrived. The empty thinking block was also replayed to the API on the next turn.",
+      "severity": "high",
+      "likelihood": "high",
+      "mitigation": "RESOLVED 2026-09-01: the controller keeps only text blocks when persisting, and the frontend reads a messageText() helper that joins every text block instead of indexing block 0. Regression test in backend/tests/controllers/thinkingBlocks.test.js. General lesson: never index content[0] on a model response.",
+      "scenario": "s1"
     }
   ],
   "fitnessFunctions": [

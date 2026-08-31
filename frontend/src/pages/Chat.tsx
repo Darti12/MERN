@@ -4,7 +4,7 @@ import {Alert, IconButton, InputBase, Paper, Stack, Typography, Container} from 
 import ChatBubble from "../components/ChatBubble";
 import {Controller, FieldValues, useForm} from "react-hook-form";
 import SendIcon from '@mui/icons-material/Send';
-import {Message} from "../types/Chat";
+import {Message, messageText} from "../types/Chat";
 import {useParams} from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
@@ -116,7 +116,7 @@ const Chat = () => {
                             const last = next[next.length - 1];
                             next[next.length - 1] = {
                                 ...last,
-                                content: [{ type: "text", text: last.content[0].text + text }],
+                                content: [{ type: "text", text: messageText(last) + text }],
                             };
                             return next;
                         });

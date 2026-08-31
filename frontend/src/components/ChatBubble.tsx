@@ -1,5 +1,5 @@
 import React from "react";
-import {Message} from "../types/Chat";
+import {Message, messageText} from "../types/Chat";
 import Paper from '@mui/material/Paper';
 import {formatDistanceToNow} from "date-fns";
 import {Box, Typography} from "@mui/material";
@@ -33,7 +33,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                 }}
             >
                 <Typography component="span">
-                    {props.message.content[0].text}
+                    {messageText(props.message)}
                     {props.isStreaming && (
                         <Box
                             component="span"
