@@ -5,7 +5,10 @@ import {formatDistanceToNow} from "date-fns";
 import {Box, Typography} from "@mui/material";
 
 interface ChatBubbleProps {
-    message: Message
+    message: Message,
+    // True while this bubble's content is still being appended to token by
+    // token (ADR 0004). Only ever true for the newest assistant message.
+    isStreaming?: boolean
 }
 
 const ChatBubble = (props: ChatBubbleProps) => {
@@ -29,12 +32,30 @@ const ChatBubble = (props: ChatBubbleProps) => {
                     wordWrap: "break-word",
                 }}
             >
-                <Typography>
+                <Typography component="span">
                     {props.message.content[0].text}
+                    {props.isStreaming && (
+                        <Box
+                            component="span"
+                            aria-hidden="true"
+                            sx={{
+                                display: "inline-block",
+                                width: "0.5em",
+                                marginLeft: "2px",
+                                borderRight: "2px solid currentColor",
+                                animation: "chat-bubble-cursor-blink 1s steps(1) infinite",
+                                "@keyframes chat-bubble-cursor-blink": {
+                                    "50%": { opacity: 0 },
+                                },
+                            }}
+                        />
+                    )}
                 </Typography>
             </Paper>
             <Typography variant="caption" sx={{mt: 0.5}}>
-                {formatDistanceToNow(new Date(props.message.time!!), {addSuffix: true})}
+                {props.isStreaming
+                    ? "typing…"
+                    : formatDistanceToNow(new Date(props.message.time!!), {addSuffix: true})}
             </Typography>
         </Box>
     )

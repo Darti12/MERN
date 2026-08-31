@@ -22,23 +22,30 @@ process.env.CHAT_BODY_LIMIT = "16kb";
 
 const RATE_LIMIT_MAX = Number(process.env.CHAT_RATE_LIMIT_MAX);
 
-// Stubs the Anthropic call (axios.post, per
-// backend/controllers/chatController.js's sendMessageToClaude) so this test
-// makes no real, billable network call, and so its call count can be
-// asserted on directly.
-jest.mock("axios", () => ({
-  post: jest.fn().mockResolvedValue({
-    data: {
-      role: "assistant",
-      content: [{ type: "text", text: "Hi there." }],
-      usage: { input_tokens: 10, output_tokens: 10 },
-    },
+// Stubs the Anthropic call (@anthropic-ai/sdk's client.messages.stream, per
+// backend/controllers/chatController.js's sendMessageToClaude — see ADR
+// 0004) so this test makes no real, billable network call, and so its call
+// count can be asserted on directly. mockStream stands in for the
+// MessageStream the real SDK returns: `.on()` is chainable and a no-op
+// (this test doesn't care about delta text), and `.finalMessage()` resolves
+// with a minimal message including `usage`.
+const mockStream = jest.fn().mockReturnValue({
+  on: jest.fn().mockReturnThis(),
+  finalMessage: jest.fn().mockResolvedValue({
+    role: "assistant",
+    content: [{ type: "text", text: "Hi there." }],
+    usage: { input_tokens: 10, output_tokens: 10 },
   }),
-}));
+});
+
+jest.mock("@anthropic-ai/sdk", () => {
+  return jest.fn().mockImplementation(() => ({
+    messages: { stream: mockStream },
+  }));
+});
 
 const express = require("express");
 const request = require("supertest");
-const axios = require("axios");
 const chatRoutes = require("../../routes/chats");
 
 const app = express();
@@ -65,6 +72,6 @@ describe("Chat abuse guard: per-IP rate limit (fitness function f1)", () => {
     // Sanity check: the allowed requests really did reach the Anthropic
     // client, so the 429 above is the rate limiter doing its job, not some
     // unrelated failure that happens to share a status code.
-    expect(axios.post).toHaveBeenCalledTimes(RATE_LIMIT_MAX);
+    expect(mockStream).toHaveBeenCalledTimes(RATE_LIMIT_MAX);
   });
 });

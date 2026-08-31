@@ -1,5 +1,5 @@
 import React, {FormEvent, useEffect, useState} from "react";
-import {useLazyGetChatQuery, useUpdateChatMutation} from "../api/chatApi";
+import {useLazyGetChatQuery, streamChatUpdate} from "../api/chatApi";
 import {Alert, IconButton, InputBase, Paper, Stack, Typography, Container} from "@mui/material";
 import ChatBubble from "../components/ChatBubble";
 import {Controller, FieldValues, useForm} from "react-hook-form";
@@ -22,7 +22,10 @@ const Chat = () => {
         time: new Date().toString()
     }] as Message[]);
 
-    const [updateChat, { isLoading, error, isSuccess, data: newChat }] = useUpdateChatMutation();
+    // The reply streams in token by token (ADR 0004) rather than arriving as
+    // one RTK Query mutation result, so sending state is tracked locally.
+    const [isSending, setIsSending] = useState(false);
+    const [sendError, setSendError] = useState<string | null>(null);
     const [getChat, {data: initialChat}] = useLazyGetChatQuery();
 
     const [serviceStatus, setServiceStatus] = useState<'Offline' | 'Turning on...' | 'Online'>('Offline');
@@ -59,7 +62,7 @@ const Chat = () => {
     // degrades. Sending is blocked while offline so a message cannot be
     // silently swallowed.
     const isOffline = serviceStatus === 'Offline';
-    const canSend = !isLoading && !isOffline;
+    const canSend = !isSending && !isOffline;
 
     const onSubmit = (e?: FormEvent) => {
         e?.preventDefault();
@@ -72,7 +75,7 @@ const Chat = () => {
                 return;
             }
 
-            if (isOffline) {
+            if (isOffline || isSending) {
                 return;
             }
 
@@ -90,23 +93,48 @@ const Chat = () => {
                 }
             ];
 
-            setMessages(newMessages);
-            updateChat({
-                _id: id,
-                messages: newMessages
-            });
+            // A placeholder assistant bubble that fills in as tokens stream
+            // back (ADR 0004) — appended once, then mutated in place by
+            // onDelta below rather than growing the array per token.
+            setMessages([
+                ...newMessages,
+                { role: "assistant", content: [{ type: "text", text: "" }], time: new Date().toString() },
+            ]);
+            setSendError(null);
+            setIsSending(true);
             methods.reset();
+
+            streamChatUpdate(
+                { _id: id, messages: newMessages },
+                {
+                    onDelta: (text) => {
+                        setMessages((prev) => {
+                            const next = [...prev];
+                            const last = next[next.length - 1];
+                            next[next.length - 1] = {
+                                ...last,
+                                content: [{ type: "text", text: last.content[0].text + text }],
+                            };
+                            return next;
+                        });
+                    },
+                    onDone: (chat) => {
+                        setIsSending(false);
+                        if (!id && chat._id) {
+                            navigate(`/chat/${chat._id}`);
+                        }
+                        if (chat.messages) {
+                            setMessages(chat.messages);
+                        }
+                    },
+                    onError: (message) => {
+                        setIsSending(false);
+                        setSendError(message);
+                    },
+                }
+            );
         })(e);
     };
-
-    useEffect(() => {
-        if (!id && newChat){
-            navigate(`/chat/${newChat._id}`);
-        }
-        if (newChat){
-            setMessages(newChat.messages!!)
-        }
-    }, [newChat]);
 
     useEffect(() => {
         if (id){
@@ -123,7 +151,7 @@ const Chat = () => {
 
     return (
         <Container maxWidth="md">
-            <PageHeader overrideHeader={"Claude Sonnet"}/>
+            <PageHeader overrideHeader={"Chat with Claude"}/>
             <Typography>
                 {serviceStatus}
             </Typography>
@@ -134,9 +162,18 @@ const Chat = () => {
                         : "The chat service is not configured for this build. The rest of the site is unaffected."}
                 </Alert>
             )}
+            {sendError && (
+                <Alert severity="error" sx={{ mt: 1 }} onClose={() => setSendError(null)}>
+                    {sendError}
+                </Alert>
+            )}
             <Stack spacing={2} alignItems="stretch" marginTop={2}>
                 {messages.map((item, index) => (
-                    <ChatBubble key={index} message={item}/>
+                    <ChatBubble
+                        key={index}
+                        message={item}
+                        isStreaming={isSending && index === messages.length - 1 && item.role === "assistant"}
+                    />
                 ))}
             </Stack>
             <form onSubmit={onSubmit} style={{marginTop: '20px'}}>

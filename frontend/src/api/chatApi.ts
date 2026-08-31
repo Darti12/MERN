@@ -1,6 +1,87 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {Chat} from "../types/Chat";
 import { CHAT_API_BASE_URL } from "../config";
+
+// Sending a message streams the reply back token-by-token (ADR 0004) as
+// server-sent events, rather than one JSON blob. fetchBaseQuery always
+// awaits and parses a full response body, so it can't express that — this
+// helper uses the raw Fetch API instead and is called directly from
+// Chat.tsx rather than through an RTK Query mutation hook. getChat/getChats/
+// deleteChat below are unaffected and stay on fetchBaseQuery as before.
+export type ChatStreamEvent =
+  | { type: "delta"; text: string }
+  | { type: "done"; chat: Chat }
+  | { type: "error"; error: string };
+
+export interface ChatStreamHandlers {
+  onDelta: (text: string) => void;
+  onDone: (chat: Chat) => void;
+  onError: (message: string) => void;
+}
+
+/**
+ * POSTs a message list to /api/chat and relays the streamed reply to the
+ * given handlers as it arrives. Resolves once the stream ends (successfully
+ * or not) — errors are reported via `onError`, never thrown.
+ */
+export async function streamChatUpdate(
+  payload: Chat,
+  handlers: ChatStreamHandlers
+): Promise<void> {
+  try {
+    const response = await fetch(`${CHAT_API_BASE_URL}/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok || !response.body) {
+      const text = await response.text().catch(() => "");
+      handlers.onError(text || `Request failed with status ${response.status}`);
+      return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      // SSE frames are separated by a blank line; a chunk from the network
+      // may contain zero, one, or several complete frames, and may end
+      // mid-frame, so drain every complete frame and keep the remainder.
+      let boundary = buffer.indexOf("\n\n");
+      while (boundary !== -1) {
+        const rawEvent = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 2);
+
+        const dataLine = rawEvent
+          .split("\n")
+          .find((line) => line.startsWith("data: "));
+
+        if (dataLine) {
+          const event = JSON.parse(dataLine.slice("data: ".length)) as ChatStreamEvent;
+          if (event.type === "delta") {
+            handlers.onDelta(event.text);
+          } else if (event.type === "done") {
+            handlers.onDone(event.chat);
+          } else if (event.type === "error") {
+            handlers.onError(event.error);
+          }
+        }
+
+        boundary = buffer.indexOf("\n\n");
+      }
+    }
+  } catch (error) {
+    handlers.onError(error instanceof Error ? error.message : "Chat request failed");
+  }
+}
+
 export const chatApi = createApi({
   reducerPath: "chatApi",
   // Setting the baseUrl for every endpoint below.
@@ -26,14 +107,9 @@ export const chatApi = createApi({
       }),
       providesTags: ["Chat"],
     }),
-    updateChat: builder.mutation<Chat, Chat>({
-      query: (data) => ({
-        url: "/",
-        method: "POST",
-        body: data,
-      }),
-      invalidatesTags: ["Chat"],
-    }),
+    // Sending a message (the only endpoint that calls Anthropic) went from a
+    // POST mutation here to the streamChatUpdate() helper above — see its
+    // comment for why.
     deleteChat: builder.mutation<Chat, string>({
       query: (id) => ({
         url: `/${id}`,
@@ -48,6 +124,5 @@ export const {
   useGetChatQuery,
   useLazyGetChatQuery,
   useGetChatsQuery,
-  useUpdateChatMutation,
   useDeleteChatMutation
 } = chatApi;
