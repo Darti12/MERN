@@ -1,12 +1,74 @@
 const Chat = require("../models/ChatModel");
 const mongoose = require("mongoose");
-const axios = require("axios")
+const Anthropic = require("@anthropic-ai/sdk");
 const { recordTokenUsage } = require("../middleware/tokenCeiling");
+
+// No arguments: resolves ANTHROPIC_API_KEY from the environment (see
+// docs/architecture/adr/0004-anthropic-sdk.md). Never pass a key literal
+// here, and never construct this client in anything under frontend/.
+const anthropic = new Anthropic();
 
 // Part of the abuse guard (ADR 0002): reject oversized message arrays before
 // any Anthropic call, independent of the request body size cap (a payload
 // can be small in bytes but still carry an absurd number of turns).
 const MAX_MESSAGES = Number(process.env.CHAT_MAX_MESSAGES) || 40;
+
+// Model choice is a live cost lever, not an architectural decision (ADR
+// 0004): the guard (ADR 0002) bounds worst-case daily spend regardless of
+// which model is picked. docs/architecture/README.md section 14 still lists
+// this as an open question, so default to the best-quality option here.
+// claude-haiku-4-5 is the documented, materially cheaper alternative if the
+// maintainer decides cost should win for these short biographical answers.
+const MODEL = "claude-opus-5";
+
+const SYSTEM_PROMPT = `
+You are a chatbot on Filip Hagen's website (www.filiphagen.com). You are helpful and answer questions about Filip Hagen.
+Filip is a 27 years old software developer with a specialization within web, data-pipeline, and Mixed Reality development.
+He likes to play board games, bouldering, and read books in his spare time.
+Filip currently works at Blank A/S, but he worked in Sopra Steria for 3.5 years before.
+Some of the customers Filip has worked for are: Politiets IT-Enhet, Vår-Energi, RaaLabs, and illumie.
+Filip knows Elixir, .NET, C#, Typescript/Javascript, React, Kafka, Kubernetes, Terraform, Docker, Unity3D, Kotlin, and GCP/Azure fundamentals.
+
+This is some of Filips project experience:
+PIT (Police Information Technology)
+Filip worked as one of two developers on a Norwegian police system implementing EU regulations for information systems like EES, ETIAS, VIS and EURODAC. He developed across the full stack using React, Redux, TypeScript for frontend and Spring Boot, Kafka, Kotlin for backend, while utilizing modern tools like Kubernetes, Cypress for CI/CD testing, and Storybook for UI development.
+
+Illumie (AR Accessibility Solution)
+Filip served as a Mixed Reality developer on an award-winning project creating AR solutions for blind and visually impaired users. He developed both the Shield obstacle detection module and GeoNotes spatial information system using Unity, Azure Spatial Anchors, ARKit, ARDK, Azure Computer Vision, and Azure Translation services, including backend development with Azure Cosmos DB.
+
+Energy Company Well Planning
+Filip worked on a well planning visualization system, developing both a containerized Azure cloud solution using .NET, MongoDB and Docker, and a Petrel plugin using Ocean API. He created AR applications in Unity for HoloLens 2 visualization of geological models using holographic remoting, and built networking solutions for automatic device discovery and connection.
+
+RaaLabs (Maritime Data Platform)
+Filip contributed to a maritime data-as-a-service platform serving major shipping companies. He worked across a three-tier data pipeline: an Upstreamer module using .NET, AKKA.NET and CBOR for sensor data collection and compression; a processing layer handling Azure Event Hub traffic and routing to TimescaleDB; and an Elixir/Phoenix API with pre-generated aggregations supporting multiple output formats.
+
+You are a kind chatbot, and enjoy talking to users. You answer questions with short sentences.
+`;
+// ^ Roughly 800 tokens: just under the ~1024-token minimum cacheable prefix
+// (ADR 0004), so prompt caching will not engage as written. If this prompt
+// grows, add a cache breakpoint by turning the `system` param above into
+// `[{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }]`
+// — it is identical on every request and close to free to cache once it
+// clears the minimum. Do not add the breakpoint below that threshold; it
+// would just add overhead for a prefix that never gets reused.
+
+// Headers for the streamed chat reply. Sent once, before any Anthropic
+// token or DB write, so the abuse guard's 429s (routes/chats.js) always
+// happen as ordinary JSON responses — this only ever runs after the guard
+// has already let the request through.
+const SSE_HEADERS = {
+  "Content-Type": "text/event-stream",
+  "Cache-Control": "no-cache",
+  Connection: "keep-alive",
+  // Disables response buffering on nginx-style proxies in front of the API,
+  // so tokens actually reach the browser as they arrive instead of being
+  // held until the buffer fills.
+  "X-Accel-Buffering": "no",
+};
+
+function writeEvent(res, event) {
+  res.write(`data: ${JSON.stringify(event)}\n\n`);
+}
 
 //get all chats
 const getChats = async (req, res) => {
@@ -61,35 +123,55 @@ const createChat = async (req, res) => {
   }
 
   // Validate and format the messages
-  const formattedMessages = messages.map((message) => {
-    if (!message.role || !message.content) {
-      throw new Error("Invalid message structure");
-    }
-
-    // Parse the content field if it's a stringified array
-    const parsedContent = Array.isArray(message.content)
-        ? message.content
-        : JSON.parse(message.content);
-
-    const formattedContent = parsedContent.map((item) => {
-      if (typeof item === "string") {
-        return { type: "text", text: item };
-      } else if (item.type && item.text) {
-        return item;
-      } else {
-        throw new Error("Invalid content structure");
+  let formattedMessages;
+  try {
+    formattedMessages = messages.map((message) => {
+      if (!message.role || !message.content) {
+        throw new Error("Invalid message structure");
       }
+
+      // Parse the content field if it's a stringified array
+      const parsedContent = Array.isArray(message.content)
+          ? message.content
+          : JSON.parse(message.content);
+
+      const formattedContent = parsedContent.map((item) => {
+        if (typeof item === "string") {
+          return { type: "text", text: item };
+        } else if (item.type && item.text) {
+          return item;
+        } else {
+          throw new Error("Invalid content structure");
+        }
+      });
+
+      return {
+        time: message.time || new Date().toISOString(),
+        role: message.role,
+        content: formattedContent,
+      };
     });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
 
-    return {
-      time: message.time || new Date().toISOString(),
-      role: message.role,
-      content: formattedContent,
-    };
-  });
+  // Everything above this line can fail before any billable call, and
+  // responds with an ordinary status code + JSON body. From here on the
+  // response is a stream, so status is fixed at 200 and any failure is
+  // reported in-band as an "error" event instead.
+  res.writeHead(200, SSE_HEADERS);
 
-  // Assuming sendMessageToClaude returns a single message object
-  const claudeResponse = await sendMessageToClaude(formattedMessages);
+  let claudeResponse;
+  try {
+    claudeResponse = await sendMessageToClaude(formattedMessages, {
+      onDelta: (text) => writeEvent(res, { type: "delta", text }),
+    });
+  } catch (error) {
+    console.error(error);
+    writeEvent(res, { type: "error", error: error.message || "Claude request failed" });
+    return res.end();
+  }
+
   const combineMessages = [...formattedMessages, claudeResponse];
 
   try {
@@ -103,17 +185,20 @@ const createChat = async (req, res) => {
         { new: true }
       );
       if (!chat) {
-        return res.status(404).json({ error: "No such chat" });
+        writeEvent(res, { type: "error", error: "No such chat" });
+        return res.end();
       }
     } else {
       // Create new chat
       chat = await Chat.create({ messages: combineMessages, user_id: "blank" });
     }
 
-    res.status(200).json(chat);
+    writeEvent(res, { type: "done", chat });
+    res.end();
   } catch (error) {
-    console.log(error)
-    res.status(400).json({ error: error.message });
+    console.log(error);
+    writeEvent(res, { type: "error", error: error.message });
+    res.end();
   }
 };
 
@@ -153,108 +238,77 @@ const updateChat = async (req, res) => {
       .json({ error: `Messages must be an array of at most ${MAX_MESSAGES}` });
   }
 
-  const claudeResponse = await sendMessageToClaude(req.body.messages)
+  // From here on the response is a stream — see the comment in createChat.
+  res.writeHead(200, SSE_HEADERS);
 
-  console.log(claudeResponse)
+  let claudeResponse;
+  try {
+    claudeResponse = await sendMessageToClaude(req.body.messages, {
+      onDelta: (text) => writeEvent(res, { type: "delta", text }),
+    });
+  } catch (error) {
+    console.error(error);
+    writeEvent(res, { type: "error", error: error.message || "Claude request failed" });
+    return res.end();
+  }
 
   const chat = await Chat.findOneAndUpdate(
     { _id: id },
-    {
-      ...req.body,
-      ...{
-        messages: {
-          ...req.body.messages,
-          claudeResponse
-        }
-      }
-    },
+    { messages: [...req.body.messages, claudeResponse] },
+    { new: true }
   );
 
   if (!chat) {
-    return res.status(404).json({ error: "No such chat" });
+    writeEvent(res, { type: "error", error: "No such chat" });
+    return res.end();
   }
 
-  res.status(200).json(chat);
+  writeEvent(res, { type: "done", chat });
+  res.end();
 };
 
-async function sendMessageToClaude(messages, maxRetries = 5) {
+// Streams a reply from Anthropic. `onDelta`, if given, is called with each
+// text chunk as it arrives so the caller can relay it to the client before
+// the full reply is done (ADR 0004). Retry semantics — connection errors,
+// 429 and 5xx retried, 400s never retried — come from the SDK itself; there
+// is no hand-rolled retry loop here any more (that loop used to retry 400s
+// too, multiplying spend on requests that could never succeed).
+async function sendMessageToClaude(messages, { onDelta } = {}) {
   const cleanedList = cleanObjects(messages, ["role", "content"]);
-  const apiURL = 'https://api.anthropic.com/v1/messages';
-  const apiKey = process.env.ANTHROPIC_API_KEY;
 
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const response = await axios.post(apiURL, {
-        model: "claude-3-7-sonnet-20250219",
-        max_tokens: 1024,
-        system: `
-        You are a chatbot on Filip Hagen's website (www.filiphagen.com). You are helpful and answer questions about Filip Hagen. 
-        Filip is a 27 years old software developer with a specialization within web, data-pipeline, and Mixed Reality development. 
-        He likes to play board games, bouldering, and read books in his spare time.
-        Filip currently works at Blank A/S, but he worked in Sopra Steria for 3.5 years before. 
-        Some of the customers Filip has worked for are: Politiets IT-Enhet, Vår-Energi, RaaLabs, and illumie. 
-        Filip knows Elixir, .NET, C#, Typescript/Javascript, React, Kafka, Kubernetes, Terraform, Docker, Unity3D, Kotlin, and GCP/Azure fundamentals. 
-        
-        This is some of Filips project experience:
-        PIT (Police Information Technology)
-        Filip worked as one of two developers on a Norwegian police system implementing EU regulations for information systems like EES, ETIAS, VIS and EURODAC. He developed across the full stack using React, Redux, TypeScript for frontend and Spring Boot, Kafka, Kotlin for backend, while utilizing modern tools like Kubernetes, Cypress for CI/CD testing, and Storybook for UI development.
-        
-        Illumie (AR Accessibility Solution)
-        Filip served as a Mixed Reality developer on an award-winning project creating AR solutions for blind and visually impaired users. He developed both the Shield obstacle detection module and GeoNotes spatial information system using Unity, Azure Spatial Anchors, ARKit, ARDK, Azure Computer Vision, and Azure Translation services, including backend development with Azure Cosmos DB.
-        
-        Energy Company Well Planning
-        Filip worked on a well planning visualization system, developing both a containerized Azure cloud solution using .NET, MongoDB and Docker, and a Petrel plugin using Ocean API. He created AR applications in Unity for HoloLens 2 visualization of geological models using holographic remoting, and built networking solutions for automatic device discovery and connection.
-        
-        RaaLabs (Maritime Data Platform)
-        Filip contributed to a maritime data-as-a-service platform serving major shipping companies. He worked across a three-tier data pipeline: an Upstreamer module using .NET, AKKA.NET and CBOR for sensor data collection and compression; a processing layer handling Azure Event Hub traffic and routing to TimescaleDB; and an Elixir/Phoenix API with pre-generated aggregations supporting multiple output formats.
-        
-        You are a kind chatbot, and enjoy talking to users. You answer questions with short sentences. 
-        `,
-        messages: cleanedList
-      }, {
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json'
-        }
-      });
+  const stream = anthropic.messages.stream({
+    model: MODEL,
+    max_tokens: 1024,
+    system: SYSTEM_PROMPT,
+    messages: cleanedList,
+  });
 
-      const msg = response.data;
-
-      // Part of the abuse guard (ADR 0002): add this call's spend to the
-      // persisted daily counter so the ceiling check on the next request
-      // sees it. Fire-and-forget with its own error handling so a logging
-      // failure never breaks the chat response itself.
-      const usage = msg.usage;
-      if (usage) {
-        const totalTokens = (usage.input_tokens || 0) + (usage.output_tokens || 0);
-        recordTokenUsage(totalTokens).catch((err) =>
-          console.error("Failed to record token usage:", err)
-        );
-      }
-
-      return {
-        role: msg.role,
-        time: new Date().toString(),
-        content: msg.content
-      };
-    } catch (error) {
-      const status = error.response?.status;
-      // Only retry on connection errors (no response received), 429
-      // (rate limited by Anthropic), or 5xx (their transient failures).
-      // A 400 means malformed input — retrying it just multiplies spend
-      // on a request that will never succeed. This was the retry bug.
-      const isRetryable =
-        !error.response || status === 429 || (status >= 500 && status < 600);
-
-      console.error(
-        `Attempt ${attempt + 1} failed${status ? ` (status ${status})` : ""}:`,
-        error.message
-      );
-
-      if (!isRetryable || attempt === maxRetries - 1) throw error;
-    }
+  if (onDelta) {
+    stream.on("text", onDelta);
   }
+
+  // Rejects if the SDK's retries are exhausted or the request was invalid;
+  // callers are responsible for catching this once streaming has started.
+  const finalMessage = await stream.finalMessage();
+
+  // Part of the abuse guard (ADR 0002): add this call's spend to the
+  // persisted daily counter so the ceiling check on the next request
+  // sees it. Fire-and-forget with its own error handling so a logging
+  // failure never breaks the chat response itself. The SDK reports usage
+  // on the final message of the stream.
+  const usage = finalMessage.usage;
+  if (usage) {
+    const totalTokens = (usage.input_tokens || 0) + (usage.output_tokens || 0);
+    recordTokenUsage(totalTokens).catch((err) =>
+      console.error("Failed to record token usage:", err)
+    );
+  }
+
+  return {
+    role: finalMessage.role,
+    time: new Date().toString(),
+    content: finalMessage.content,
+  };
 }
 
 function cleanObjects(objects, variablesToKeep) {

@@ -15,22 +15,27 @@ process.env.CHAT_RATE_LIMIT_WINDOW_MS = String(24 * 60 * 60 * 1000);
 process.env.CHAT_DAILY_TOKEN_CEILING = "100";
 process.env.CHAT_BODY_LIMIT = "16kb";
 
-// Stubs the Anthropic call (axios.post, per
-// backend/controllers/chatController.js's sendMessageToClaude). Its call
-// count is the assertion this whole test exists for.
-jest.mock("axios", () => ({
-  post: jest.fn().mockResolvedValue({
-    data: {
-      role: "assistant",
-      content: [{ type: "text", text: "Hi there." }],
-      usage: { input_tokens: 10, output_tokens: 10 },
-    },
+// Stubs the Anthropic call (@anthropic-ai/sdk's client.messages.stream, per
+// backend/controllers/chatController.js's sendMessageToClaude — see ADR
+// 0004). Its call count is the assertion this whole test exists for.
+// mockStream stands in for the MessageStream the real SDK returns.
+const mockStream = jest.fn().mockReturnValue({
+  on: jest.fn().mockReturnThis(),
+  finalMessage: jest.fn().mockResolvedValue({
+    role: "assistant",
+    content: [{ type: "text", text: "Hi there." }],
+    usage: { input_tokens: 10, output_tokens: 10 },
   }),
-}));
+});
+
+jest.mock("@anthropic-ai/sdk", () => {
+  return jest.fn().mockImplementation(() => ({
+    messages: { stream: mockStream },
+  }));
+});
 
 const express = require("express");
 const request = require("supertest");
-const axios = require("axios");
 const { todayUTC } = require("../../middleware/tokenCeiling");
 const Usage = require("../../models/UsageModel");
 const chatRoutes = require("../../routes/chats");
@@ -56,6 +61,6 @@ describe("Chat abuse guard: daily token spend ceiling (fitness function f1)", ()
     // The point of this fitness function: the guard must reject BEFORE any
     // billable call, not after. Zero calls, not "one that got billed and
     // then apologized for." See ADR 0002.
-    expect(axios.post).not.toHaveBeenCalled();
+    expect(mockStream).not.toHaveBeenCalled();
   });
 });
