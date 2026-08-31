@@ -105,6 +105,22 @@ blip cannot fail the deploy; the connection retries with exponential backoff.
 Then load the site with the API asleep. The portfolio must render instantly;
 only `/chat` should show a warming notice.
 
+## Verifying a deploy is actually the one you think
+
+Render does a rolling deploy: the old instance keeps serving until the new one
+is healthy, so **`/health` returning 200 does not mean your new code is live**
+— the old instance answers it identically. During the overlap, consecutive
+requests can land on either instance and give contradictory answers.
+
+Confirm the deploy reached `status: "live"` before testing behaviour, and if
+something looks impossible (a rate-limit header above its own configured
+limit, say), suspect the overlap before suspecting the code.
+
+The same applies to static-site deploys, for a different reason: an
+env-var-only change can be republished from cache in ~30 seconds without a
+rebuild. Check the asset filenames actually changed, or trigger a deploy with
+the build cache cleared.
+
 ## Failure modes
 
 **Chat returns 503** — the spend ceiling **fails closed**: it refuses rather
