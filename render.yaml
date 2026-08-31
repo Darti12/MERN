@@ -30,6 +30,12 @@ services:
       # requires a rebuild, not just a restart.
       - key: REACT_APP_API_URL
         sync: false
+      # Do not publish sourcemaps. CRA emits them by default, which serves the
+      # entire original source — comments included — to anyone who asks.
+      # Fitness function f2 fails the build when it finds them, because a
+      # sourcemap is the easiest accidental way to publish something private.
+      - key: GENERATE_SOURCEMAP
+        value: "false"
 
   - type: web
     runtime: node
