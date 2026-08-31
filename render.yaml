@@ -27,15 +27,15 @@ services:
     envVars:
       # Absolute origin of the API. Set in the Render dashboard to the API
       # service's URL. Baked into the bundle at build time, so changing it
-      # requires a rebuild, not just a restart.
-      - key: REACT_APP_API_URL
+      # requires a rebuild, not just a restart. Renamed from REACT_APP_API_URL
+      # to VITE_API_URL by the Create React App -> Vite migration (ADR 0003) —
+      # only VITE_-prefixed vars get inlined into the Vite bundle.
+      - key: VITE_API_URL
         sync: false
-      # Do not publish sourcemaps. CRA emits them by default, which serves the
-      # entire original source — comments included — to anyone who asks.
-      # Fitness function f2 fails the build when it finds them, because a
-      # sourcemap is the easiest accidental way to publish something private.
-      - key: GENERATE_SOURCEMAP
-        value: "false"
+      # Sourcemaps are disabled explicitly in frontend/vite.config.ts
+      # (build.sourcemap: false) rather than via an env var — Vite has no
+      # GENERATE_SOURCEMAP convention the way CRA did. Fitness function f2
+      # still greps the build output as a backstop against publishing one.
 
   - type: web
     runtime: node

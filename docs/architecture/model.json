@@ -529,7 +529,7 @@
       "text": "ANTHROPIC_API_KEY leaks into the frontend bundle during the Vite migration, when env-var prefixes change from REACT_APP_ to VITE_ and inlining rules differ.",
       "severity": "high",
       "likelihood": "low",
-      "mitigation": "A CI check that greps the built bundle for key-shaped strings and for the variable name. Listed as fitness function f2.",
+      "mitigation": "RESOLVED 2026-08-31 (task `vite`): the only two files that ever read the CRA-style var (frontend/src/index.tsx, frontend/src/config.ts) were migrated to import.meta.env.VITE_API_URL; ANTHROPIC_API_KEY was never referenced from frontend/ and still isn't. Ongoing guard is a CI check that greps the built bundle for key-shaped strings and for the variable name. Listed as fitness function f2.",
       "scenario": "s1"
     },
     {
@@ -553,7 +553,7 @@
       "text": "The CRA to Vite migration breaks the build or a runtime behaviour in a way that is only visible in production.",
       "severity": "medium",
       "likelihood": "medium",
-      "mitigation": "Migrate after the static host is in place, so the previous build output can be redeployed as an instant rollback.",
+      "mitigation": "RESOLVED 2026-08-31 (task `vite`): react-scripts removed; frontend/vite.config.ts builds to frontend/build (unchanged from render.yaml's staticPublishPath), TypeScript upgraded to 5.x, and every CRA-specific behaviour called out in the ADR (i18next-http-backend's public/ loadPath, seedrandom, react-device-detect, the JSX runtime, process.env shims) was checked against Vite's equivalents. Migrated after the static host went live (task `static`), so the previous build remains an instant rollback per the ADR's sequencing note.",
       "scenario": "s3"
     },
     {

@@ -24,24 +24,23 @@
     "react-i18next": "^13.0.3",
     "react-redux": "^8.1.1",
     "react-router-dom": "^6.14.1",
-    "react-scripts": "5.0.1",
     "redux": "^4.2.1",
     "seedrandom": "^3.0.5",
     "styled-components": "^6.0.4",
-    "typescript": "^4.9.5",
     "yup": "^1.2.0"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "scripts": {
+    "start": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "preview": "vite preview"
   },
   "browserslist": {
     "production": [

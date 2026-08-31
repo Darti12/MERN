@@ -23,10 +23,11 @@ const path = require("path");
 
 const REPO_ROOT = path.resolve(__dirname, "..");
 
-// CRA (current build tool) outputs to frontend/build. A future Vite
-// migration (ADR 0003, roadmap step 8) outputs to frontend/dist. Support
-// both so this check doesn't need to change again when that migration
-// lands.
+// Vite (frontend/vite.config.ts, ADR 0003) is configured to output to
+// frontend/build, matching what render.yaml's staticPublishPath already
+// expected from the CRA era, so no infra config had to change. frontend/dist
+// -- Vite's own default -- is kept as a fallback in case that build.outDir
+// setting is ever removed.
 const CANDIDATE_BUILD_DIRS = ["frontend/build", "frontend/dist"];
 
 // Extensions that are binary/opaque and never worth scanning as text --

@@ -9,7 +9,11 @@ import { disableReactDevTools } from "@fvilers/disable-react-devtools";
 // import i18n (needs to be bundled ;))
 import "./i18n";
 
-if (process.env.REACT_APP_NODE_ENV === "production") {
+// import.meta.env.PROD is Vite's built-in production-build flag -- the
+// direct replacement for the old `process.env.REACT_APP_NODE_ENV ===
+// "production"` check, which was CRA-specific and, since REACT_APP_NODE_ENV
+// was never actually set anywhere in this repo, never fired.
+if (import.meta.env.PROD) {
   disableReactDevTools();
 }
 
