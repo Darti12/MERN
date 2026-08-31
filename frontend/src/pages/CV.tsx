@@ -261,7 +261,7 @@ const CV = () => {
                 <Typography variant="h5">{t(`cv.education.${edu.key}.degree`)}</Typography>
                 <Typography color="textSecondary" variant="caption">{t(`cv.education.${edu.key}.institution`)}</Typography>
                 <Typography color="textSecondary" variant="caption" gutterBottom>
-                  {dateToString(edu.startDate)} {t("to")} {dateToString(edu.endDate)}
+                  {dateToString(edu.startDate)} {t("cv.to")} {dateToString(edu.endDate)}
                 </Typography>
                 <Typography color="textSecondary" variant="body2">{t(`cv.education.${edu.key}.description`)}</Typography>
               </Stack>

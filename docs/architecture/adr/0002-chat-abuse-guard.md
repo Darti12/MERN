@@ -110,3 +110,30 @@ global ceiling over an unbounded bill, applied consistently.
 
 Guarded by a regression test in `backend/tests/security/chatGuard.tokenCeiling.test.js`.
 
+## Amendment 3 — 2026-09-01: the rate limit was not persistent
+
+The Decision above says the per-IP rate limit and the global ceiling "cover
+each other's gap: the rate limit stops one caller monopolising the budget, the
+ceiling stops many callers exhausting it." In production the first half was
+close to fiction.
+
+`express-rate-limit` defaults to an in-memory store, and this API runs
+scale-to-zero on Render's free tier, where a web service spins down after
+inactivity. Every cold start wiped the counter, so "20 requests per IP per 24
+hours" actually meant "20 per process lifetime" — and on a portfolio site with
+sparse traffic, a process lives for minutes. This was observed directly: four
+requests were sent across a redeploy and the limiter reported 19 remaining.
+
+The bill was never at risk, because the daily token ceiling is persisted in
+MongoDB and survived. Only per-caller fairness was affected. But the ADR
+claimed a protection that was not there, which is worse than not claiming it.
+
+The limiter is now backed by the same database as the ceiling
+(`backend/middleware/mongoRateLimitStore.js`), with a TTL index reaping expired
+windows. If the store itself fails, the request is refused with 503 rather than
+allowed through — consistent with amendment 2's fail-closed rule.
+
+Guarded by `backend/tests/security/chatGuard.rateLimitPersistence.test.js`,
+which simulates a restart with a second limiter and store instance sharing only
+the database, and asserts the count carries across.
+

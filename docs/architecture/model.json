@@ -3,7 +3,7 @@
   "kind": "brownfield",
   "tier": "sketch",
   "phase": 7,
-  "updated": "2026-08-31",
+  "updated": "2026-09-01",
   "purpose": "A personal portfolio site for Filip Hagen with an LLM-backed chatbot that answers questions about him. This design run hardens what already exists rather than rebuilding it: bound the cost and abuse exposure of the public chat endpoint, stop cold starts from delaying the portfolio itself, and get the toolchain off unmaintained Create React App. Success means the site loads instantly for a recruiter, the chatbot cannot spend unbounded money, and a dependency upgrade three months from now is a 30-minute job.",
   "context": {
     "actors": [
@@ -603,13 +603,21 @@
       "likelihood": "high",
       "mitigation": "RESOLVED 2026-08-31: the repository was made public again, restoring the anonymous clone path the services were wired to in 2023. Both services now build and are live on f43640e. NOTE the underlying fragility remains — the services connect to GitHub anonymously, not through the Render GitHub App, so making the repo private again will break deploys the same way. Rewiring each service's repository connection through the App is the durable fix.",
       "scenario": "s2"
+    },
+    {
+      "id": "r13",
+      "text": "The per-IP rate limit used express-rate-limit's in-memory store on a scale-to-zero service, so it reset on every cold start and the daily window was effectively unenforced. ADR 0002 claimed a protection that did not exist.",
+      "severity": "medium",
+      "likelihood": "high",
+      "mitigation": "RESOLVED 2026-09-01: the limiter is backed by MongoDB with a TTL index, and fails closed with 503 if the store is unreachable. Guarded by a restart-simulation test. The global token ceiling always was persistent, so worst-case spend was never affected.",
+      "scenario": "s1"
     }
   ],
   "fitnessFunctions": [
     {
       "id": "f1",
       "protects": "security",
-      "check": "An integration test fires N+1 requests at /api/chat from one IP and asserts the last one returns 429; a second test sets the daily token counter to its ceiling and asserts the next request is rejected before any Anthropic call is made (the SDK client is stubbed and must record zero calls). A third case asserts the guard FAILS CLOSED: with the usage counter unreadable, the request is refused with 503 and the stubbed client records zero calls.",
+      "check": "An integration test fires N+1 requests at /api/chat from one IP and asserts the last one returns 429; a second test sets the daily token counter to its ceiling and asserts the next request is rejected before any Anthropic call is made (the SDK client is stubbed and must record zero calls). A third case asserts the guard FAILS CLOSED: with the usage counter unreadable, the request is refused with 503 and the stubbed client records zero calls. A fourth case simulates a process restart with an independent limiter and store sharing only the database, asserting the per-IP count carries across.",
       "mechanism": "ci"
     },
     {

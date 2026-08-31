@@ -82,7 +82,28 @@ mongoose.set("bufferTimeoutMS", 5000);
 function connectWithRetry(attempt = 1) {
   mongoose
     .connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
-    .then(() => console.log("Connected to DB"))
+    .then(async () => {
+      console.log("Connected to DB");
+      // Report index state explicitly. The TTL index on chats and the unique
+      // index on its token are load-bearing (data retention, and closing
+      // transcript enumeration), but Mongoose builds them in the background
+      // and swallows failures. Without this, a silently unbuilt index looks
+      // exactly like a working one until transcripts never expire.
+      try {
+        const Chat = require("./models/ChatModel");
+        const indexes = await Chat.collection.indexes();
+        const names = indexes.map((i) => i.name).join(", ");
+        const hasTtl = indexes.some((i) => i.expireAfterSeconds !== undefined);
+        console.log(`Chat indexes: ${names} (TTL present: ${hasTtl})`);
+        if (!hasTtl) {
+          console.error(
+            "WARNING: no TTL index on chats — transcripts will accumulate indefinitely."
+          );
+        }
+      } catch (err) {
+        console.error("Could not read chat indexes:", err.message);
+      }
+    })
     .catch((error) => {
       // Exponential backoff, capped at 30s. A free-tier Atlas cluster can be
       // slow to accept the first connection; retrying beats requiring a

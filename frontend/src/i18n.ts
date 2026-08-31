@@ -21,7 +21,19 @@ i18n
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
     fallbackLng: "en-US",
-    debug: true,
+
+    // Only these two bundles exist under public/locales. Without
+    // nonExplicitSupportedLngs, a browser reporting "nb-NO" makes i18next
+    // request /locales/nb-NO/translation.json, which does not exist — and
+    // because the SPA rewrite answers every unknown path with index.html,
+    // i18next receives HTML and logs a JSON parse error on the first load for
+    // every Norwegian visitor. Resolving nb-NO to the "nb" bundle avoids the
+    // wasted request entirely.
+    supportedLngs: ["en-US", "nb"],
+    nonExplicitSupportedLngs: true,
+
+    // Developer noise; do not ship it to visitors.
+    debug: import.meta.env.DEV,
 
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
