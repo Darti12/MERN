@@ -26,6 +26,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// health check — infrastructure only, deliberately outside /api
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // NOTE: there used to be a single app-wide `express.json()` here. It has
 // been removed in favor of per-route body parsing: /api/chat applies its
 // own bounded size cap as part of the abuse guard (see routes/chats.js and
