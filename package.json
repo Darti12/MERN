@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start-frontend": "cd frontend && npm run start",
-    "start-backend": "cd backend && npm run dev",
-    "start": "concurrently \"npm:start-*\"",
+    "start": "node backend/server.js",
+    "dev": "concurrently \"npm:dev-backend\" \"npm:dev-frontend\"",
+    "dev-backend": "cd backend && npm run dev",
+    "dev-frontend": "cd frontend && npm run start",
     "setup": "npm i && cd frontend && npm i && cd .. && cd backend && npm i",
     "build-frontend": "cd frontend && npm run build"
   },
