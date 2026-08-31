@@ -521,7 +521,7 @@
       "text": "GET /api/chat reads req.user._id but no middleware sets req.user, so the route throws on every call. GET /api/chat/:id returns any stranger's transcript by id.",
       "severity": "medium",
       "likelihood": "high",
-      "mitigation": "Remove the listing route entirely — with anonymous chat there is no owner to list by — and make transcript retrieval require an unguessable id, which Mongo ObjectIds only weakly provide. Prefer a random token in the URL.",
+      "mitigation": "RESOLVED 2026-08-31 (task `ttl`): the listing route and its controller are deleted (there is no owner to list by), the user_id placeholder is gone from the schema, and GET/DELETE/PATCH /api/chat/:id now key on a random 32-byte token generated per chat rather than the Mongo ObjectId.",
       "scenario": "s1"
     },
     {

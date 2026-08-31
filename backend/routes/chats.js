@@ -4,7 +4,6 @@ const Chat = require("../models/ChatModel");
 const {
   createChat,
   getChat,
-  getChats,
   deleteChat,
   updateChat,
 } = require("../controllers/chatController");
@@ -45,21 +44,22 @@ const chatRateLimiter = rateLimit({
   },
 });
 
-//GET all projects
-router.get("/", getChats);
+// No list-all-chats route: chat is anonymous by constraint (ADR 0002), so
+// there is no ownership model to list against. A transcript is only ever
+// reached individually, by its high-entropy token (see ChatModel.js).
 
-//GET a single project
+//GET a single chat, by token
 router.get("/:id", getChat);
 
-//POST a new project
+//POST a new chat message
 // 3. Token ceiling check runs last, immediately before the controller that
 // calls Anthropic.
 router.post("/", chatRateLimiter, checkTokenCeiling, createChat);
 
-//DELETE a project
+//DELETE a chat, by token
 router.delete("/:id", deleteChat);
 
-//UPDATE a project
+//UPDATE a chat, by token
 // updateChat also calls sendMessageToClaude, so it gets the same guard.
 router.patch("/:id", chatRateLimiter, checkTokenCeiling, updateChat);
 

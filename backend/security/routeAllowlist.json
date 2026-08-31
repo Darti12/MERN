@@ -7,15 +7,9 @@
   },
   {
     "method": "GET",
-    "path": "/api/chat",
-    "exposure": "public",
-    "notes": "Anonymous by design (ADR 0002) -- identity is unavailable as an abuse control. NOT covered by the request-size/rate-limit/token-ceiling guard; see docs/architecture/README.md section 12 risk register."
-  },
-  {
-    "method": "GET",
     "path": "/api/chat/:id",
     "exposure": "public",
-    "notes": "Anonymous by design (ADR 0002). Returns a transcript by id with no ownership check; see docs/architecture/README.md section 12 risk register."
+    "notes": "Anonymous by design (ADR 0002). No list-all-chats route exists -- there is no ownership model to list against. :id is a per-conversation high-entropy token (see backend/models/ChatModel.js), not the Mongo ObjectId, so a transcript cannot be reached by guessing/enumerating ids."
   },
   {
     "method": "POST",

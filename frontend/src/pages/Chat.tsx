@@ -12,7 +12,10 @@ import { HEALTH_URL, isApiConfigured } from "../config";
 
 const Chat = () => {
     const methods = useForm();
-    let { id } = useParams();
+    // The URL param is the conversation's high-entropy token (see
+    // backend/models/ChatModel.js), not its Mongo ObjectId -- kept as `id`
+    // here only because that's the route param name in App.tsx.
+    let { id: token } = useParams();
     const navigate = useNavigate();
     const [messages, setMessages] = useState([{
         role: "assistant",
@@ -105,7 +108,7 @@ const Chat = () => {
             methods.reset();
 
             streamChatUpdate(
-                { _id: id, messages: newMessages },
+                { token, messages: newMessages },
                 {
                     onDelta: (text) => {
                         setMessages((prev) => {
@@ -120,8 +123,8 @@ const Chat = () => {
                     },
                     onDone: (chat) => {
                         setIsSending(false);
-                        if (!id && chat._id) {
-                            navigate(`/chat/${chat._id}`);
+                        if (!token && chat.token) {
+                            navigate(`/chat/${chat.token}`);
                         }
                         if (chat.messages) {
                             setMessages(chat.messages);
@@ -137,10 +140,10 @@ const Chat = () => {
     };
 
     useEffect(() => {
-        if (id){
-            getChat(id)
+        if (token){
+            getChat(token)
         }
-    }, [id]);
+    }, [token]);
 
     useEffect(() => {
         if (initialChat){

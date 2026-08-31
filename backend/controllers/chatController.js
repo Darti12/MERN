@@ -1,5 +1,4 @@
 const Chat = require("../models/ChatModel");
-const mongoose = require("mongoose");
 const Anthropic = require("@anthropic-ai/sdk");
 const { recordTokenUsage } = require("../middleware/tokenCeiling");
 
@@ -70,24 +69,18 @@ function writeEvent(res, event) {
   res.write(`data: ${JSON.stringify(event)}\n\n`);
 }
 
-//get all chats
-const getChats = async (req, res) => {
-  const user_id = req.user._id;
+// getChats (list-all-chats) is gone: it read req.user._id, a property
+// nothing ever set now that chat is anonymous by constraint (ADR 0002),
+// so the route threw on every call. There is no ownership model to list
+// against any more.
 
-  const chats = await Chat.find({ user_id }).sort({ createdAt: -1 });
-
-  res.status(200).json(chats);
-};
-
-//get a single chat
+//get a single chat, addressed by its high-entropy token rather than its
+// Mongo ObjectId (see ChatModel.js) so a transcript can't be fetched by
+// guessing/enumerating ids.
 const getChat = async (req, res) => {
   const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ error: "No such chat" });
-  }
-
-  const chat = await Chat.findById(id);
+  const chat = await Chat.findOne({ token: id });
 
   if (!chat) {
     return res.status(404).json({ error: "No such chat" });
@@ -98,7 +91,7 @@ const getChat = async (req, res) => {
 
 //create a new chat
 const createChat = async (req, res) => {
-  const { messages, _id } = req.body;
+  const { messages, token } = req.body;
   let emptyFields = [];
 
 
@@ -177,10 +170,10 @@ const createChat = async (req, res) => {
   try {
     let chat;
 
-    if (_id) {
-      // Update existing chat
+    if (token) {
+      // Continue an existing chat, addressed by its token (see ChatModel.js).
       chat = await Chat.findOneAndUpdate(
-        { _id },
+        { token },
         { messages: combineMessages },
         { new: true }
       );
@@ -189,8 +182,9 @@ const createChat = async (req, res) => {
         return res.end();
       }
     } else {
-      // Create new chat
-      chat = await Chat.create({ messages: combineMessages, user_id: "blank" });
+      // Create new chat. No user_id: chat is anonymous by constraint (ADR
+      // 0002), and `token` gets its high-entropy default from the schema.
+      chat = await Chat.create({ messages: combineMessages });
     }
 
     writeEvent(res, { type: "done", chat });
@@ -203,15 +197,11 @@ const createChat = async (req, res) => {
 };
 
 
-//delete a workout
+//delete a chat, addressed by its token
 const deleteChat = async (req, res) => {
   const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ error: "No such chat" });
-  }
-
-  const chat = await Chat.findOneAndDelete({ _id: id });
+  const chat = await Chat.findOneAndDelete({ token: id });
 
   if (!chat) {
     return res.status(404).json({ error: "No such chat" });
@@ -220,13 +210,9 @@ const deleteChat = async (req, res) => {
   res.status(200).json(chat);
 };
 
-//update a chat
+//update a chat, addressed by its token
 const updateChat = async (req, res) => {
   const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ error: "No such chat" });
-  }
 
   // Same message-array cap as createChat — this path also calls Anthropic.
   if (
@@ -253,7 +239,7 @@ const updateChat = async (req, res) => {
   }
 
   const chat = await Chat.findOneAndUpdate(
-    { _id: id },
+    { token: id },
     { messages: [...req.body.messages, claudeResponse] },
     { new: true }
   );
@@ -325,7 +311,6 @@ function cleanObjects(objects, variablesToKeep) {
 
 module.exports = {
   getChat,
-  getChats,
   createChat,
   deleteChat,
   updateChat,
