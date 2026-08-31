@@ -611,6 +611,14 @@
       "likelihood": "high",
       "mitigation": "RESOLVED 2026-09-01: the limiter is backed by MongoDB with a TTL index, and fails closed with 503 if the store is unreachable. Guarded by a restart-simulation test. The global token ceiling always was persistent, so worst-case spend was never affected.",
       "scenario": "s1"
+    },
+    {
+      "id": "r14",
+      "text": "The chat page's warming indicator polled /health, and ad- or privacy-blocker extensions ship filter rules matching paths containing 'health'. The request was blocked inside the browser before being sent (~2ms failure), so affected visitors saw the chat stuck Offline while the API was healthy. Confirmed by probing from the live page: /health and /healthz blocked; /healt, /status, /api/chat and / on the same host all succeeded.",
+      "severity": "medium",
+      "likelihood": "medium",
+      "mitigation": "RESOLVED 2026-09-01: the browser-facing probe moved to GET /api/status, sharing the same handler. /health is retained for Render's server-side healthcheck, where extensions are irrelevant. General lesson: browser-initiated requests should avoid conventional blocklist-magnet paths.",
+      "scenario": "s2"
     }
   ],
   "fitnessFunctions": [

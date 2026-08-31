@@ -7,6 +7,12 @@
   },
   {
     "method": "GET",
+    "path": "/api/status",
+    "exposure": "public",
+    "notes": "Browser-facing liveness probe for the chat page's warming indicator. Same handler as /health, different path because blocker extensions filter */health*."
+  },
+  {
+    "method": "GET",
     "path": "/api/chat/:id",
     "exposure": "public",
     "notes": "Anonymous by design (ADR 0002). No list-all-chats route exists -- there is no ownership model to list against. :id is a per-conversation high-entropy token (see backend/models/ChatModel.js), not the Mongo ObjectId, so a transcript cannot be reached by guessing/enumerating ids."

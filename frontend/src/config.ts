@@ -28,8 +28,16 @@ export const API_BASE_URL = (rawApiBaseUrl ?? "").replace(/\/+$/, "");
 /** False when no API URL was configured at build time. */
 export const isApiConfigured = Boolean(rawApiBaseUrl);
 
-/** Infrastructure healthcheck, used by the chat page's warming indicator. */
-export const HEALTH_URL = `${API_BASE_URL}/health`;
+/**
+ * Liveness probe for the chat page's warming indicator.
+ *
+ * Deliberately /api/status and NOT /health: ad- and privacy-blocker
+ * extensions ship filter rules matching any path containing "health", which
+ * block the request in the browser before it is sent. A visitor running one
+ * would see the chat stuck "Offline" forever while the API was perfectly
+ * healthy. /health still exists for Render's own server-side healthcheck.
+ */
+export const HEALTH_URL = `${API_BASE_URL}/api/status`;
 
 /** Base URL for the chat API. The only API surface the SPA calls. */
 export const CHAT_API_BASE_URL = `${API_BASE_URL}/api/chat`;

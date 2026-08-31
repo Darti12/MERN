@@ -33,12 +33,25 @@ app.use((req, res, next) => {
 // and for uptime checks that want to distinguish the two.
 const DB_STATES = ["disconnected", "connected", "connecting", "disconnecting"];
 
-app.get("/health", (req, res) => {
+function livenessHandler(req, res) {
   res.status(200).json({
     status: "ok",
     db: DB_STATES[mongoose.connection.readyState] ?? "unknown",
   });
-});
+}
+
+// Render's healthCheckPath. Polled server-to-server, so browser extensions
+// are irrelevant here and this path can stay conventional.
+app.get("/health", livenessHandler);
+
+// The SAME check, for the browser. The chat page polls this to decide whether
+// to show its warming indicator, and it deliberately does NOT live at
+// /health: ad- and privacy-blocker extensions ship filter rules matching
+// */health*, which block the request before it leaves the browser (observed:
+// /health and /healthz fail in ~2ms while /healt and /status on the same host
+// succeed). A visitor running one of those would see the chat stuck
+// "Offline" forever even though the API is healthy.
+app.get("/api/status", livenessHandler);
 
 // There is deliberately no app-wide `express.json()`. /api/chat applies its
 // own bounded size cap as the first link of the abuse guard (see
@@ -56,7 +69,10 @@ app.get("/health", (req, res) => {
 // also be declared in routeAllowlist.json or f3 fails the build — that is the
 // point of the check (see risk r9 in model.json).
 const routeManifest = {
-  standalone: [{ method: "GET", path: "/health" }],
+  standalone: [
+    { method: "GET", path: "/health" },
+    { method: "GET", path: "/api/status" },
+  ],
   mounts: [{ prefix: "/api/chat", router: chatRoutes }],
 };
 

@@ -18,7 +18,7 @@ const MAX_MESSAGES = Number(process.env.CHAT_MAX_MESSAGES) || 40;
 // this as an open question, so default to the best-quality option here.
 // claude-haiku-4-5 is the documented, materially cheaper alternative if the
 // maintainer decides cost should win for these short biographical answers.
-const MODEL = "claude-opus-5";
+const MODEL = "claude-sonnet-5";
 
 const SYSTEM_PROMPT = `
 You are a chatbot on Filip Hagen's website (www.filiphagen.com). You are helpful and answer questions about Filip Hagen.
