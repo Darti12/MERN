@@ -31,7 +31,7 @@ const Contact = () => {
   return (
     <Container maxWidth="md">
       <PageHeader />
-      <Stack spacing={2} alignItems="stretch" sx={{ maxWidth: "400px", margin: "0 auto" }}>
+      <Stack spacing={2} sx={{ alignItems: "stretch", maxWidth: "400px", margin: "0 auto" }}>
         {contactItems.map((item, index) => (
           <Button
             key={index}

@@ -67,7 +67,7 @@ async function recordTokenUsage(tokens) {
   await Usage.findOneAndUpdate(
     { date },
     { $inc: { tokensUsed: tokens } },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 }
 

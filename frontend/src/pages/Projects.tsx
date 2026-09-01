@@ -61,7 +61,7 @@ const Projects = () => {
   return (
     <Container maxWidth="md">
       <PageHeader />
-      <Stack spacing={4} alignItems="center">
+      <Stack spacing={4} sx={{ alignItems: "center" }}>
         {projects.map((item, index) => {
           try {
             return <ProjectCard project={item} key={index} />;

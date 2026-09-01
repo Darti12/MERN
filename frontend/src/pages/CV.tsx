@@ -101,8 +101,7 @@ const CV = () => {
       duration.months = (duration.months ?? 0) + 1;
     }
 
-    const formatOptions: Intl.RelativeTimeFormatUnit[] = ['years', 'months'];
-    const formatted = formatDuration(duration, { format: formatOptions });
+    const formatted = formatDuration(duration, { format: ['years', 'months'] });
 
     if (duration.years === 0 && duration.months === 0) {
       return t('cv.lessThanAMonth');
@@ -227,7 +226,7 @@ const CV = () => {
         </SectionHeader>
         <Grid container spacing={2}>
           {certifications.map((cert, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                 <CertificationCard elevation={3}>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>

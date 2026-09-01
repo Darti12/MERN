@@ -17,9 +17,13 @@ const PageHeader = (props: PageHeaderProps) => {
     <div style={{ display: "flex", flexWrap: "wrap" }}>
       <Typography
         variant={"h2"}
-        fontStyle={"bold"}
-        fontFamily={""}
-        sx={{ marginLeft: "auto", marginRight: "auto", marginBottom: "50px" }}
+        sx={{
+          fontStyle: "bold",
+          fontFamily: "",
+          marginLeft: "auto",
+          marginRight: "auto",
+          marginBottom: "50px",
+        }}
       >
           {props?.overrideHeader &&
               (
