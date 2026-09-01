@@ -33,7 +33,7 @@ const About = () => {
           }}
         />
         <div style={{ width: "20em" }}>
-          <Typography variant={"h5"} fontStyle={"bold"}>
+          <Typography variant={"h5"} sx={{ fontWeight: "bold" }}>
             {t("about.header1")}
           </Typography>
           <Typography sx={{ marginTop: "1em", marginBottom: "1em" }}>

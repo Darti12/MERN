@@ -32,7 +32,7 @@ const ProjectCardDetails = (props: ProjectCardDetailsProps) => {
         <>
             <CardContent>
                     {getTranslatedTextList(props.project).map((text: string, index: number) => (
-                        <Typography paragraph key={index}>
+                        <Typography component="p" sx={{ marginBottom: "16px" }} key={index}>
                             {text}
                         </Typography>
                     ))}

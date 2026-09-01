@@ -197,7 +197,7 @@ const createChat = async (req, res) => {
       chat = await Chat.findOneAndUpdate(
         { token },
         { messages: combineMessages },
-        { new: true }
+        { returnDocument: "after" }
       );
       if (!chat) {
         writeEvent(res, { type: "error", error: "No such chat" });
@@ -263,7 +263,7 @@ const updateChat = async (req, res) => {
   const chat = await Chat.findOneAndUpdate(
     { token: id },
     { messages: [...req.body.messages, claudeResponse] },
-    { new: true }
+    { returnDocument: "after" }
   );
 
   if (!chat) {

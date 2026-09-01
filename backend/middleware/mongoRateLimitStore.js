@@ -31,7 +31,7 @@ class MongoRateLimitStore {
           expiresAt: new Date(now.getTime() + this.windowMs),
         },
       },
-      { new: true, upsert: true }
+      { returnDocument: "after", upsert: true }
     );
 
     return { totalHits: doc.hits, resetTime: doc.expiresAt };

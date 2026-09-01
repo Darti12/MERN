@@ -170,7 +170,7 @@ const Chat = () => {
                     {sendError}
                 </Alert>
             )}
-            <Stack spacing={2} alignItems="stretch" marginTop={2}>
+            <Stack spacing={2} sx={{ alignItems: "stretch", marginTop: 2 }}>
                 {messages.map((item, index) => (
                     <ChatBubble
                         key={index}
