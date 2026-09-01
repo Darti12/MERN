@@ -186,7 +186,21 @@ const CV = () => {
                   {getCompanyDuration(companyExperience)}
                 </Typography>
                 <Timeline position={"right"} sx={{
-                  [`& .${timelineItemClasses.root}:before`]: {
+                  // Each item gets a ::before spacer that flexes to fill the
+                  // space a TimelineOppositeContent would take, which centres
+                  // the timeline in the card. There is no opposite content
+                  // here, so it is collapsed to keep the items left-aligned.
+                  //
+                  // The doubled `&` is a specificity bump, not a typo. @mui/lab
+                  // 9 guards that spacer with
+                  // `&:not(:has(.MuiTimelineOppositeContent-root))::before`,
+                  // and the :has() argument counts toward specificity, so the
+                  // library rule and a single-`&` override both land on (0,2,0).
+                  // Timeline's sx is injected before its children's styles, so
+                  // that tie breaks on source order in the library's favour --
+                  // it rendered a 388px gap. Lab 6 used a plain `&::before` at
+                  // (0,1,0), which is why this only needed one `&` before.
+                  [`&& .${timelineItemClasses.root}::before`]: {
                     flex: 0,
                     padding: 0,
                   },
