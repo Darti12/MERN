@@ -18,7 +18,7 @@ const PageHeader = (props: PageHeaderProps) => {
       <Typography
         variant={"h2"}
         sx={{
-          fontStyle: "bold",
+          fontWeight: "bold",
           fontFamily: "",
           marginLeft: "auto",
           marginRight: "auto",
