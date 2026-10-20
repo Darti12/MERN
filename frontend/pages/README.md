@@ -23,6 +23,7 @@ index at `/pages/`. Render deploys `main`, so a page goes live when it lands the
    ```
 4. Build and check from the repo root (the same as CI):
    ```sh
+   npm ci --prefix frontend     # once, for the portfolio's own dependencies
    npm run build-frontend
    node scripts/check-frontend-secrets.js
    node scripts/check-bundle-size.js
