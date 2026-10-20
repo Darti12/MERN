@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!-- The index at /pages/ (ADR 0006). frontend/scripts/build-pages.mjs fills in
+     the list from pages.json, newest first. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content="Pages Filip Hagen has made"/>
+  <link rel="icon" href="/champurrado.png"/>
+  <title>Pages · Filip Hagen</title>
+  <style>
+    :root { --bg: #EDE7DE; --fg: #025A4E; --muted: rgba(2, 90, 78, 0.7); --accent: #B28704;
+      --line: rgba(2, 90, 78, 0.2); color-scheme: light; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #233831; --fg: #8FDCC2; --muted: rgba(143, 220, 194, 0.7); --accent: #FFC107;
+        --line: rgba(143, 220, 194, 0.25); color-scheme: dark; }
+    }
+    body { margin: 0; background: var(--bg); color: var(--fg);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+    h1 { font-size: 2rem; margin: 0 0 24px; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    li { padding: 16px 0; border-bottom: 1px solid var(--line); }
+    li a { color: inherit; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+    li a:hover, li a:focus-visible { color: var(--accent); }
+    li p { margin: 4px 0; }
+    time { color: var(--muted); font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pages</h1>
+    __PAGES__
+  </main>
+</body>
+</html>

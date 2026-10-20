@@ -140,6 +140,9 @@
       }
     }
   },
+  "pages": {
+    "header": "Pages"
+  },
   "footer": {
     "header": "My Homepage",
     "rights": "All Rights Reserved."

@@ -26,6 +26,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { NavigationData } from "../App";
 
+// The translation key for a nav path: "/cv" -> "cv", "/pages/" -> "pages".
+const navKey = (path: string) => path.replace(/\//g, "");
+
 interface NavbarProps {
   navBarData: NavigationData[];
   darkEnabled: boolean;
@@ -59,9 +62,13 @@ const Navbar = (props: NavbarProps) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleNavigate = (url: string) => {
+  const handleNavigate = (item: NavigationData) => {
     handleClose();
-    navigate(`${url}`);
+    if (item.external) {
+      window.location.assign(item.path);
+    } else {
+      navigate(item.path);
+    }
   };
 
   return (
@@ -92,6 +99,7 @@ const Navbar = (props: NavbarProps) => {
                     <Link
                         key={index}
                       to={props.navBarData[index].path}
+                      reloadDocument={props.navBarData[index].external}
                       style={{
                         textDecoration: "none",
                         color: theme.palette.text.primary,
@@ -107,11 +115,7 @@ const Navbar = (props: NavbarProps) => {
                         key={index}
                       >
                         <b>
-                          {t(
-                            `${props.navBarData[index].path.substring(
-                              1,
-                            )}.header`,
-                          )}
+                          {t(`${navKey(props.navBarData[index].path)}.header`)}
                         </b>
                       </Typography>
                     </Link>
@@ -165,13 +169,11 @@ const Navbar = (props: NavbarProps) => {
                 return (
                   <ListItem disablePadding divider key={index}>
                     <ListItemButton
-                      onClick={() =>
-                        handleNavigate(props.navBarData[index].path)
-                      }
+                      onClick={() => handleNavigate(props.navBarData[index])}
                     >
                       <ListItemText
                         primary={t(
-                          `${props.navBarData[index].path.substring(1)}.header`,
+                          `${navKey(props.navBarData[index].path)}.header`,
                         )}
                       />
                     </ListItemButton>

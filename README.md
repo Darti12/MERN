@@ -23,8 +23,13 @@ files and never waits on a sleeping backend. Only the chat page talks to the
 API. This is enforced, not just intended: a CI check fails the build if any
 non-chat route reaches the API.
 
+Standalone pages (made by Robin, Filip's agent) live at `/pages/<name>/`.
+Each is its own app built from `frontend/pages/`, separate from the portfolio
+and from each other ([ADR 0006](docs/architecture/adr/0006-standalone-pages.md),
+[`frontend/pages/README.md`](frontend/pages/README.md)).
+
 Full reasoning is in [`docs/architecture/`](docs/architecture/README.md) —
-arc42 document, five ADRs, and `model.json` as the source of truth.
+arc42 document, six ADRs, and `model.json` as the source of truth.
 
 ## Running locally
 
