@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <!-- The index at /pages/ (ADR 0006). frontend/scripts/build-pages.mjs fills in
-     the list from pages.json, newest first. -->
+     the list from pages.json, newest first. Below it, a frame from Robin lists Filip's
+     private pages while he is signed in to Robin, and is empty (height 0) for anyone else.
+     The list is drawn inside the frame, so no script on this site can read it; Robin only
+     tells this page the frame's height. -->
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -25,12 +28,24 @@
     li a:hover, li a:focus-visible { color: var(--accent); }
     li p { margin: 4px 0; }
     time { color: var(--muted); font-size: 0.875rem; }
+    #private-pages { display: block; width: 100%; height: 0; border: 0; }
   </style>
 </head>
 <body>
   <main>
     <h1>Pages</h1>
     __PAGES__
+    <iframe id="private-pages" title="Private pages"
+      src="https://robin.filiphagen.com/pages/_embed?color=025A4E&amp;dark=8FDCC2"></iframe>
   </main>
+  <script>
+    const frame = document.getElementById("private-pages");
+    addEventListener("message", (event) => {
+      const height = event.data && event.data.robinPagesHeight;
+      if (event.origin === new URL(frame.src).origin && typeof height === "number") {
+        frame.style.height = `${height}px`;
+      }
+    });
+  </script>
 </body>
 </html>

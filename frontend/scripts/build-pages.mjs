@@ -127,7 +127,7 @@ function writeIndex(list) {
         <p>${escapeHtml(page.description)}</p>
         <time datetime="${page.made}">${page.made}</time>
       </li>`);
-  const body = items.length ? `<ul>\n${items.join("\n")}\n    </ul>` : "<p>No pages yet.</p>";
+  const body = items.length ? `<ul>\n${items.join("\n")}\n    </ul>` : "<p>No public pages yet.</p>";
   const template = fs.readFileSync(path.join(SHARED_DIR, "index.html"), "utf8");
   fs.writeFileSync(path.join(OUT_DIR, "index.html"), fill(template, "_shared/index.html", body));
 }
