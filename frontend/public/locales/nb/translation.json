@@ -144,6 +144,9 @@
       }
     }
   },
+  "pages": {
+    "header": "Sider"
+  },
   "footer": {
     "header": "My Homepage",
     "rights": "Alle rettigheter forbeholdt."

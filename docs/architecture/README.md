@@ -129,6 +129,7 @@ breaks an architectural invariant fails before merge. f5 detects rot; Dependabot
 | [0003](adr/0003-vite-over-cra.md) | Use Vite in place of Create React App |
 | [0004](adr/0004-anthropic-sdk.md) | Use the Anthropic SDK in place of hand-rolled HTTP calls |
 | [0005](adr/0005-remove-private-app.md) | Remove the workouts and admin application from the codebase |
+| [0006](adr/0006-standalone-pages.md) | Serve standalone pages under /pages/, each built as its own app |
 
 ## 10. Quality requirements
 
@@ -183,6 +184,7 @@ design property.
 | f3 | security | Every mounted Express route appears on an explicit public/private allowlist. A new route fails the build until someone declares its exposure |
 | f4 | responsiveness | Bundle stays under a gzip ceiling; no route other than `/chat` issues an API request |
 | f5 | maintainability | Clean install from lockfile + build + test on every push; `npm audit` gates at high severity |
+| f6 | security, responsiveness | The standalone pages under `/pages/` (ADR 0006) contain no reference to the API: its host, `/api/chat`, or the dev API |
 
 f3 exists because this entire design run traces back to two lines that got commented out and
 nothing noticed.

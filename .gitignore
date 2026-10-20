@@ -25,3 +25,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 project_contents.txt
+# Build output of the standalone pages (ADR 0006); the site build makes it.
+frontend/pages/*/dist

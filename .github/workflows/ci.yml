@@ -66,6 +66,14 @@ jobs:
       - name: Check portfolio routes never call the API (fitness function f4)
         run: node scripts/check-portfolio-api-independence.js
 
+      # Fitness function f6 (docs/architecture/README.md, section 11; ADR
+      # 0006): the standalone pages under /pages/ never address the API.
+      # f4's import walk only covers the portfolio's routes; pages are
+      # separate apps built from frontend/pages/, so this scans their built
+      # output instead. Must run after the build step above.
+      - name: Check pages under /pages/ never call the API (fitness function f6)
+        run: node scripts/check-pages-static.js
+
       # Runs the full backend test suite, which includes:
       #   - backend/tests/security/chatGuard.rateLimit.test.js and
       #     chatGuard.tokenCeiling.test.js (fitness function f1): assert the
@@ -103,3 +111,9 @@ jobs:
           (cd frontend && npm audit --audit-level=high)
           echo "Auditing backend dependencies"
           (cd backend && npm audit --audit-level=high)
+          # Each page under frontend/pages/ has its own dependency tree (ADR 0006).
+          for lock in frontend/pages/*/package-lock.json; do
+            [ -e "$lock" ] || continue
+            echo "Auditing $(dirname "$lock") dependencies"
+            (cd "$(dirname "$lock")" && npm audit --audit-level=high)
+          done

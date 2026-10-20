@@ -8,6 +8,12 @@ import react from "@vitejs/plugin-react";
 // only configures a bundler, never a server runtime.
 export default defineConfig({
   plugins: [react()],
+  // Only the portfolio's own entry. Vite otherwise scans every *.html under
+  // frontend/, which includes the pages in frontend/pages/ -- separate apps
+  // with their own dependencies, built by scripts/build-pages.mjs (ADR 0006).
+  optimizeDeps: {
+    entries: ["index.html"],
+  },
   build: {
     // render.yaml (task `static`) declares staticPublishPath: frontend/build.
     // Keep this in sync with that value rather than Vite's "dist" default,

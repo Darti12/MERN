@@ -19,6 +19,9 @@ import Footer from "./components/Footer";
 import Chat from "./pages/Chat";
 import ScrollToTop from "./components/ScrollToTop";
 import PointCloud from "./components/PointCloud";
+import PagesFallback from "./components/PagesFallback";
+// The standalone pages under /pages/ (ADR 0006); the nav links to them once there are any.
+import pageList from "../pages/pages.json";
 
 const lightTheme = createTheme({
   palette: {
@@ -50,6 +53,8 @@ const darkTheme = createTheme({
 export interface NavigationData {
   path: string;
   name: string;
+  // Outside the portfolio's router: a full page load (the pages under /pages/).
+  external?: boolean;
 }
 
 const App = () => {
@@ -60,7 +65,8 @@ const App = () => {
     { name: "Projects", path: "/projects" },
     { name: "Contact", path: "/contact" },
     { name: "CV", path: "/cv" },
-    { name: "Chat", path: "/chat"}
+    { name: "Chat", path: "/chat"},
+    ...(pageList.length > 0 ? [{ name: "Pages", path: "/pages/", external: true }] : []),
   ];
 
   const toggleDarkMode = () => {
@@ -111,6 +117,8 @@ const App = () => {
 
                 <Route path={"chat"} element={<Chat />} />
                 <Route path={"chat/:id"} element={<Chat />} />
+
+                <Route path={"pages/*"} element={<PagesFallback />} />
               </Routes>
             </Container>
             <Footer darkEnabled={!light} />

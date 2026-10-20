@@ -505,6 +505,17 @@
         "maintainability",
         "security"
       ]
+    },
+    {
+      "id": "0006",
+      "title": "Serve standalone pages under /pages/, each built as its own app",
+      "status": "accepted",
+      "file": "adr/0006-standalone-pages.md",
+      "drivers": [
+        "isolation",
+        "responsiveness",
+        "security"
+      ]
     }
   ],
   "risks": [
@@ -674,6 +685,12 @@
       "id": "f5",
       "protects": "maintainability",
       "check": "A clean install from lockfile plus build plus test runs in CI on every push, and npm audit gates at high severity. Catches toolchain rot at the moment it appears rather than three months later.",
+      "mechanism": "ci"
+    },
+    {
+      "id": "f6",
+      "protects": "security",
+      "check": "The standalone pages built from frontend/pages/ (ADR 0006) contain no reference to the API: its Render host, /api/chat, the local dev API or VITE_API_URL. f4's import walk covers only the portfolio's routes, so pages are scanned in their built output instead.",
       "mechanism": "ci"
     }
   ],
