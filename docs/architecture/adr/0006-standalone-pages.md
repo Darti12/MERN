@@ -49,3 +49,12 @@ is a full page load.
 **Rules this adds** (frontend/pages/README.md): relative asset paths only; no client-side
 routes in the URL path (Render's SPA rewrite would hand them to the portfolio; use hash
 routing); no API calls (fitness function f6); no secrets, since the repository is public.
+
+## Amendment — 2026-10-20: private pages in the overview
+
+Private pages are served by Robin, behind its login, never from this repository (it is
+public). The index at `/pages/` frames Robin's `/pages/_embed`, which lists them only while
+Filip is signed in to Robin and is empty for anyone else. The two hosts share the site
+filiphagen.com, so the browser sends Robin's login cookie to the frame. The list is drawn
+inside the frame, so no script on this site (agent-made pages included) can read it; Robin
+only posts the frame's height, and allows only this site to frame it (`frame-ancestors`).
