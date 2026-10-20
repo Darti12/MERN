@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daylight in Oslo</title>
+    <meta name="description" content="Sunrise, sunset and day length in Oslo through the year, as an interactive chart." />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Daylight in Oslo</h1>
+        <p class="subtitle">Sunrise, sunset and day length, every day of 2026</p>
+      </header>
+
+      <section class="summary" id="summary" aria-live="polite"></section>
+
+      <section class="chart-wrap">
+        <canvas id="chart" role="img" aria-label="Chart of sunrise and sunset time in Oslo through the year"></canvas>
+      </section>
+
+      <section class="slider-wrap">
+        <input type="range" id="day-slider" min="0" max="364" value="291" step="1" aria-label="Day of the year" />
+        <div class="slider-labels">
+          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+          <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          Sunrise and sunset times computed with
+          <a href="https://github.com/mourner/suncalc" target="_blank" rel="noopener">SunCalc</a>
+          (standard solar position formulas) for 59.9139°N, 10.7522°E, in Europe/Oslo local time
+          (so the clock jumps an hour at the spring and autumn DST change).
+        </p>
+      </footer>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

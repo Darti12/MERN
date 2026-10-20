@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "name": "oslo-daylight",
+    "title": "Daylight in Oslo",
+    "description": "Sunrise, sunset and day length in Oslo for every day of the year, as an interactive chart.",
+    "made": "2026-10-20"
+  }
+]
