@@ -66,12 +66,15 @@
     }
   }
 
-  // Full width even when the page keeps the body's default margin: pull out
-  // over the margin, and give the top margin back below the bar.
+  // Full width and at the very top even when the page gives the body margin or
+  // padding: pull out over both, and give the top space back below the bar.
   function insert() {
     const bar = document.createElement(TAG);
     const body = getComputedStyle(document.body);
-    bar.style.margin = `-${body.marginTop} -${body.marginRight} ${body.marginTop} -${body.marginLeft}`;
+    const edge = (side) =>
+      parseFloat(body[`margin${side}`]) + parseFloat(body[`padding${side}`]);
+    const top = edge("Top");
+    bar.style.margin = `-${top}px -${edge("Right")}px ${top}px -${edge("Left")}px`;
     document.body.prepend(bar);
   }
 
