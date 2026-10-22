@@ -14,7 +14,9 @@ beforeAll(async () => {
   process.env.MONGO_URI = uri;
   
   // Connect to the in-memory database
-  await mongoose.connect(uri);
+  // MongoDB driver 7.6+ loads its os adapter with a dynamic import(), which
+  // Jest's VM sandbox rejects; hand it Node's os module directly instead.
+  await mongoose.connect(uri, { runtimeAdapters: { os: require('os') } });
 });
 
 // Clear all collections after each test
